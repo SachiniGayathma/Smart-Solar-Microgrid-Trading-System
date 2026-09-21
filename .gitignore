@@ -53,3 +53,4 @@ capture/
 # Secrets (keep local connection overrides out of git if added later)
 appsettings.Local.json
 *.pfx
+ngrok.yml

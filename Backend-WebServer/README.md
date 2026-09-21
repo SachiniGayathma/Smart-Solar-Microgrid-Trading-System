@@ -4,8 +4,6 @@ C# ASP.NET Core Web API for the SE4040 Smart Solar Microgrid Trading System.
 
 This service is the **FAT service**: all business rules live here. The web app and native Android app are UI only and must call these REST endpoints. They must not talk to MongoDB directly.
 
-**Local base URL:** `http://localhost:5192`
-
 Open the project: `Backend-WebServer/SmartSolarMicrogrid.API/SmartSolarMicrogrid.API.slnx`
 
 ---
@@ -111,8 +109,6 @@ Staff creating a booking must send `prosumerNic`. A logged-in prosumer **omits**
 Public (no token): `POST /api/auth/login`, `POST /api/auth/register`, `GET /api/health`.
 
 Everything else: **Authorization → Bearer Token** (paste the token only, no `Bearer ` prefix).
-
-Use `http://localhost:5192` (not HTTPS) while developing.
 
 ---
 
@@ -272,12 +268,3 @@ Run **MongoDB Server** on `localhost:27017` before starting the API. Compass: `m
 
 ---
 
-## Run locally
-
-1. Start Windows service **MongoDB**.
-2. Open `SmartSolarMicrogrid.API.slnx` in Visual Studio.
-3. Start with **▶** (`http` profile).
-4. `GET http://localhost:5192/api/health`
-5. Login as the seeded Backoffice user.
-
-For the viva, publish this same API to **IIS** so both clients use one hosted URL.
