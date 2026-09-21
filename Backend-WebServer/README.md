@@ -250,8 +250,6 @@ Database name (see `appsettings.json`): `SmartSolarMicrogridDB`
 | `EnergyBookingSlots` | Bookable windows |
 | `EnergyReservations` | Bookings + QR |
 
-Run **MongoDB Server** on `localhost:27017` before starting the API. Compass: `mongodb://localhost:27017`.
-
 ---
 
 ## Typical HTTP codes
