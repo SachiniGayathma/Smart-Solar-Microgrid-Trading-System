@@ -80,10 +80,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowClients");
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
+// Stay on HTTP for Visual Studio and IIS LAN hosting. HTTPS redirect
+// would drop Authorization headers on the 307 that IIS clients follow.
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
