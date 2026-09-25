@@ -11,8 +11,17 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
 
-    // Default emulator loopback to host machine IIS/Kestrel backend
-    private var baseUrl: String = "http://10.0.2.2:5000/api/"
+    /**
+     * Shared Web API endpoint hosted on IIS via public tunnel for mobile app integration.
+     */
+    const val LIVE_SERVER_URL = "https://produce-dexterity-harmonica.ngrok-free.dev/api/"
+
+    /**
+     * Loopback address for Android emulator when backend runs on the host machine.
+     */
+    const val LOCAL_EMULATOR_URL = "http://10.0.2.2:5000/api/"
+
+    private var baseUrl: String = LIVE_SERVER_URL
 
     private var authToken: String? = null
 
@@ -42,10 +51,12 @@ object ApiClient {
                 .readTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(loggingInterceptor)
 
-            // Attach bearer token header if present
+            // Attach bearer token header and ngrok bypass header
             builder.addInterceptor { chain ->
                 val original = chain.request()
                 val requestBuilder = original.newBuilder()
+                    .header("ngrok-skip-browser-warning", "true")
+
                 authToken?.let { token ->
                     requestBuilder.header("Authorization", "Bearer $token")
                 }
@@ -75,5 +86,9 @@ object ApiClient {
 
     val userApi: UserApi by lazy {
         retrofit.create(UserApi::class.java)
+    }
+
+    val stationApi: StationApi by lazy {
+        retrofit.create(StationApi::class.java)
     }
 }
