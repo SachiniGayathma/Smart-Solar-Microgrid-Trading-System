@@ -111,6 +111,33 @@ class ReservationDao(private val dbHelper: DatabaseHelper) {
     }
 
     /**
+     * Alias for getReservationsByProsumer for convenience.
+     */
+    fun getReservationsByNic(nic: String): List<Reservation> = getReservationsByProsumer(nic)
+
+    /**
+     * Retrieves all cached reservations across all users.
+     */
+    fun getAllReservations(): List<Reservation> {
+        val db: SQLiteDatabase = dbHelper.readableDatabase
+        val list = mutableListOf<Reservation>()
+        val cursor: Cursor = db.query(
+            DatabaseHelper.TABLE_RESERVATIONS,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "${DatabaseHelper.COL_RES_SCHEDULED_AT} DESC"
+        )
+        while (cursor.moveToNext()) {
+            list.add(extractReservationFromCursor(cursor))
+        }
+        cursor.close()
+        return list
+    }
+
+    /**
      * Retrieves reservations filtered by one or more lifecycle statuses (e.g. listOf("Pending", "Approved")).
      */
     fun getReservationsByStatus(nic: String, statuses: List<String>): List<Reservation> {
