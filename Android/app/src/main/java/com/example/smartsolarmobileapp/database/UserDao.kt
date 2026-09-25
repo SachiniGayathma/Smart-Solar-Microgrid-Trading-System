@@ -71,6 +71,25 @@ class UserDao(private val dbHelper: DatabaseHelper) {
     }
 
     /**
+     * Looks up a user in local SQLite storage by either NIC or Email address.
+     *
+     * @param identifier NIC or Email address used during authentication.
+     * @return User instance if found, or null if no matching record exists.
+     */
+    fun getUserByNicOrEmail(identifier: String): User? {
+        val db: SQLiteDatabase = dbHelper.readableDatabase
+        val query = "SELECT * FROM ${DatabaseHelper.TABLE_USERS} WHERE ${DatabaseHelper.COL_USER_NIC} = ? OR ${DatabaseHelper.COL_USER_EMAIL} = ? LIMIT 1"
+        val cursor: Cursor = db.rawQuery(query, arrayOf(identifier, identifier))
+
+        var user: User? = null
+        if (cursor.moveToFirst()) {
+            user = extractUserFromCursor(cursor)
+        }
+        cursor.close()
+        return user
+    }
+
+    /**
      * Retrieves the JWT bearer token for the currently active prosumer.
      *
      * @return Auth token string or null if none stored.
