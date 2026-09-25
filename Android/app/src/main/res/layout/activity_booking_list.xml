@@ -5,8 +5,11 @@
     android:id="@+id/layout_booking_list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F7FA"
-    android:padding="16dp"
+    android:fitsSystemWindows="true"
+    android:background="@color/solar_bg"
+    android:paddingHorizontal="16dp"
+    android:paddingTop="20dp"
+    android:paddingBottom="16dp"
     tools:context=".prosumer.BookingListActivity">
 
     <!-- Search Input for Filter by Station Name or ID -->
@@ -16,10 +19,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Search by station or ID..."
-        app:boxCornerRadiusBottomEnd="8dp"
-        app:boxCornerRadiusBottomStart="8dp"
-        app:boxCornerRadiusTopEnd="8dp"
-        app:boxCornerRadiusTopStart="8dp"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxStrokeColor="@color/solar_green_primary"
+        app:hintTextColor="@color/solar_green_primary"
+        app:startIconDrawable="@drawable/ic_station"
+        app:startIconTint="@color/solar_slate_muted"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -38,7 +45,7 @@
         android:id="@+id/chip_group_filter"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/til_search_bookings"
@@ -51,21 +58,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="All" />
+            android:text="All"
+            app:chipCornerRadius="16dp" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_active"
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Active / Pending" />
+            android:text="Active / Pending"
+            app:chipCornerRadius="16dp" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_history"
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="History" />
+            android:text="History"
+            app:chipCornerRadius="16dp" />
     </com.google.android.material.chip.ChipGroup>
 
     <!-- Progress Indicator -->
@@ -73,6 +83,7 @@
         android:id="@+id/pb_bookings"
         android:layout_width="36dp"
         android:layout_height="36dp"
+        android:indeterminateTint="@color/solar_green_primary"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/rv_bookings"
         app:layout_constraintEnd_toEndOf="parent"
@@ -85,7 +96,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="No reservations found."
-        android:textColor="#888888"
+        android:textColor="@color/solar_slate_muted"
         android:textSize="15sp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/rv_bookings"

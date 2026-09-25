@@ -5,45 +5,68 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
+    android:fitsSystemWindows="true"
+    android:background="@color/solar_bg"
     tools:context=".prosumer.ProsumerDashboardActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_dashboard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20dp">
+        android:paddingHorizontal="20dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="36dp">
 
-        <TextView
-            android:id="@+id/tv_dashboard_welcome"
+        <!-- Top Header: User Greeting & Profile Action -->
+        <LinearLayout
+            android:id="@+id/layout_dashboard_header"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Welcome, Prosumer"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/btn_dashboard_profile"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tv_dashboard_nic"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="NIC: Loading..."
-            android:textSize="14sp"
-            app:layout_constraintEnd_toStartOf="@+id/btn_dashboard_profile"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_dashboard_welcome" />
-
-        <Button
-            android:id="@+id/btn_dashboard_profile"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Profile"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_dashboard_welcome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Welcome, Prosumer"
+                    android:textColor="@color/solar_slate_dark"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_dashboard_nic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="NIC: Loading..."
+                    android:textColor="@color/solar_slate_body"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_dashboard_profile"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:text="Profile"
+                android:textAllCaps="false"
+                android:textColor="@color/solar_green_primary"
+                android:textSize="13sp"
+                app:cornerRadius="10dp"
+                app:strokeColor="@color/solar_green_primary" />
+        </LinearLayout>
+
+        <!-- Metric Summary Cards Container -->
         <LinearLayout
             android:id="@+id/layout_dashboard_metrics"
             android:layout_width="0dp"
@@ -53,16 +76,18 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_dashboard_nic">
+            app:layout_constraintTop_toBottomOf="@+id/layout_dashboard_header">
 
+            <!-- Pending Metric Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/card_metric_pending"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="3dp">
+                app:cardCornerRadius="14dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/solar_amber_container">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -75,15 +100,16 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="#E65100"
-                        android:textSize="28sp"
+                        android:textColor="@color/solar_amber_primary"
+                        android:textSize="30sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Pending Bookings"
+                        android:text="Pending Slots"
+                        android:textColor="@color/solar_slate_dark"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
@@ -92,18 +118,21 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="Awaiting activation"
+                        android:textColor="@color/solar_slate_body"
                         android:textSize="12sp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
+            <!-- Approved Metric Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/card_metric_approved"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="3dp">
+                app:cardCornerRadius="14dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/solar_green_container">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -116,8 +145,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="#2E7D32"
-                        android:textSize="28sp"
+                        android:textColor="@color/solar_green_primary"
+                        android:textSize="30sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -125,6 +154,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="Approved Future"
+                        android:textColor="@color/solar_slate_dark"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
@@ -133,18 +163,24 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="Upcoming slots"
+                        android:textColor="@color/solar_slate_body"
                         android:textSize="12sp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </LinearLayout>
 
+        <!-- Action Card: Book Energy Charging Slot -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_book_slot"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp"
+            android:layout_marginTop="20dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/solar_surface"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/layout_dashboard_metrics">
@@ -153,37 +189,66 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_station"
+                        app:tint="@color/solar_green_primary"
+                        android:contentDescription="Station Icon" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:text="Book Charging Slot"
+                        android:textColor="@color/solar_slate_dark"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Book Charging Slot"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:layout_marginTop="8dp"
+                    android:text="Select active microgrid stations and reserve 30-minute charging or discharging slots up to 7 days ahead."
+                    android:textColor="@color/solar_slate_body"
+                    android:textSize="13sp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Select active stations and reserve up to 7 days ahead" />
-
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_book_slot"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Browse Stations" />
+                    android:layout_height="48dp"
+                    android:layout_marginTop="16dp"
+                    android:text="Browse Stations"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="10dp"
+                    app:backgroundTint="@color/solar_green_primary" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <!-- Action Card: My Reservations -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_my_bookings"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/solar_surface"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/card_book_slot">
@@ -192,38 +257,68 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_calendar"
+                        app:tint="@color/solar_amber_primary"
+                        android:contentDescription="Calendar Icon" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:text="My Reservations"
+                        android:textColor="@color/solar_slate_dark"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="My Bookings"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:layout_marginTop="8dp"
+                    android:text="View active reservations, generate operator QR transaction codes, or cancel slots with 12h advance notice."
+                    android:textColor="@color/solar_slate_body"
+                    android:textSize="13sp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="View active reservations, QR codes, and booking history" />
-
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_view_bookings"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="View Bookings" />
+                    android:layout_height="48dp"
+                    android:layout_marginTop="16dp"
+                    android:text="View Bookings"
+                    android:textAllCaps="false"
+                    android:textColor="@color/solar_green_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="10dp"
+                    app:strokeColor="@color/solar_green_primary" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <Button
+        <!-- Log Out Button -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_dashboard_logout"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Log Out"
-            android:textColor="#D32F2F"
+            android:layout_marginTop="20dp"
+            android:text="Log Out of Prosumer Portal"
+            android:textAllCaps="false"
+            android:textColor="@color/solar_status_cancelled"
+            android:textSize="14sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/card_my_bookings" />
