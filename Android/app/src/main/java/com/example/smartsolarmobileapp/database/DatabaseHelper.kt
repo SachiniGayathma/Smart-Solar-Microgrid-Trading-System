@@ -1,8 +1,5 @@
 /**
- * Module: SE4040 Enterprise Application Development
- * Author: Person 3 (Solar Prosumer Android Specialist)
- * Purpose: SQLiteOpenHelper managing local SQLite database creation and schema migrations
- * Date: September 2026
+ * SQLiteOpenHelper managing local SQLite database creation and schema migrations.
  */
 package com.example.smartsolarmobileapp.database
 

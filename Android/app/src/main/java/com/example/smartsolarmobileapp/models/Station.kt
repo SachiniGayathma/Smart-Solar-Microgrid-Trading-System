@@ -1,8 +1,5 @@
 /**
- * Module: SE4040 Enterprise Application Development
- * Author: Person 3 (Solar Prosumer Android Specialist)
- * Purpose: Data model representing a Community Microgrid Battery Charging Hub
- * Date: September 2026
+ * Data model representing a Community Microgrid Battery Charging Hub.
  */
 package com.example.smartsolarmobileapp.models
 

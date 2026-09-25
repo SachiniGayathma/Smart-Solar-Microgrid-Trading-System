@@ -1,8 +1,5 @@
 /**
- * Module: SE4040 Enterprise Application Development
- * Author: Person 3 (Solar Prosumer Android Specialist)
- * Purpose: Unit tests validating NIC, email, phone, and password business constraints
- * Date: September 2026
+ * Unit tests validating NIC, email, phone, and password business constraints.
  */
 package com.example.smartsolarmobileapp
 

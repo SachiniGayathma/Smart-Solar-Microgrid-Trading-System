@@ -1,8 +1,5 @@
 /**
- * Module: SE4040 Enterprise Application Development
- * Author: Person 3 (Solar Prosumer Android Specialist)
- * Purpose: Validation utilities for Prosumer registration, NIC verification, and input constraints
- * Date: September 2026
+ * Validation utilities for Prosumer registration, NIC verification, and input constraints.
  */
 package com.example.smartsolarmobileapp.utils
 

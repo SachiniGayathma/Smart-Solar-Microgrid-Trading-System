@@ -1,8 +1,5 @@
 /**
- * Module: SE4040 Enterprise Application Development
- * Author: Person 3 (Solar Prosumer Android Specialist)
- * Purpose: Data Access Object for User entities in local SQLite database
- * Date: September 2026
+ * Data Access Object for User entities in local SQLite database.
  */
 package com.example.smartsolarmobileapp.database
 

@@ -1,8 +1,5 @@
 /**
- * Module: SE4040 Enterprise Application Development
- * Author: Person 3 (Solar Prosumer Android Specialist)
- * Purpose: Unit tests verifying domain model integrity and status lifecycle transitions
- * Date: September 2026
+ * Unit tests verifying domain model integrity and status lifecycle transitions.
  */
 package com.example.smartsolarmobileapp
 

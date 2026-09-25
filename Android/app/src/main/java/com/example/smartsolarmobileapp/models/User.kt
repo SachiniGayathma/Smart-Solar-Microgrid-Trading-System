@@ -1,8 +1,5 @@
 /**
- * Module: SE4040 Enterprise Application Development
- * Author: Person 3 (Solar Prosumer Android Specialist)
- * Purpose: Data model representing a Prosumer / System User with NIC as primary identifier
- * Date: September 2026
+ * Data model representing a Prosumer / System User with NIC as primary identifier.
  */
 package com.example.smartsolarmobileapp.models
 

@@ -1,8 +1,5 @@
 /**
- * Module: SE4040 Enterprise Application Development
- * Author: Person 3 (Solar Prosumer Android Specialist)
- * Purpose: Data model representing a 30-minute bookable time window at a solar station
- * Date: September 2026
+ * Data model representing a 30-minute bookable time window at a solar station.
  */
 package com.example.smartsolarmobileapp.models
 
