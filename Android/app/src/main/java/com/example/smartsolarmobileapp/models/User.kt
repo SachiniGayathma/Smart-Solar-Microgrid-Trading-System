@@ -23,3 +23,16 @@ data class User(
     val role: String? = "Prosumer",
     val status: String? = "Pending"
 )
+
+/**
+ * Request payload for updating prosumer profile details.
+ *
+ * @property fullName Updated full name of the prosumer
+ * @property email Updated email address
+ * @property phone Updated contact phone number
+ */
+data class UpdateProfileRequest(
+    val fullName: String,
+    val email: String,
+    val phone: String
+)
