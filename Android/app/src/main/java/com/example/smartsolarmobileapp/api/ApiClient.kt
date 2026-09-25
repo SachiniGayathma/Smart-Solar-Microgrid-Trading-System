@@ -91,4 +91,12 @@ object ApiClient {
     val stationApi: StationApi by lazy {
         retrofit.create(StationApi::class.java)
     }
+
+    val slotApi: SlotApi by lazy {
+        retrofit.create(SlotApi::class.java)
+    }
+
+    val reservationApi: ReservationApi by lazy {
+        retrofit.create(ReservationApi::class.java)
+    }
 }

@@ -5,19 +5,35 @@
     android:id="@+id/layout_booking_list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F5F7FA"
     android:padding="16dp"
     tools:context=".prosumer.BookingListActivity">
 
-    <TextView
-        android:id="@+id/tv_bookings_title"
-        android:layout_width="wrap_content"
+    <!-- Search Input for Filter by Station Name or ID -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_search_bookings"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="My Bookings"
-        android:textSize="20sp"
-        android:textStyle="bold"
+        android:hint="Search by station or ID..."
+        app:boxCornerRadiusBottomEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_search_bookings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textSize="14sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Filter Chips: All, Active/Pending, History -->
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/chip_group_filter"
         android:layout_width="0dp"
@@ -25,7 +41,8 @@
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_bookings_title"
+        app:layout_constraintTop_toBottomOf="@+id/til_search_bookings"
+        app:selectionRequired="true"
         app:singleSelection="true">
 
         <com.google.android.material.chip.Chip
@@ -51,11 +68,38 @@
             android:text="History" />
     </com.google.android.material.chip.ChipGroup>
 
+    <!-- Progress Indicator -->
+    <ProgressBar
+        android:id="@+id/pb_bookings"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/rv_bookings"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/rv_bookings" />
+
+    <!-- Empty State -->
+    <TextView
+        android:id="@+id/tv_empty_bookings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No reservations found."
+        android:textColor="#888888"
+        android:textSize="15sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/rv_bookings"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/rv_bookings" />
+
+    <!-- Bookings RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_bookings"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
