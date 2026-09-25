@@ -31,3 +31,11 @@ data class Reservation(
     val createdAt: String? = null,
     val updatedAt: String? = null
 )
+
+/**
+ * Request payload for creating or updating an energy slot reservation.
+ */
+data class ReservationRequest(
+    val slotId: String,
+    val prosumerNic: String? = null
+)
