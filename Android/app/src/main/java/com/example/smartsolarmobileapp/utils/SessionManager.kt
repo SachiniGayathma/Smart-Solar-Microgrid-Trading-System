@@ -8,10 +8,10 @@ import android.content.SharedPreferences
 import com.example.smartsolarmobileapp.api.ApiClient
 import com.example.smartsolarmobileapp.models.User
 
-class SessionManager(context: Context) {
+class SessionManager(private val prefs: SharedPreferences) {
 
     companion object {
-        private const val PREF_NAME = "smart_solar_session"
+        const val PREF_NAME = "smart_solar_session"
         private const val KEY_IS_LOGGED_IN = "is_logged_in"
         private const val KEY_AUTH_TOKEN = "auth_token"
         private const val KEY_USER_ID = "user_id"
@@ -23,8 +23,9 @@ class SessionManager(context: Context) {
         private const val KEY_USER_STATUS = "user_status"
     }
 
-    private val prefs: SharedPreferences =
+    constructor(context: Context) : this(
         context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+    )
 
     init {
         // Sync token with ApiClient on initialization if logged in
