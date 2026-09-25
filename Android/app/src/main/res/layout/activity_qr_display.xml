@@ -5,14 +5,19 @@
     android:id="@+id/layout_qr_display"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
+    android:fitsSystemWindows="true"
+    android:background="@color/solar_bg"
+    android:paddingHorizontal="24dp"
+    android:paddingTop="28dp"
+    android:paddingBottom="24dp"
     tools:context=".prosumer.QRDisplayActivity">
 
     <TextView
         android:id="@+id/tv_qr_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Booking QR Code"
+        android:text="Microgrid Transaction Pass"
+        android:textColor="@color/solar_slate_dark"
         android:textSize="22sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -24,32 +29,55 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Present this QR code to the station operator upon arrival"
+        android:text="Present this digital QR pass to the station operator upon arrival"
         android:textAlignment="center"
+        android:textColor="@color/solar_slate_body"
+        android:textSize="13sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_qr_title" />
 
-    <ImageView
-        android:id="@+id/iv_qr_code"
-        android:layout_width="260dp"
-        android:layout_height="260dp"
+    <!-- QR Pass Card Container -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_qr_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:contentDescription="Booking QR Code"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/solar_surface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_qr_instructions" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_qr_instructions">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <ImageView
+                android:id="@+id/iv_qr_code"
+                android:layout_width="250dp"
+                android:layout_height="250dp"
+                android:contentDescription="Booking QR Code Pass" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/tv_qr_reservation_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
+        android:background="@drawable/bg_pill_badge"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="6dp"
         android:text="Reservation #12345"
-        android:textSize="16sp"
+        android:textColor="@color/solar_green_primary"
+        android:textSize="15sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/iv_qr_code" />
+        app:layout_constraintTop_toBottomOf="@+id/card_qr_container" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

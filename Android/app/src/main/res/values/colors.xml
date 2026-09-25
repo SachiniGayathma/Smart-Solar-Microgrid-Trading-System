@@ -1,5 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Core Brand Colors: Smart Solar Microgrid -->
+    <color name="solar_green_primary">#1B5E20</color>
+    <color name="solar_green_medium">#2E7D32</color>
+    <color name="solar_green_light">#4CAF50</color>
+    <color name="solar_green_container">#E8F5E9</color>
+    <color name="solar_green_container_border">#C8E6C9</color>
+
+    <!-- Solar Gold / Amber Accents -->
+    <color name="solar_amber_primary">#F57F17</color>
+    <color name="solar_amber_medium">#FF8F00</color>
+    <color name="solar_amber_light">#FFA000</color>
+    <color name="solar_amber_container">#FFF8E1</color>
+    <color name="solar_amber_container_border">#FFECB3</color>
+
+    <!-- Surface & Background Neutrals -->
+    <color name="solar_bg">#F8FAFC</color>
+    <color name="solar_surface">#FFFFFF</color>
+    <color name="solar_surface_card">#FFFFFF</color>
+    <color name="solar_surface_variant">#F1F5F9</color>
+    <color name="solar_border">#E2E8F0</color>
+    <color name="solar_divider">#CBD5E1</color>
+
+    <!-- Professional Slate Typography -->
+    <color name="solar_slate_dark">#0F172A</color>
+    <color name="solar_slate_heading">#1E293B</color>
+    <color name="solar_slate_body">#475569</color>
+    <color name="solar_slate_muted">#64748B</color>
+    <color name="solar_slate_subtle">#94A3B8</color>
+
+    <!-- Semantic Status Tints -->
+    <color name="solar_status_approved">#16A34A</color>
+    <color name="solar_status_approved_bg">#DCFCE7</color>
+    <color name="solar_status_pending">#D97706</color>
+    <color name="solar_status_pending_bg">#FEF3C7</color>
+    <color name="solar_status_cancelled">#DC2626</color>
+    <color name="solar_status_cancelled_bg">#FEE2E2</color>
+
+    <!-- Base Fallbacks -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>

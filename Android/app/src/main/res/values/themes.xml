@@ -1,8 +1,27 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.SmartSolarMobileApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Brand Colors -->
+        <item name="colorPrimary">@color/solar_green_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/solar_green_container</item>
+        <item name="colorOnPrimaryContainer">@color/solar_green_primary</item>
+        <item name="colorSecondary">@color/solar_amber_primary</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- Surfaces and Window Background -->
+        <item name="android:windowBackground">@color/solar_bg</item>
+        <item name="colorSurface">@color/solar_surface</item>
+        <item name="colorOnSurface">@color/solar_slate_dark</item>
+
+        <!-- Status Bar Styling for Notch & Hole-Punch Clarity -->
+        <item name="android:statusBarColor">@color/solar_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@color/solar_bg</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+
+        <!-- Default TextInputLayout Styling -->
+        <item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox</item>
     </style>
 
     <style name="Theme.SmartSolarMobileApp" parent="Base.Theme.SmartSolarMobileApp" />

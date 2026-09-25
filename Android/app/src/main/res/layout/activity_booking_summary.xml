@@ -5,36 +5,51 @@
     android:id="@+id/layout_booking_summary"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F7FA"
     android:fillViewport="true"
+    android:fitsSystemWindows="true"
+    android:background="@color/solar_bg"
     tools:context=".prosumer.BookingSummaryActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20dp">
+        android:paddingHorizontal="20dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="36dp">
+
+        <ImageView
+            android:id="@+id/iv_summary_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_check_circle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="Status Icon" />
 
         <TextView
             android:id="@+id/tv_summary_header"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
             android:text="Reservation Summary"
-            android:textColor="@color/black"
+            android:textColor="@color/solar_slate_dark"
             android:textSize="22sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_summary_icon"
+            app:layout_constraintTop_toTopOf="@+id/iv_summary_icon" />
 
         <TextView
             android:id="@+id/tv_summary_message"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="2dp"
             android:text="Your slot reservation has been submitted successfully."
-            android:textColor="#555555"
-            android:textSize="14sp"
+            android:textColor="@color/solar_slate_body"
+            android:textSize="13sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_summary_icon"
             app:layout_constraintTop_toBottomOf="@+id/tv_summary_header" />
 
         <!-- Details Card -->
@@ -42,12 +57,13 @@
             android:id="@+id/card_summary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="3dp"
+            android:layout_marginTop="20dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/solar_surface"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_summary_message">
+            app:layout_constraintTop_toBottomOf="@+id/iv_summary_icon">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -67,19 +83,19 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Booking #1001"
-                        android:textColor="@color/black"
-                        android:textSize="16sp"
+                        android:textColor="@color/solar_slate_dark"
+                        android:textSize="17sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tv_summary_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="#FFF3E0"
-                        android:paddingHorizontal="10dp"
+                        android:background="@drawable/bg_pill_badge"
+                        android:paddingHorizontal="12dp"
                         android:paddingVertical="4dp"
                         android:text="Pending"
-                        android:textColor="#E65100"
+                        android:textColor="@color/solar_amber_primary"
                         android:textSize="13sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -88,14 +104,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginVertical="14dp"
-                    android:background="#E0E0E0" />
+                    android:background="@color/solar_border" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Microgrid Station"
-                    android:textColor="#888888"
-                    android:textSize="12sp"
+                    android:textColor="@color/solar_slate_muted"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -104,7 +120,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="Colombo Central Hub"
-                    android:textColor="@color/black"
+                    android:textColor="@color/solar_slate_dark"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -113,8 +129,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:text="Scheduled Time Slot"
-                    android:textColor="#888888"
-                    android:textSize="12sp"
+                    android:textColor="@color/solar_slate_muted"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -123,7 +139,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="10:00 AM - 10:30 AM"
-                    android:textColor="@color/black"
+                    android:textColor="@color/solar_slate_dark"
                     android:textSize="15sp" />
 
                 <TextView
@@ -132,7 +148,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:text="Prosumer NIC: 200012345678"
-                    android:textColor="#666666"
+                    android:textColor="@color/solar_slate_body"
                     android:textSize="13sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -142,31 +158,35 @@
             android:id="@+id/tv_twelve_hour_notice"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="#E3F2FD"
-            android:padding="10dp"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_pill_badge"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="10dp"
             android:text="ℹ️ 12-Hour Rule: Modifications and cancellations require at least 12 hours advance notice before the scheduled start time."
-            android:textColor="#1565C0"
+            android:textColor="@color/solar_green_primary"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/card_summary" />
 
         <!-- Primary Action: View QR Code -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_view_qr"
             android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_marginTop="20dp"
-            android:text="View Transaction QR Code"
+            android:layout_height="54dp"
+            android:layout_marginTop="24dp"
+            android:text="View Transaction QR Pass"
             android:textAllCaps="false"
             android:textSize="15sp"
+            android:textStyle="bold"
+            app:cornerRadius="12dp"
+            app:backgroundTint="@color/solar_green_primary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_twelve_hour_notice" />
 
         <!-- Secondary Action: Cancel Booking -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_cancel_booking"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
@@ -174,14 +194,17 @@
             android:layout_marginTop="10dp"
             android:text="Cancel Reservation"
             android:textAllCaps="false"
-            android:textColor="#D32F2F"
+            android:textColor="@color/solar_status_cancelled"
             android:textSize="15sp"
+            android:textStyle="bold"
+            app:cornerRadius="12dp"
+            app:strokeColor="@color/solar_status_cancelled"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btn_view_qr" />
 
         <!-- Navigation Action: View All Bookings -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_summary_all_bookings"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="0dp"
@@ -189,21 +212,22 @@
             android:layout_marginTop="8dp"
             android:text="View All My Reservations"
             android:textAllCaps="false"
-            android:textColor="#1E88E5"
+            android:textColor="@color/solar_green_primary"
             android:textSize="14sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btn_cancel_booking" />
 
         <!-- Return to Dashboard -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_summary_dashboard"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Return to Dashboard"
+            android:text="Return to Prosumer Dashboard"
             android:textAllCaps="false"
-            android:textColor="#555555"
+            android:textColor="@color/solar_slate_muted"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

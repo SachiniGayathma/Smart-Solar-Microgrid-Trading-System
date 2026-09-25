@@ -5,7 +5,8 @@
     android:id="@+id/layout_slot_booking"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F7FA"
+    android:fitsSystemWindows="true"
+    android:background="@color/solar_bg"
     tools:context=".prosumer.SlotBookingActivity">
 
     <!-- Station Information Header Card -->
@@ -13,9 +14,11 @@
         android:id="@+id/card_station_info"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="3dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/solar_surface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -26,22 +29,38 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
-                android:id="@+id/tv_booking_station_name"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Microgrid Station"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_station"
+                    app:tint="@color/solar_green_primary"
+                    android:contentDescription="Station" />
+
+                <TextView
+                    android:id="@+id/tv_booking_station_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:text="Microgrid Station"
+                    android:textColor="@color/solar_slate_dark"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tv_booking_station_details"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="6dp"
                 android:text="Schedule: 08:00 - 18:00 | Capacity: 150 kWh"
-                android:textColor="#666666"
+                android:textColor="@color/solar_slate_body"
                 android:textSize="13sp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -52,9 +71,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="8dp"
-        app:cardCornerRadius="12dp"
+        android:layout_marginTop="10dp"
+        app:cardCornerRadius="14dp"
         app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/solar_surface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/card_station_info">
@@ -63,7 +83,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="14dp">
+            android:padding="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -81,8 +101,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Selected Date"
-                        android:textColor="#888888"
-                        android:textSize="12sp"
+                        android:textColor="@color/solar_slate_muted"
+                        android:textSize="11sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -91,30 +111,34 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="Today, Oct 1, 2026"
-                        android:textColor="@color/black"
+                        android:textColor="@color/solar_slate_dark"
                         android:textSize="16sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_change_date"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="44dp"
                     android:text="Change Date"
                     android:textAllCaps="false"
-                    android:textSize="13sp" />
+                    android:textColor="@color/solar_green_primary"
+                    android:textSize="13sp"
+                    app:cornerRadius="10dp"
+                    app:strokeColor="@color/solar_green_primary" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/tv_seven_day_rule_banner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="#E8F5E9"
-                android:padding="8dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_pill_badge"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
                 android:text="⚡ 7-Day Window: Slots are restricted to dates within 7 days from today."
-                android:textColor="#2E7D32"
+                android:textColor="@color/solar_green_primary"
                 android:textSize="12sp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -125,9 +149,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="Available 30-Minute Slots"
-        android:textColor="@color/black"
+        android:layout_marginTop="14dp"
+        android:text="Available 30-Minute Energy Slots"
+        android:textColor="@color/solar_slate_dark"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -138,6 +162,7 @@
         android:id="@+id/pb_slots"
         android:layout_width="36dp"
         android:layout_height="36dp"
+        android:indeterminateTint="@color/solar_green_primary"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/rv_slots"
         app:layout_constraintEnd_toEndOf="parent"
@@ -150,7 +175,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="No available slots found for the selected date."
-        android:textColor="#888888"
+        android:textColor="@color/solar_slate_muted"
         android:textSize="14sp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/rv_slots"
@@ -164,24 +189,28 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="8dp"
         android:clipToPadding="false"
-        android:paddingHorizontal="8dp"
+        android:paddingHorizontal="12dp"
         app:layout_constraintBottom_toTopOf="@+id/btn_confirm_booking"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_select_slot_label" />
 
     <!-- Bottom Action Button -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_confirm_booking"
         android:layout_width="0dp"
-        android:layout_height="56dp"
-        android:layout_margin="16dp"
+        android:layout_height="54dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="16dp"
         android:enabled="false"
         android:text="Proceed to Confirmation"
         android:textAllCaps="false"
-        android:textSize="16sp"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:cornerRadius="12dp"
+        app:backgroundTint="@color/solar_green_primary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
