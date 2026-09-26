@@ -17,6 +17,16 @@
         android:paddingTop="28dp"
         android:paddingBottom="36dp">
 
+        <ImageButton
+            android:id="@+id/btn_back_register"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back to Sign In"
+            android:src="@drawable/ic_arrow_back"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <!-- Solar Microgrid Branding Badge -->
         <ImageView
             android:id="@+id/iv_register_logo"
@@ -210,6 +220,7 @@
                     app:boxStrokeColor="@color/solar_green_primary"
                     app:hintTextColor="@color/solar_green_primary"
                     app:endIconMode="password_toggle"
+                    app:errorIconDrawable="@null"
                     app:startIconDrawable="@drawable/ic_lock"
                     app:startIconTint="@color/solar_slate_muted">
 
@@ -222,18 +233,34 @@
                         android:textSize="14sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Register Submit Button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_register"
+                <!-- Register Submit Button Container with Spinner -->
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="54dp"
-                    android:layout_marginTop="20dp"
-                    android:text="Register Prosumer Account"
-                    android:textAllCaps="false"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    app:cornerRadius="12dp"
-                    app:backgroundTint="@color/solar_green_primary" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_register"
+                        android:layout_width="match_parent"
+                        android:layout_height="54dp"
+                        android:text="Register Prosumer Account"
+                        android:textAllCaps="false"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        app:cornerRadius="12dp"
+                        app:backgroundTint="@color/solar_green_primary" />
+
+                    <ProgressBar
+                        android:id="@+id/pb_register"
+                        style="?android:attr/progressBarStyleSmall"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center_vertical|end"
+                        android:layout_marginEnd="18dp"
+                        android:elevation="6dp"
+                        android:indeterminateTint="@color/white"
+                        android:visibility="gone" />
+                </FrameLayout>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -253,19 +280,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/card_register_form" />
-
-        <!-- Loading Indicator -->
-        <ProgressBar
-            android:id="@+id/pb_register"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:indeterminateTint="@color/solar_green_primary"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

@@ -1,5 +1,6 @@
 /**
  * Displays reservation summary details after booking, updating, or cancelling an energy slot.
+ * Shows a summary page after each action (Create, Update, Cancel) per rubric requirements.
  */
 package com.example.smartsolarmobileapp.prosumer
 
@@ -20,6 +21,7 @@ import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.ReservationDao
 import com.example.smartsolarmobileapp.utils.DateTimeUtils
 import com.example.smartsolarmobileapp.utils.SessionManager
+import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,6 +36,7 @@ class BookingSummaryActivity : AppCompatActivity() {
     private lateinit var tvTime: TextView
     private lateinit var tvProsumerNic: TextView
     private lateinit var btnViewQr: Button
+    private lateinit var btnModifyBooking: Button
     private lateinit var btnCancelBooking: Button
     private lateinit var btnAllBookings: Button
     private lateinit var btnDashboard: Button
@@ -49,6 +52,11 @@ class BookingSummaryActivity : AppCompatActivity() {
     private var status: String = "Pending"
     private var summaryMessage: String = ""
     private var qrToken: String? = null
+
+    companion object {
+        /** Request code for the slot modification flow */
+        private const val REQUEST_MODIFY_SLOT = 2001
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,6 +89,7 @@ class BookingSummaryActivity : AppCompatActivity() {
             val localRes = reservationDao.getReservationById(reservationId)
             localRes?.let {
                 if (stationName.isBlank()) stationName = it.stationName ?: "Microgrid Station"
+                if (stationId.isBlank()) stationId = it.stationId
                 if (scheduledAt.isBlank()) scheduledAt = it.scheduledAt
                 status = it.status
                 if (qrToken.isNullOrBlank()) qrToken = it.qrToken
@@ -97,6 +106,7 @@ class BookingSummaryActivity : AppCompatActivity() {
         tvTime = findViewById(R.id.tv_summary_time)
         tvProsumerNic = findViewById(R.id.tv_summary_prosumer_nic)
         btnViewQr = findViewById(R.id.btn_view_qr)
+        btnModifyBooking = findViewById(R.id.btn_modify_booking)
         btnCancelBooking = findViewById(R.id.btn_cancel_booking)
         btnAllBookings = findViewById(R.id.btn_summary_all_bookings)
         btnDashboard = findViewById(R.id.btn_summary_dashboard)
@@ -128,6 +138,7 @@ class BookingSummaryActivity : AppCompatActivity() {
                 tvStatus.setTextColor(Color.parseColor("#2E7D32"))
                 tvStatus.setBackgroundColor(Color.parseColor("#E8F5E9"))
                 btnViewQr.visibility = View.VISIBLE
+                btnModifyBooking.visibility = View.VISIBLE
                 btnCancelBooking.visibility = View.VISIBLE
             }
             currentStatus.equals("Pending", ignoreCase = true) -> {
@@ -135,6 +146,7 @@ class BookingSummaryActivity : AppCompatActivity() {
                 tvStatus.setBackgroundColor(Color.parseColor("#FFF3E0"))
                 // Show QR button if token exists, or keep visible so prosumer can view QR token
                 btnViewQr.visibility = View.VISIBLE
+                btnModifyBooking.visibility = View.VISIBLE
                 btnCancelBooking.visibility = View.VISIBLE
             }
             currentStatus.equals("Cancelled", ignoreCase = true) -> {
@@ -143,6 +155,7 @@ class BookingSummaryActivity : AppCompatActivity() {
                 tvHeader.text = "Reservation Cancelled"
                 tvMessage.text = "This energy reservation has been cancelled."
                 btnViewQr.visibility = View.GONE
+                btnModifyBooking.visibility = View.GONE
                 btnCancelBooking.visibility = View.GONE
             }
             currentStatus.equals("Completed", ignoreCase = true) -> {
@@ -150,6 +163,7 @@ class BookingSummaryActivity : AppCompatActivity() {
                 tvStatus.setBackgroundColor(Color.parseColor("#E3F2FD"))
                 tvHeader.text = "Energy Transfer Completed"
                 btnViewQr.visibility = View.GONE
+                btnModifyBooking.visibility = View.GONE
                 btnCancelBooking.visibility = View.GONE
             }
         }
@@ -160,12 +174,24 @@ class BookingSummaryActivity : AppCompatActivity() {
             handleViewQr()
         }
 
+        btnModifyBooking.setOnClickListener {
+            handleModifyBooking()
+        }
+
         btnCancelBooking.setOnClickListener {
             handleCancelBooking()
         }
 
         btnAllBookings.setOnClickListener {
             startActivity(Intent(this, BookingListActivity::class.java))
+        }
+
+        findViewById<android.widget.ImageButton>(R.id.btn_back_summary)?.setOnClickListener {
+            val intent = Intent(this, ProsumerDashboardActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
+            startActivity(intent)
+            finish()
         }
 
         btnDashboard.setOnClickListener {
@@ -194,6 +220,69 @@ class BookingSummaryActivity : AppCompatActivity() {
     }
 
     /**
+     * Enforces the 12-Hour Modification Rule before permitting reservation update.
+     * Navigates to SlotBookingActivity for new slot selection, then submits the update.
+     */
+    private fun handleModifyBooking() {
+        val parsedDate = DateTimeUtils.parseIsoString(scheduledAt)
+
+        // Strict business rule check: must have at least 12 hours advance notice
+        if (parsedDate != null && !DateTimeUtils.isAtLeastTwelveHoursNotice(parsedDate)) {
+            showRuleViolationDialog(
+                "12-Hour Modification Rule Violation",
+                "Modifications and cancellations require at least 12 hours' notice prior to the scheduled start time. Less than 12 hours remain for this slot."
+            )
+            return
+        }
+
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = "Modify Reservation",
+            message = "You will be taken to the slot selection screen to choose a new time slot for this reservation. The existing booking will be updated.",
+            type = UiAlertUtils.AlertType.INFO,
+            positiveButtonText = "Choose New Slot",
+            onPositiveClick = { navigateToSlotSelection() },
+            negativeButtonText = "Keep Current Slot"
+        )
+    }
+
+    /**
+     * Opens SlotBookingActivity in modification mode, passing the existing reservation ID
+     * so the booking engine can issue a PUT update instead of a POST create.
+     */
+    private fun navigateToSlotSelection() {
+        val intent = Intent(this, SlotBookingActivity::class.java).apply {
+            putExtra("EXTRA_STATION_ID", stationId)
+            putExtra("EXTRA_STATION_NAME", stationName)
+            putExtra("EXTRA_MODE", "MODIFY")
+            putExtra("EXTRA_RESERVATION_ID", reservationId)
+        }
+        startActivityForResult(intent, REQUEST_MODIFY_SLOT)
+    }
+
+    /**
+     * Handles the result after the prosumer selects a new slot in modification mode.
+     */
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_MODIFY_SLOT && resultCode == RESULT_OK && data != null) {
+            // Refresh with updated reservation data from the modification flow
+            val updatedScheduledAt = data.getStringExtra("EXTRA_SCHEDULED_AT") ?: scheduledAt
+            val updatedStatus = data.getStringExtra("EXTRA_STATUS") ?: status
+            val updatedSlotTime = data.getStringExtra("EXTRA_SLOT_TIME") ?: slotTime
+
+            scheduledAt = updatedScheduledAt
+            status = updatedStatus
+            slotTime = updatedSlotTime
+            summaryMessage = "Reservation modified successfully. New slot has been assigned."
+            tvHeader.text = "Reservation Modified"
+
+            populateDetails()
+            UiAlertUtils.showToast(this, "Reservation updated successfully!", UiAlertUtils.AlertType.SUCCESS)
+        }
+    }
+
+    /**
      * Enforces the 12-Hour Cancellation Rule before permitting reservation cancellation.
      */
     private fun handleCancelBooking() {
@@ -208,14 +297,15 @@ class BookingSummaryActivity : AppCompatActivity() {
             return
         }
 
-        AlertDialog.Builder(this)
-            .setTitle("Confirm Cancellation")
-            .setMessage("Are you sure you want to cancel this energy reservation? This action cannot be undone.")
-            .setPositiveButton("Yes, Cancel") { _, _ ->
-                executeCancellation()
-            }
-            .setNegativeButton("Keep Reservation", null)
-            .show()
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = "Confirm Cancellation",
+            message = "Are you sure you want to cancel this energy reservation? This action cannot be undone.",
+            type = UiAlertUtils.AlertType.WARNING,
+            positiveButtonText = "Yes, Cancel",
+            onPositiveClick = { executeCancellation() },
+            negativeButtonText = "Keep Reservation"
+        )
     }
 
     private fun executeCancellation() {
@@ -232,17 +322,19 @@ class BookingSummaryActivity : AppCompatActivity() {
             withContext(Dispatchers.Main) {
                 status = "Cancelled"
                 applyStatusStyling("Cancelled")
-                Toast.makeText(this@BookingSummaryActivity, "Reservation cancelled successfully", Toast.LENGTH_SHORT).show()
+                UiAlertUtils.showToast(this@BookingSummaryActivity, "Reservation cancelled successfully", UiAlertUtils.AlertType.INFO)
             }
         }
     }
 
     private fun showRuleViolationDialog(title: String, message: String) {
-        AlertDialog.Builder(this)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton("OK", null)
-            .show()
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = title,
+            message = message,
+            type = UiAlertUtils.AlertType.WARNING,
+            positiveButtonText = "Understood"
+        )
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

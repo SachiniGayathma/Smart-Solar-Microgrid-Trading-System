@@ -1,5 +1,13 @@
 /**
  * Generates and displays a secure 2D barcode for on-site grid operator scanning.
+ *
+ * TODO: Member 4 (Grid Operator) — Cross-Reference
+ * The QR code displayed here encodes either:
+ *   (a) A cryptographically secure qrToken string (when the API has approved the reservation), or
+ *   (b) The raw reservation ID as a fallback (when operating offline).
+ * Your QrScanActivity should decode this payload and POST it to:
+ *   POST /api/Reservations/verify-qr  { "qrToken": "<decoded_string>" }
+ * See models/QRVerificationRequest.kt and models/QRVerificationResponse.kt for DTOs.
  */
 package com.example.smartsolarmobileapp.prosumer
 
@@ -15,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.smartsolarmobileapp.R
 import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.ReservationDao
+import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 
@@ -88,6 +97,10 @@ class QRDisplayActivity : AppCompatActivity() {
         if (stationName.isNotBlank()) {
             tvInstructions.text = "Present this QR code to the grid operator at $stationName upon arrival"
         }
+
+        findViewById<android.widget.ImageButton>(R.id.btn_back_qr)?.setOnClickListener {
+            finish()
+        }
     }
 
     /**
@@ -95,7 +108,7 @@ class QRDisplayActivity : AppCompatActivity() {
      */
     private fun renderQrCode() {
         if (qrToken.isBlank()) {
-            Toast.makeText(this, "QR payload is missing", Toast.LENGTH_SHORT).show()
+            UiAlertUtils.showToast(this, "QR payload is missing", UiAlertUtils.AlertType.ERROR)
             return
         }
 
@@ -114,7 +127,7 @@ class QRDisplayActivity : AppCompatActivity() {
 
             ivQrCode.setImageBitmap(bitmap)
         } catch (e: Exception) {
-            Toast.makeText(this, "Failed to render QR Code: ${e.message}", Toast.LENGTH_SHORT).show()
+            UiAlertUtils.showToast(this, "Failed to render QR Code: ${e.message}", UiAlertUtils.AlertType.ERROR)
         }
     }
 

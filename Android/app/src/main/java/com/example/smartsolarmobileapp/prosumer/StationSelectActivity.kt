@@ -20,6 +20,7 @@ import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.StationDao
 import com.example.smartsolarmobileapp.models.Station
 import com.example.smartsolarmobileapp.prosumer.adapter.StationAdapter
+import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -55,6 +56,9 @@ class StationSelectActivity : AppCompatActivity() {
         rvStations = findViewById(R.id.rv_stations)
         tvEmpty = findViewById(R.id.tv_empty_stations)
         pbStations = findViewById(R.id.pb_stations)
+        findViewById<android.widget.ImageButton>(R.id.btn_back_stations)?.setOnClickListener {
+            finish()
+        }
     }
 
     private fun setupRecyclerView() {
@@ -117,7 +121,7 @@ class StationSelectActivity : AppCompatActivity() {
         if (localStations.isNotEmpty()) {
             stationAdapter.updateData(localStations)
             tvEmpty.visibility = View.GONE
-            Toast.makeText(this, "Showing cached station directory", Toast.LENGTH_SHORT).show()
+            UiAlertUtils.showToast(this, "Showing cached station directory (Offline)", UiAlertUtils.AlertType.INFO)
         } else {
             tvEmpty.visibility = View.VISIBLE
         }

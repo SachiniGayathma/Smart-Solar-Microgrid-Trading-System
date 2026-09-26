@@ -17,28 +17,49 @@
         android:paddingTop="20dp"
         android:paddingBottom="36dp">
 
-        <TextView
-            android:id="@+id/tv_profile_title"
-            android:layout_width="wrap_content"
+        <!-- Top Header Bar with Back Navigation -->
+        <LinearLayout
+            android:id="@+id/header_bar_profile"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="My Prosumer Profile"
-            android:textColor="@color/solar_slate_dark"
-            android:textSize="22sp"
-            android:textStyle="bold"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageButton
+                android:id="@+id/btn_back_profile"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back"
+                android:src="@drawable/ic_arrow_back" />
+
+            <TextView
+                android:id="@+id/tv_profile_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="My Prosumer Profile"
+                android:textColor="@color/solar_slate_dark"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tv_profile_subtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="2dp"
             android:text="Manage your contact details and active trading credentials"
             android:textColor="@color/solar_slate_body"
             android:textSize="13sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_profile_title" />
+            app:layout_constraintTop_toBottomOf="@+id/header_bar_profile" />
 
         <!-- Prosumer Identity Card (Read-only attributes) -->
         <androidx.cardview.widget.CardView

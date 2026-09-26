@@ -12,12 +12,44 @@
     android:paddingBottom="16dp"
     tools:context=".prosumer.BookingListActivity">
 
+    <!-- Top Header Bar with Back Navigation -->
+    <LinearLayout
+        android:id="@+id/header_bar_bookings"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btn_back_booking_list"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:src="@drawable/ic_arrow_back" />
+
+        <TextView
+            android:id="@+id/tv_booking_list_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="My Reservations"
+            android:textColor="@color/solar_slate_dark"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
     <!-- Search Input for Filter by Station Name or ID -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_search_bookings"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:hint="Search by station or ID..."
         app:boxCornerRadiusBottomEnd="12dp"
         app:boxCornerRadiusBottomStart="12dp"
@@ -29,7 +61,7 @@
         app:startIconTint="@color/solar_slate_muted"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/header_bar_bookings">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_search_bookings"
