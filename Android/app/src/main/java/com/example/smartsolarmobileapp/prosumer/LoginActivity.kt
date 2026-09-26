@@ -150,7 +150,7 @@ class LoginActivity : AppCompatActivity() {
                     setLoadingState(false)
                     if (response.isSuccessful && response.body() != null) {
                         val loginResponse = response.body()!!
-                        val user = loginResponse.user
+                        val user = loginResponse.getResolvedUser()
 
                         if (user != null) {
                             validateAndProcessUser(loginResponse.token, user)
@@ -222,7 +222,7 @@ class LoginActivity : AppCompatActivity() {
 
         if (cachedUser != null) {
             // Password verification check:
-            // For testing and offline demo purposes until Member 1's C# Web API and MongoDB server are actively running.
+            // For testing and offline demo purposes until central C# Web API and MongoDB server are actively running.
             // Verified against standard registered/demo credentials.
             if (password != "Password123!") {
                 tilPassword.error = "Incorrect password"

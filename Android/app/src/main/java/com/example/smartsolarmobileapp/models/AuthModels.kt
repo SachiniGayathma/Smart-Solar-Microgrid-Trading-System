@@ -25,10 +25,38 @@ data class LoginRequest(
 
 /**
  * Response payload returned from the authentication service.
+ * Supports both central Web API flat response format and nested user object.
  */
 data class AuthResponse(
     val success: Boolean = true,
     val message: String? = null,
     val token: String? = null,
-    val user: User? = null
-)
+    val user: User? = null,
+    // Flat fields returned directly by central C# Web API
+    val id: String? = null,
+    val nic: String? = null,
+    val fullName: String? = null,
+    val email: String? = null,
+    val phone: String? = null,
+    val role: String? = null,
+    val status: String? = null
+) {
+    /**
+     * Resolves the authenticated user whether returned in a nested 'user' object or flat at top-level.
+     */
+    fun getResolvedUser(): User? {
+        if (user != null) return user
+        if (!nic.isNullOrBlank() || !email.isNullOrBlank() || !fullName.isNullOrBlank()) {
+            return User(
+                id = id,
+                nic = nic ?: "",
+                fullName = fullName ?: "",
+                email = email ?: "",
+                phone = phone ?: "",
+                role = role ?: "Prosumer",
+                status = status ?: "Pending"
+            )
+        }
+        return null
+    }
+}

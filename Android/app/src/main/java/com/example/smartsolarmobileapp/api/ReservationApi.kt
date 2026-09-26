@@ -16,9 +16,15 @@ import retrofit2.http.Query
 interface ReservationApi {
 
     /**
+     * Retrieves aggregated booking metrics for the dashboard.
+     */
+    @GET("reservations/dashboard")
+    suspend fun getDashboard(): Response<Map<String, Any>>
+
+    /**
      * Creates a new energy slot reservation for the authenticated prosumer.
      */
-    @POST("Reservations")
+    @POST("reservations")
     suspend fun createReservation(
         @Body request: ReservationRequest
     ): Response<Reservation>
@@ -26,7 +32,7 @@ interface ReservationApi {
     /**
      * Searches or lists reservations for the current prosumer.
      */
-    @GET("Reservations")
+    @GET("reservations")
     suspend fun searchReservations(
         @Query("status") status: String? = null,
         @Query("search") search: String? = null
@@ -35,7 +41,7 @@ interface ReservationApi {
     /**
      * Retrieves a single reservation by ID.
      */
-    @GET("Reservations/{id}")
+    @GET("reservations/{id}")
     suspend fun getReservationById(
         @Path("id") id: String
     ): Response<Reservation>
@@ -43,7 +49,7 @@ interface ReservationApi {
     /**
      * Updates an existing reservation to a different slot (requires 12-hour notice).
      */
-    @PUT("Reservations/{id}")
+    @PUT("reservations/{id}")
     suspend fun updateReservation(
         @Path("id") id: String,
         @Body request: ReservationRequest
@@ -52,7 +58,7 @@ interface ReservationApi {
     /**
      * Cancels an existing reservation (requires 12-hour notice).
      */
-    @POST("Reservations/{id}/cancel")
+    @POST("reservations/{id}/cancel")
     suspend fun cancelReservation(
         @Path("id") id: String
     ): Response<Reservation>
@@ -60,7 +66,7 @@ interface ReservationApi {
     /**
      * Retrieves the cryptographically secure QR token for an approved reservation.
      */
-    @GET("Reservations/{id}/qr")
+    @GET("reservations/{id}/qr")
     suspend fun getQrToken(
         @Path("id") id: String
     ): Response<Map<String, String>>

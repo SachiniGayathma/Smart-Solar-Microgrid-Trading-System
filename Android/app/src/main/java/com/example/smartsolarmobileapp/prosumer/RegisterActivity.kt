@@ -152,7 +152,7 @@ class RegisterActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     setLoadingState(false)
                     if (response.isSuccessful && response.body()?.success != false) {
-                        val registeredUser = response.body()?.user ?: User(
+                        val registeredUser = response.body()?.getResolvedUser() ?: User(
                             nic = nic,
                             fullName = name,
                             email = email,

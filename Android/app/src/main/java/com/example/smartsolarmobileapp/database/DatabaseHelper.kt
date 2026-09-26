@@ -143,7 +143,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     override fun onOpen(db: SQLiteDatabase) {
         super.onOpen(db)
         // Testing / Offline Demo Fallback: Seed and activate demo prosumer account for walkthrough testing
-        // until Member 1's C# Web API and MongoDB server are actively running.
+        // until central C# Web API and MongoDB server are actively running.
         db.execSQL("UPDATE $TABLE_USERS SET $COL_USER_STATUS = 'Active' WHERE $COL_USER_NIC = '200012345678' OR $COL_USER_EMAIL = 'amara@example.com';")
         db.execSQL("INSERT OR IGNORE INTO $TABLE_USERS ($COL_USER_NIC, $COL_USER_FULL_NAME, $COL_USER_EMAIL, $COL_USER_PHONE, $COL_USER_ROLE, $COL_USER_STATUS) VALUES ('200012345678', 'Amara Perera', 'amara@example.com', '0771234567', 'Prosumer', 'Active');")
     }

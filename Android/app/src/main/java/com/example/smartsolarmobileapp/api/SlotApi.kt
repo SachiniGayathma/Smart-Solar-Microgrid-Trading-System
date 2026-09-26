@@ -14,7 +14,7 @@ interface SlotApi {
     /**
      * Retrieves bookable energy slots, optionally filtered by charging station ID.
      */
-    @GET("Slots")
+    @GET("slots")
     suspend fun getSlots(
         @Query("stationId") stationId: String? = null
     ): Response<List<Slot>>
@@ -22,7 +22,7 @@ interface SlotApi {
     /**
      * Retrieves details for a specific 30-minute energy slot.
      */
-    @GET("Slots/{id}")
+    @GET("slots/{id}")
     suspend fun getSlotById(
         @Path("id") id: String
     ): Response<Slot>
