@@ -20,6 +20,7 @@ import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.UserDao
 import com.example.smartsolarmobileapp.models.RegisterRequest
 import com.example.smartsolarmobileapp.models.User
+import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import com.example.smartsolarmobileapp.utils.ValidationUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -62,6 +63,10 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
+        findViewById<android.widget.ImageButton>(R.id.btn_back_register)?.setOnClickListener {
+            finish()
+        }
+
         btnRegister.setOnClickListener {
             handleRegistration()
         }
@@ -197,14 +202,14 @@ class RegisterActivity : AppCompatActivity() {
         )
         userDao.saveUserSession(localUser, null)
 
-        AlertDialog.Builder(this@RegisterActivity)
-            .setTitle("Registration Saved Locally")
-            .setMessage("Server connection unavailable. Your registration with NIC $nic has been stored locally as PENDING and will be synchronized when online.")
-            .setPositiveButton("Proceed to Login") { _, _ ->
-                navigateToLogin()
-            }
-            .setCancelable(false)
-            .show()
+        UiAlertUtils.showModernDialog(
+            context = this@RegisterActivity,
+            title = "Registration Saved Locally",
+            message = "Server connection unavailable. Your registration with NIC $nic has been stored locally as PENDING and will be synchronized when online.",
+            type = UiAlertUtils.AlertType.INFO,
+            positiveButtonText = "Proceed to Login",
+            onPositiveClick = { navigateToLogin() }
+        )
     }
 
     /**
@@ -223,28 +228,38 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun setLoadingState(isLoading: Boolean) {
-        pbRegister.visibility = if (isLoading) View.VISIBLE else View.GONE
-        btnRegister.isEnabled = !isLoading
-        btnToLogin.isEnabled = !isLoading
+        if (isLoading) {
+            pbRegister.visibility = View.VISIBLE
+            btnRegister.isEnabled = false
+            btnRegister.text = "Registering Account..."
+            btnToLogin.isEnabled = false
+        } else {
+            pbRegister.visibility = View.GONE
+            btnRegister.isEnabled = true
+            btnRegister.text = "Register Prosumer Account"
+            btnToLogin.isEnabled = true
+        }
     }
 
     private fun showRegistrationSuccessDialog(nic: String) {
-        AlertDialog.Builder(this)
-            .setTitle("Registration Submitted")
-            .setMessage("Your account has been registered with NIC: $nic.\n\nStatus: PENDING ACTIVATION\n\nA Backoffice administrator must activate your account before you can log in.")
-            .setPositiveButton("Proceed to Login") { _, _ ->
-                navigateToLogin()
-            }
-            .setCancelable(false)
-            .show()
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = "Registration Submitted",
+            message = "Your account has been registered with NIC: $nic.\n\nStatus: PENDING ACTIVATION\n\nA Backoffice administrator must activate your account before you can log in.",
+            type = UiAlertUtils.AlertType.SUCCESS,
+            positiveButtonText = "Proceed to Login",
+            onPositiveClick = { navigateToLogin() }
+        )
     }
 
     private fun showErrorDialog(message: String) {
-        AlertDialog.Builder(this)
-            .setTitle("Registration Failed")
-            .setMessage(message)
-            .setPositiveButton("OK", null)
-            .show()
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = "Registration Failed",
+            message = message,
+            type = UiAlertUtils.AlertType.ERROR,
+            positiveButtonText = "OK"
+        )
     }
 
     private fun navigateToLogin() {

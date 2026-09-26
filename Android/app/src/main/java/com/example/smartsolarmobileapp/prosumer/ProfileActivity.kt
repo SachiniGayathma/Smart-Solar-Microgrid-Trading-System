@@ -22,6 +22,7 @@ import com.example.smartsolarmobileapp.database.UserDao
 import com.example.smartsolarmobileapp.models.UpdateProfileRequest
 import com.example.smartsolarmobileapp.models.User
 import com.example.smartsolarmobileapp.utils.SessionManager
+import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import com.example.smartsolarmobileapp.utils.ValidationUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -74,6 +75,10 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
+        findViewById<android.widget.ImageButton>(R.id.btn_back_profile)?.setOnClickListener {
+            finish()
+        }
+
         btnUpdate.setOnClickListener {
             handleProfileUpdate()
         }
@@ -188,11 +193,11 @@ class ProfileActivity : AppCompatActivity() {
                         userDao.updateUserProfile(nic, name, email, phone)
 
                         displayUserData(updated)
-                        Toast.makeText(
+                        UiAlertUtils.showToast(
                             this@ProfileActivity,
                             "Profile updated successfully!",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                            UiAlertUtils.AlertType.SUCCESS
+                        )
                     } else {
                         val error = response.errorBody()?.string() ?: "Failed to update profile."
                         showErrorDialog(error)
@@ -208,11 +213,11 @@ class ProfileActivity : AppCompatActivity() {
                     currentUser = localUpdated
                     sessionManager.saveSession(sessionManager.getAuthToken(), localUpdated)
 
-                    Toast.makeText(
+                    UiAlertUtils.showToast(
                         this@ProfileActivity,
                         "Offline Mode: Profile changes saved locally.",
-                        Toast.LENGTH_LONG
-                    ).show()
+                        UiAlertUtils.AlertType.INFO
+                    )
                 }
             }
         }
@@ -222,14 +227,15 @@ class ProfileActivity : AppCompatActivity() {
      * Prompts the prosumer with a warning before executing deactivation.
      */
     private fun confirmAccountDeactivation() {
-        AlertDialog.Builder(this)
-            .setTitle("Deactivate Account")
-            .setMessage("Are you sure you want to deactivate your prosumer account? You will be logged out and cannot make bookings until Backoffice reactivates it.")
-            .setPositiveButton("Yes, Deactivate") { _, _ ->
-                executeDeactivation()
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = "Deactivate Account",
+            message = "Are you sure you want to deactivate your prosumer account? You will be logged out and cannot make bookings until Backoffice reactivates it.",
+            type = UiAlertUtils.AlertType.WARNING,
+            positiveButtonText = "Yes, Deactivate",
+            onPositiveClick = { executeDeactivation() },
+            negativeButtonText = "Cancel"
+        )
     }
 
     /**
@@ -254,12 +260,6 @@ class ProfileActivity : AppCompatActivity() {
                 sessionManager.clearSession()
                 userDao.clearUserSession()
 
-                Toast.makeText(
-                    this@ProfileActivity,
-                    "Account has been deactivated.",
-                    Toast.LENGTH_LONG
-                ).show()
-
                 navigateToLogin()
             }
         }
@@ -272,16 +272,20 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun showErrorDialog(message: String) {
-        AlertDialog.Builder(this)
-            .setTitle("Update Failed")
-            .setMessage(message)
-            .setPositiveButton("OK", null)
-            .show()
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = "Update Failed",
+            message = message,
+            type = UiAlertUtils.AlertType.ERROR,
+            positiveButtonText = "OK"
+        )
     }
 
     private fun navigateToLogin() {
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        val intent = Intent(this, LoginActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("EXTRA_NOTICE", "Account has been deactivated.")
+        }
         startActivity(intent)
         finish()
     }

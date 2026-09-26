@@ -21,6 +21,7 @@ import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.ReservationDao
 import com.example.smartsolarmobileapp.utils.DateTimeUtils
 import com.example.smartsolarmobileapp.utils.SessionManager
+import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -185,6 +186,14 @@ class BookingSummaryActivity : AppCompatActivity() {
             startActivity(Intent(this, BookingListActivity::class.java))
         }
 
+        findViewById<android.widget.ImageButton>(R.id.btn_back_summary)?.setOnClickListener {
+            val intent = Intent(this, ProsumerDashboardActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
+            startActivity(intent)
+            finish()
+        }
+
         btnDashboard.setOnClickListener {
             val intent = Intent(this, ProsumerDashboardActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -226,14 +235,15 @@ class BookingSummaryActivity : AppCompatActivity() {
             return
         }
 
-        AlertDialog.Builder(this)
-            .setTitle("Modify Reservation")
-            .setMessage("You will be taken to the slot selection screen to choose a new time slot for this reservation. The existing booking will be updated.")
-            .setPositiveButton("Choose New Slot") { _, _ ->
-                navigateToSlotSelection()
-            }
-            .setNegativeButton("Keep Current Slot", null)
-            .show()
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = "Modify Reservation",
+            message = "You will be taken to the slot selection screen to choose a new time slot for this reservation. The existing booking will be updated.",
+            type = UiAlertUtils.AlertType.INFO,
+            positiveButtonText = "Choose New Slot",
+            onPositiveClick = { navigateToSlotSelection() },
+            negativeButtonText = "Keep Current Slot"
+        )
     }
 
     /**
@@ -268,7 +278,7 @@ class BookingSummaryActivity : AppCompatActivity() {
             tvHeader.text = "Reservation Modified"
 
             populateDetails()
-            Toast.makeText(this, "Reservation updated successfully!", Toast.LENGTH_SHORT).show()
+            UiAlertUtils.showToast(this, "Reservation updated successfully!", UiAlertUtils.AlertType.SUCCESS)
         }
     }
 
@@ -287,14 +297,15 @@ class BookingSummaryActivity : AppCompatActivity() {
             return
         }
 
-        AlertDialog.Builder(this)
-            .setTitle("Confirm Cancellation")
-            .setMessage("Are you sure you want to cancel this energy reservation? This action cannot be undone.")
-            .setPositiveButton("Yes, Cancel") { _, _ ->
-                executeCancellation()
-            }
-            .setNegativeButton("Keep Reservation", null)
-            .show()
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = "Confirm Cancellation",
+            message = "Are you sure you want to cancel this energy reservation? This action cannot be undone.",
+            type = UiAlertUtils.AlertType.WARNING,
+            positiveButtonText = "Yes, Cancel",
+            onPositiveClick = { executeCancellation() },
+            negativeButtonText = "Keep Reservation"
+        )
     }
 
     private fun executeCancellation() {
@@ -311,17 +322,19 @@ class BookingSummaryActivity : AppCompatActivity() {
             withContext(Dispatchers.Main) {
                 status = "Cancelled"
                 applyStatusStyling("Cancelled")
-                Toast.makeText(this@BookingSummaryActivity, "Reservation cancelled successfully", Toast.LENGTH_SHORT).show()
+                UiAlertUtils.showToast(this@BookingSummaryActivity, "Reservation cancelled successfully", UiAlertUtils.AlertType.INFO)
             }
         }
     }
 
     private fun showRuleViolationDialog(title: String, message: String) {
-        AlertDialog.Builder(this)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton("OK", null)
-            .show()
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = title,
+            message = message,
+            type = UiAlertUtils.AlertType.WARNING,
+            positiveButtonText = "Understood"
+        )
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

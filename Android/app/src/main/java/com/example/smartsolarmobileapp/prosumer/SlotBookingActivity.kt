@@ -27,6 +27,7 @@ import com.example.smartsolarmobileapp.models.Slot
 import com.example.smartsolarmobileapp.prosumer.adapter.SlotAdapter
 import com.example.smartsolarmobileapp.utils.DateTimeUtils
 import com.example.smartsolarmobileapp.utils.SessionManager
+import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -105,13 +106,19 @@ class SlotBookingActivity : AppCompatActivity() {
         tvStationName.text = stationName
         tvStationDetails.text = "Operating Hours: $stationSchedule | Capacity: ${stationCapacity.toInt()} kWh"
 
-        // Adjust confirm button text depending on mode
+        // Adjust confirm button text and header depending on mode
         if (isModifyMode) {
             btnConfirmBooking.text = "Confirm Slot Change"
+            findViewById<TextView>(R.id.tv_slot_booking_header_title)?.text = "Modify Booking Slot"
             supportActionBar?.title = "Modify Booking Slot"
         }
 
+        findViewById<android.widget.ImageButton>(R.id.btn_back_slots)?.setOnClickListener {
+            finish()
+        }
+
         btnChangeDate.setOnClickListener {
+            UiAlertUtils.showToast(this, "Select a date within the allowed 7-day booking window", UiAlertUtils.AlertType.INFO)
             showDatePicker()
         }
 
@@ -256,11 +263,21 @@ class SlotBookingActivity : AppCompatActivity() {
     private fun proceedToBookingConfirmation() {
         val slot = selectedSlot
         if (slot == null) {
-            Toast.makeText(this, "Please select an available 30-minute slot", Toast.LENGTH_SHORT).show()
+            UiAlertUtils.showToast(this, "Please select an available 30-minute slot", UiAlertUtils.AlertType.WARNING)
             return
         }
 
         val slotDate = DateTimeUtils.parseIsoString(slot.startTime) ?: selectedCalendar.time
+        val now = java.util.Date()
+
+        // Enforce past time prevention for today's slots
+        if (slotDate.before(now)) {
+            showRuleViolationDialog(
+                "Expired Slot Selected",
+                "The selected time slot has already passed. Please select an upcoming slot or a future date."
+            )
+            return
+        }
 
         // Enforce 7-day rule verification before submission
         if (!DateTimeUtils.isWithinSevenDays(slotDate)) {
@@ -357,11 +374,13 @@ class SlotBookingActivity : AppCompatActivity() {
     }
 
     private fun showRuleViolationDialog(title: String, message: String) {
-        AlertDialog.Builder(this)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton("OK", null)
-            .show()
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = title,
+            message = message,
+            type = UiAlertUtils.AlertType.WARNING,
+            positiveButtonText = "Understood"
+        )
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

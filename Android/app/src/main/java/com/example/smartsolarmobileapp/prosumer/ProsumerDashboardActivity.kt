@@ -16,6 +16,7 @@ import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.ReservationDao
 import com.example.smartsolarmobileapp.database.UserDao
 import com.example.smartsolarmobileapp.utils.SessionManager
+import com.example.smartsolarmobileapp.utils.UiAlertUtils
 
 class ProsumerDashboardActivity : AppCompatActivity() {
 
@@ -134,14 +135,15 @@ class ProsumerDashboardActivity : AppCompatActivity() {
      * Displays a confirmation dialog before clearing credentials and ending the session.
      */
     private fun confirmLogout() {
-        AlertDialog.Builder(this)
-            .setTitle("Confirm Logout")
-            .setMessage("Are you sure you want to log out of your prosumer account?")
-            .setPositiveButton("Log Out") { _, _ ->
-                executeLogout()
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = "Confirm Logout",
+            message = "Are you sure you want to log out of your prosumer account?",
+            type = UiAlertUtils.AlertType.WARNING,
+            positiveButtonText = "Log Out",
+            onPositiveClick = { executeLogout() },
+            negativeButtonText = "Cancel"
+        )
     }
 
     /**
@@ -151,13 +153,14 @@ class ProsumerDashboardActivity : AppCompatActivity() {
         sessionManager.clearSession()
         userDao.clearUserSession()
 
-        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
         navigateToLogin()
     }
 
     private fun navigateToLogin() {
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        val intent = Intent(this, LoginActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("EXTRA_NOTICE", "Logged out successfully")
+        }
         startActivity(intent)
         finish()
     }

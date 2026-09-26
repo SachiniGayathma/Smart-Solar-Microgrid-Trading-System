@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.smartsolarmobileapp.R
 import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.ReservationDao
+import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 
@@ -96,6 +97,10 @@ class QRDisplayActivity : AppCompatActivity() {
         if (stationName.isNotBlank()) {
             tvInstructions.text = "Present this QR code to the grid operator at $stationName upon arrival"
         }
+
+        findViewById<android.widget.ImageButton>(R.id.btn_back_qr)?.setOnClickListener {
+            finish()
+        }
     }
 
     /**
@@ -103,7 +108,7 @@ class QRDisplayActivity : AppCompatActivity() {
      */
     private fun renderQrCode() {
         if (qrToken.isBlank()) {
-            Toast.makeText(this, "QR payload is missing", Toast.LENGTH_SHORT).show()
+            UiAlertUtils.showToast(this, "QR payload is missing", UiAlertUtils.AlertType.ERROR)
             return
         }
 
@@ -122,7 +127,7 @@ class QRDisplayActivity : AppCompatActivity() {
 
             ivQrCode.setImageBitmap(bitmap)
         } catch (e: Exception) {
-            Toast.makeText(this, "Failed to render QR Code: ${e.message}", Toast.LENGTH_SHORT).show()
+            UiAlertUtils.showToast(this, "Failed to render QR Code: ${e.message}", UiAlertUtils.AlertType.ERROR)
         }
     }
 

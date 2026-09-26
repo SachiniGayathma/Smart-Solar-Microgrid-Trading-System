@@ -12,28 +12,49 @@
     android:paddingBottom="16dp"
     tools:context=".prosumer.StationSelectActivity">
 
-    <TextView
-        android:id="@+id/tv_stations_title"
-        android:layout_width="wrap_content"
+    <!-- Top Header Bar with Back Navigation -->
+    <LinearLayout
+        android:id="@+id/header_bar_stations"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Microgrid Charging Hubs"
-        android:textColor="@color/solar_slate_dark"
-        android:textSize="22sp"
-        android:textStyle="bold"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btn_back_stations"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:src="@drawable/ic_arrow_back" />
+
+        <TextView
+            android:id="@+id/tv_stations_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="Microgrid Charging Hubs"
+            android:textColor="@color/solar_slate_dark"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_stations_subtitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="2dp"
         android:text="Choose an active microgrid station to reserve 30-minute solar power slots"
         android:textColor="@color/solar_slate_body"
         android:textSize="13sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_stations_title" />
+        app:layout_constraintTop_toBottomOf="@+id/header_bar_stations" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_stations"

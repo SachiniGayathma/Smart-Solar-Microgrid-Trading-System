@@ -72,6 +72,9 @@ class BookingListActivity : AppCompatActivity() {
         pbBookings = findViewById(R.id.pb_bookings)
         tvEmpty = findViewById(R.id.tv_empty_bookings)
         rvBookings = findViewById(R.id.rv_bookings)
+        findViewById<android.widget.ImageButton>(R.id.btn_back_booking_list)?.setOnClickListener {
+            finish()
+        }
     }
 
     private fun setupRecyclerView() {

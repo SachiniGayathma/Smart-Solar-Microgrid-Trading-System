@@ -65,9 +65,18 @@ class SlotAdapter(
 
             tvTime.text = timeDisplay
 
-            val isBookable = slot.availableCapacity >= 1 && slot.status.equals("Available", ignoreCase = true)
+            val now = java.util.Date()
+            val isPastTime = startParsed != null && startParsed.before(now)
+            val isBookable = slot.availableCapacity >= 1 && 
+                             slot.status.equals("Available", ignoreCase = true) && 
+                             !isPastTime
 
-            if (isBookable) {
+            if (isPastTime) {
+                tvAvailability.text = "Time slot has passed (Expired)"
+                tvAvailability.setTextColor(Color.parseColor("#9E9E9E"))
+                cardRoot.alpha = 0.45f
+                rbSelect.isEnabled = false
+            } else if (isBookable) {
                 tvAvailability.text = "Available Capacity: ${slot.availableCapacity} slot(s)"
                 tvAvailability.setTextColor(Color.parseColor("#2E7D32"))
                 cardRoot.alpha = 1.0f
@@ -87,8 +96,16 @@ class SlotAdapter(
                 cardRoot.setCardBackgroundColor(Color.WHITE)
             }
 
-            if (isBookable) {
-                cardRoot.setOnClickListener {
+            cardRoot.setOnClickListener {
+                if (isPastTime) {
+                    com.example.smartsolarmobileapp.utils.UiAlertUtils.showSnackbar(
+                        itemView,
+                        "This 30-minute interval has already passed. Please select a future time slot.",
+                        com.example.smartsolarmobileapp.utils.UiAlertUtils.AlertType.WARNING
+                    )
+                    return@setOnClickListener
+                }
+                if (isBookable) {
                     val prev = selectedPosition
                     val currentPos = bindingAdapterPosition
                     if (currentPos != RecyclerView.NO_POSITION) {
@@ -97,9 +114,13 @@ class SlotAdapter(
                         notifyItemChanged(selectedPosition)
                         onSlotSelected(slot)
                     }
+                } else {
+                    com.example.smartsolarmobileapp.utils.UiAlertUtils.showSnackbar(
+                        itemView,
+                        "This slot is fully booked. Please choose another time.",
+                        com.example.smartsolarmobileapp.utils.UiAlertUtils.AlertType.WARNING
+                    )
                 }
-            } else {
-                cardRoot.setOnClickListener(null)
             }
         }
     }
