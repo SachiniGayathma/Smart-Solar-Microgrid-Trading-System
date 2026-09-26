@@ -1,5 +1,13 @@
 /**
  * Generates and displays a secure 2D barcode for on-site grid operator scanning.
+ *
+ * TODO: Member 4 (Grid Operator) — Cross-Reference
+ * The QR code displayed here encodes either:
+ *   (a) A cryptographically secure qrToken string (when the API has approved the reservation), or
+ *   (b) The raw reservation ID as a fallback (when operating offline).
+ * Your QrScanActivity should decode this payload and POST it to:
+ *   POST /api/Reservations/verify-qr  { "qrToken": "<decoded_string>" }
+ * See models/QRVerificationRequest.kt and models/QRVerificationResponse.kt for DTOs.
  */
 package com.example.smartsolarmobileapp.prosumer
 

@@ -162,34 +162,64 @@ class RegisterActivity : AppCompatActivity() {
                         val errorMsg = response.body()?.message
                             ?: response.errorBody()?.string()
                             ?: "Registration rejected by server."
-                        showErrorDialog(errorMsg)
+
+                        // Detect ngrok tunnel offline (ERR_NGROK_3200 / HTTP 502)
+                        // or other gateway errors and fall back to local storage
+                        if (isServerOfflineResponse(response.code(), errorMsg)) {
+                            saveRegistrationLocally(nic, name, email, phone)
+                        } else {
+                            showErrorDialog(errorMsg)
+                        }
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     setLoadingState(false)
-                    // Offline fallback: save locally as Pending
-                    val localUser = User(
-                        nic = nic,
-                        fullName = name,
-                        email = email,
-                        phone = phone,
-                        role = "Prosumer",
-                        status = "Pending"
-                    )
-                    userDao.saveUserSession(localUser, null)
-
-                    AlertDialog.Builder(this@RegisterActivity)
-                        .setTitle("Registration Saved Locally")
-                        .setMessage("Server connection unavailable. Your registration with NIC $nic has been stored locally as PENDING and will be synchronized when online.")
-                        .setPositiveButton("Proceed to Login") { _, _ ->
-                            navigateToLogin()
-                        }
-                        .setCancelable(false)
-                        .show()
+                    // Network exception: save locally as Pending
+                    saveRegistrationLocally(nic, name, email, phone)
                 }
             }
         }
+    }
+
+    /**
+     * Offline fallback: persists the registration in SQLite as Pending so the
+     * prosumer can still access the app when the backend is unreachable.
+     */
+    private fun saveRegistrationLocally(nic: String, name: String, email: String, phone: String) {
+        val localUser = User(
+            nic = nic,
+            fullName = name,
+            email = email,
+            phone = phone,
+            role = "Prosumer",
+            status = "Pending"
+        )
+        userDao.saveUserSession(localUser, null)
+
+        AlertDialog.Builder(this@RegisterActivity)
+            .setTitle("Registration Saved Locally")
+            .setMessage("Server connection unavailable. Your registration with NIC $nic has been stored locally as PENDING and will be synchronized when online.")
+            .setPositiveButton("Proceed to Login") { _, _ ->
+                navigateToLogin()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    /**
+     * Detects whether an HTTP response indicates the backend server is offline.
+     * Covers ngrok tunnel down (ERR_NGROK_3200), reverse proxy errors (502/503/504),
+     * and connection-refused HTML pages.
+     */
+    private fun isServerOfflineResponse(httpCode: Int, errorBody: String?): Boolean {
+        if (httpCode in listOf(502, 503, 504)) return true
+        if (errorBody == null) return false
+        val offlineIndicators = listOf(
+            "ERR_NGROK", "ngrok", "tunnel", "Bad Gateway",
+            "Service Unavailable", "Gateway Timeout"
+        )
+        return offlineIndicators.any { errorBody.contains(it, ignoreCase = true) }
     }
 
     private fun setLoadingState(isLoading: Boolean) {

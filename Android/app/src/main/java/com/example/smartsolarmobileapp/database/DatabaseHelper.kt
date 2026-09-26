@@ -1,5 +1,5 @@
 /**
- * SQLiteOpenHelper managing local SQLite database creation and schema migrations.
+ * SQLiteOpenHelper managing local SQLite database creation, reference seeding, and schema migrations.
  */
 package com.example.smartsolarmobileapp.database
 
@@ -13,13 +13,13 @@ import android.database.sqlite.SQLiteOpenHelper
  * Implements local persistence mandated by SE4040:
  * 1. Active prosumer credentials and session persistence
  * 2. Offline caching of energy slot reservations and QR tokens
- * 3. Offline station references
+ * 3. Offline station references with geographic coordinates
  */
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
         const val DATABASE_NAME = "smart_solar.db"
-        const val DATABASE_VERSION = 1
+        const val DATABASE_VERSION = 2
 
         // Table: Users (Local active session & profile cache)
         const val TABLE_USERS = "users"
@@ -48,6 +48,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         const val COL_RES_UPDATED_AT = "updated_at"
 
         // Table: Stations (Offline station directory cache)
+        // Note for Member 4 (Grid Operator Android Specialist):
+        // COL_STATION_LATITUDE and COL_STATION_LONGITUDE store coordinates for Google Maps pins in MapActivity.
         const val TABLE_STATIONS = "stations"
         const val COL_STATION_ID = "id"
         const val COL_STATION_NAME = "name"
@@ -60,7 +62,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
     /**
-     * Executes SQL statements to create all required database tables upon initial database setup.
+     * Executes SQL statements to create all required database tables and seeds reference hubs.
      */
     override fun onCreate(db: SQLiteDatabase) {
         val createUsersTable = """
@@ -109,6 +111,23 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.execSQL(createUsersTable)
         db.execSQL(createReservationsTable)
         db.execSQL(createStationsTable)
+
+        // Seed initial reference microgrid stations for offline persistence and Google Maps pins
+        seedInitialStations(db)
+    }
+
+    /**
+     * Inserts standard reference stations into local storage.
+     */
+    fun seedInitialStations(db: SQLiteDatabase) {
+        val seedQueries = listOf(
+            "INSERT OR REPLACE INTO $TABLE_STATIONS ($COL_STATION_ID, $COL_STATION_NAME, $COL_STATION_LATITUDE, $COL_STATION_LONGITUDE, $COL_STATION_CAPACITY_KWH, $COL_STATION_BATTERY_SLOTS, $COL_STATION_SCHEDULE, $COL_STATION_STATUS) VALUES ('station_colombo_01', 'Colombo Central Hub', 6.9271, 79.8612, 150.0, 4, '08:00 - 18:00', 'Active');",
+            "INSERT OR REPLACE INTO $TABLE_STATIONS ($COL_STATION_ID, $COL_STATION_NAME, $COL_STATION_LATITUDE, $COL_STATION_LONGITUDE, $COL_STATION_CAPACITY_KWH, $COL_STATION_BATTERY_SLOTS, $COL_STATION_SCHEDULE, $COL_STATION_STATUS) VALUES ('station_kandy_02', 'Kandy Solar Node', 7.2906, 80.6337, 120.0, 3, '08:00 - 18:00', 'Active');",
+            "INSERT OR REPLACE INTO $TABLE_STATIONS ($COL_STATION_ID, $COL_STATION_NAME, $COL_STATION_LATITUDE, $COL_STATION_LONGITUDE, $COL_STATION_CAPACITY_KWH, $COL_STATION_BATTERY_SLOTS, $COL_STATION_SCHEDULE, $COL_STATION_STATUS) VALUES ('station_galle_03', 'Galle Green Energy Station', 6.0535, 80.2210, 100.0, 2, '09:00 - 17:00', 'Active');"
+        )
+        for (sql in seedQueries) {
+            db.execSQL(sql)
+        }
     }
 
     /**

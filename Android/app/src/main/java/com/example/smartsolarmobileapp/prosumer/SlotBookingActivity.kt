@@ -54,6 +54,10 @@ class SlotBookingActivity : AppCompatActivity() {
     private var stationCapacity: Double = 0.0
     private var stationSchedule: String = ""
 
+    /** Modification mode: when non-null, the activity updates an existing reservation instead of creating a new one */
+    private var modifyReservationId: String? = null
+    private var isModifyMode: Boolean = false
+
     private var selectedCalendar: Calendar = Calendar.getInstance()
     private var selectedSlot: Slot? = null
 
@@ -79,6 +83,13 @@ class SlotBookingActivity : AppCompatActivity() {
         stationName = intent.getStringExtra("EXTRA_STATION_NAME") ?: "Microgrid Hub"
         stationCapacity = intent.getDoubleExtra("EXTRA_STATION_CAPACITY", 100.0)
         stationSchedule = intent.getStringExtra("EXTRA_STATION_SCHEDULE") ?: "08:00 - 18:00"
+
+        // Check if launched in modification mode from BookingSummaryActivity
+        val mode = intent.getStringExtra("EXTRA_MODE") ?: ""
+        if (mode.equals("MODIFY", ignoreCase = true)) {
+            isModifyMode = true
+            modifyReservationId = intent.getStringExtra("EXTRA_RESERVATION_ID")
+        }
     }
 
     private fun initializeViews() {
@@ -93,6 +104,12 @@ class SlotBookingActivity : AppCompatActivity() {
 
         tvStationName.text = stationName
         tvStationDetails.text = "Operating Hours: $stationSchedule | Capacity: ${stationCapacity.toInt()} kWh"
+
+        // Adjust confirm button text depending on mode
+        if (isModifyMode) {
+            btnConfirmBooking.text = "Confirm Slot Change"
+            supportActionBar?.title = "Modify Booking Slot"
+        }
 
         btnChangeDate.setOnClickListener {
             showDatePicker()
@@ -264,9 +281,20 @@ class SlotBookingActivity : AppCompatActivity() {
             var reservationResult: Reservation? = null
 
             try {
-                val response = ApiClient.reservationApi.createReservation(request)
-                if (response.isSuccessful && response.body() != null) {
-                    reservationResult = response.body()
+                if (isModifyMode && !modifyReservationId.isNullOrBlank()) {
+                    // MODIFY MODE: PUT update to change the reservation's slot
+                    val response = ApiClient.reservationApi.updateReservation(
+                        modifyReservationId!!, request
+                    )
+                    if (response.isSuccessful && response.body() != null) {
+                        reservationResult = response.body()
+                    }
+                } else {
+                    // CREATE MODE: POST new reservation
+                    val response = ApiClient.reservationApi.createReservation(request)
+                    if (response.isSuccessful && response.body() != null) {
+                        reservationResult = response.body()
+                    }
                 }
             } catch (e: Exception) {
                 // Fallback for offline mode
@@ -275,14 +303,14 @@ class SlotBookingActivity : AppCompatActivity() {
             // If offline or server returned error, persist as a pending local booking in SQLite
             if (reservationResult == null) {
                 reservationResult = Reservation(
-                    id = UUID.randomUUID().toString(),
+                    id = if (isModifyMode) modifyReservationId ?: UUID.randomUUID().toString() else UUID.randomUUID().toString(),
                     prosumerNic = prosumerNic,
                     stationId = stationId,
                     stationName = stationName,
                     slotId = slot.id,
                     scheduledAt = slot.startTime,
                     status = "Pending",
-                    summary = "Reservation created and is pending approval (Offline cache).",
+                    summary = if (isModifyMode) "Reservation modified to a new slot (Offline cache)." else "Reservation created and is pending approval (Offline cache).",
                     createdAt = DateTimeUtils.toIsoString(Date())
                 )
             }
@@ -293,7 +321,19 @@ class SlotBookingActivity : AppCompatActivity() {
 
             withContext(Dispatchers.Main) {
                 pbSlots.visibility = View.GONE
-                navigateToSummary(finalRes, slot)
+
+                if (isModifyMode) {
+                    // Return result to BookingSummaryActivity for summary page refresh
+                    val resultIntent = Intent().apply {
+                        putExtra("EXTRA_SCHEDULED_AT", finalRes.scheduledAt)
+                        putExtra("EXTRA_STATUS", finalRes.status)
+                        putExtra("EXTRA_SLOT_TIME", "${slot.startTime} - ${slot.endTime}")
+                    }
+                    setResult(RESULT_OK, resultIntent)
+                    finish()
+                } else {
+                    navigateToSummary(finalRes, slot)
+                }
             }
         }
     }

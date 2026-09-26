@@ -125,7 +125,14 @@ class LoginActivity : AppCompatActivity() {
                     } else {
                         val errorMsg = response.errorBody()?.string()
                             ?: "Invalid credentials. Please verify your NIC/email and password."
-                        showErrorDialog(errorMsg)
+
+                        // Detect ngrok tunnel offline (ERR_NGROK_3200 / HTTP 502)
+                        // or other gateway errors and fall back to offline mode
+                        if (isServerOfflineResponse(response.code(), errorMsg)) {
+                            handleOfflineLogin(identifier)
+                        } else {
+                            showErrorDialog(errorMsg)
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -209,6 +216,21 @@ class LoginActivity : AppCompatActivity() {
                 .setPositiveButton("OK", null)
                 .show()
         }
+    }
+
+    /**
+     * Detects whether an HTTP response indicates the backend server is offline.
+     * Covers ngrok tunnel down (ERR_NGROK_3200), reverse proxy errors (502/503/504),
+     * and connection-refused HTML pages.
+     */
+    private fun isServerOfflineResponse(httpCode: Int, errorBody: String?): Boolean {
+        if (httpCode in listOf(502, 503, 504)) return true
+        if (errorBody == null) return false
+        val offlineIndicators = listOf(
+            "ERR_NGROK", "ngrok", "tunnel", "Bad Gateway",
+            "Service Unavailable", "Gateway Timeout"
+        )
+        return offlineIndicators.any { errorBody.contains(it, ignoreCase = true) }
     }
 
     private fun setLoadingState(isLoading: Boolean) {
