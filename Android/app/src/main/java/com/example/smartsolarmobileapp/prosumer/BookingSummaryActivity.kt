@@ -22,6 +22,7 @@ import com.example.smartsolarmobileapp.database.ReservationDao
 import com.example.smartsolarmobileapp.utils.DateTimeUtils
 import com.example.smartsolarmobileapp.utils.SessionManager
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -39,7 +40,7 @@ class BookingSummaryActivity : AppCompatActivity() {
     private lateinit var btnModifyBooking: Button
     private lateinit var btnCancelBooking: Button
     private lateinit var btnAllBookings: Button
-    private lateinit var btnDashboard: Button
+    private lateinit var bottomNav: BottomNavigationView
 
     private lateinit var reservationDao: ReservationDao
     private lateinit var sessionManager: SessionManager
@@ -72,6 +73,7 @@ class BookingSummaryActivity : AppCompatActivity() {
         initializeViews()
         populateDetails()
         setupListeners()
+        setupBottomNavigation()
     }
 
     private fun extractExtras() {
@@ -109,7 +111,7 @@ class BookingSummaryActivity : AppCompatActivity() {
         btnModifyBooking = findViewById(R.id.btn_modify_booking)
         btnCancelBooking = findViewById(R.id.btn_cancel_booking)
         btnAllBookings = findViewById(R.id.btn_summary_all_bookings)
-        btnDashboard = findViewById(R.id.btn_summary_dashboard)
+        bottomNav = findViewById(R.id.bottom_nav_summary)
     }
 
     private fun populateDetails() {
@@ -194,12 +196,42 @@ class BookingSummaryActivity : AppCompatActivity() {
             finish()
         }
 
-        btnDashboard.setOnClickListener {
-            val intent = Intent(this, ProsumerDashboardActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        findViewById<android.widget.ImageButton>(R.id.btn_header_logout_summary)?.setOnClickListener {
+            confirmLogout()
+        }
+
+    }
+
+    private fun setupBottomNavigation() {
+        bottomNav.menu.findItem(R.id.nav_bookings)?.isChecked = true
+        bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> {
+                    val intent = Intent(this, ProsumerDashboardActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    }
+                    startActivity(intent)
+                    finish()
+                    true
+                }
+                R.id.nav_bookings -> {
+                    val intent = Intent(this, BookingListActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    }
+                    startActivity(intent)
+                    finish()
+                    true
+                }
+                R.id.nav_profile -> {
+                    val intent = Intent(this, ProfileActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    }
+                    startActivity(intent)
+                    finish()
+                    true
+                }
+                else -> false
             }
-            startActivity(intent)
-            finish()
         }
     }
 
@@ -334,6 +366,26 @@ class BookingSummaryActivity : AppCompatActivity() {
             message = message,
             type = UiAlertUtils.AlertType.WARNING,
             positiveButtonText = "Understood"
+        )
+    }
+
+    private fun confirmLogout() {
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = "Log Out",
+            message = "Are you sure you want to end your prosumer session and return to the login screen?",
+            type = UiAlertUtils.AlertType.WARNING,
+            positiveButtonText = "Log Out",
+            onPositiveClick = {
+                sessionManager.logout()
+                val intent = Intent(this, LoginActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    putExtra("EXTRA_NOTICE", "Logged out successfully")
+                }
+                startActivity(intent)
+                finish()
+            },
+            negativeButtonText = "Cancel"
         )
     }
 

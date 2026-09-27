@@ -1,33 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Booking List: Header with Back & Logout + Search & Filter Chips + List/Empty State + Bottom Nav -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layout_booking_list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:orientation="vertical"
     android:background="@color/solar_bg"
-    android:paddingHorizontal="16dp"
-    android:paddingTop="20dp"
-    android:paddingBottom="16dp"
     tools:context=".prosumer.BookingListActivity">
 
-    <!-- Top Header Bar with Back Navigation -->
+    <!-- ═══ TOOLBAR ═══ -->
     <LinearLayout
         android:id="@+id/header_bar_bookings"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/toolbar_height"
+        android:background="@color/solar_surface"
+        android:elevation="2dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:paddingHorizontal="12dp">
 
         <ImageButton
             android:id="@+id/btn_back_booking_list"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="@drawable/bg_header_button"
             android:contentDescription="Back"
             android:src="@drawable/ic_arrow_back" />
 
@@ -41,111 +39,187 @@
             android:textColor="@color/solar_slate_dark"
             android:textSize="20sp"
             android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btn_header_logout_bookings"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_header_logout"
+            android:contentDescription="Log Out"
+            android:src="@drawable/ic_logout"
+            app:tint="@color/solar_status_cancelled" />
     </LinearLayout>
 
-    <!-- Search Input for Filter by Station Name or ID -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/til_search_bookings"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:hint="Search by station or ID..."
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxStrokeColor="@color/solar_green_primary"
-        app:hintTextColor="@color/solar_green_primary"
-        app:startIconDrawable="@drawable/ic_station"
-        app:startIconTint="@color/solar_slate_muted"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/header_bar_bookings">
+    <!-- Toolbar bottom divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/solar_border" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/et_search_bookings"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="text"
-            android:maxLines="1"
-            android:textSize="14sp" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Filter Chips: All, Active/Pending, History -->
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chip_group_filter"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/til_search_bookings"
-        app:selectionRequired="true"
-        app:singleSelection="true">
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_all"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="All"
-            app:chipCornerRadius="16dp" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_active"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Active / Pending"
-            app:chipCornerRadius="16dp" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_history"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="History"
-            app:chipCornerRadius="16dp" />
-    </com.google.android.material.chip.ChipGroup>
-
-    <!-- Progress Indicator -->
-    <ProgressBar
-        android:id="@+id/pb_bookings"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:indeterminateTint="@color/solar_green_primary"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/rv_bookings"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/rv_bookings" />
-
-    <!-- Empty State -->
-    <TextView
-        android:id="@+id/tv_empty_bookings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="No reservations found."
-        android:textColor="@color/solar_slate_muted"
-        android:textSize="15sp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/rv_bookings"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/rv_bookings" />
-
-    <!-- Bookings RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_bookings"
-        android:layout_width="0dp"
+    <!-- ═══ CONTENT AREA ═══ -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_booking_list"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:clipToPadding="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chip_group_filter" />
+        android:layout_weight="1"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Search Input for Filter by Station Name or ID -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_search_bookings"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Search station name or booking ID"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="@color/solar_green_primary"
+            app:endIconMode="clear_text"
+            app:hintTextColor="@color/solar_green_primary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:startIconDrawable="@drawable/ic_search"
+            app:startIconTint="@color/solar_slate_muted">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_search_bookings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Status Filter Chips -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group_filter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:checkedChip="@+id/chip_all"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/til_search_bookings"
+            app:selectionRequired="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_all"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All"
+                android:textColor="@color/solar_slate_dark" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_active"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pending / Active"
+                android:textColor="@color/solar_slate_dark" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_history"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Completed / Cancelled"
+                android:textColor="@color/solar_slate_dark" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <!-- Loading Indicator -->
+        <ProgressBar
+            android:id="@+id/pb_bookings"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="@color/solar_green_primary"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chip_group_filter" />
+
+        <!-- Enhanced Empty State -->
+        <LinearLayout
+            android:id="@+id/layout_empty_bookings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/rv_bookings"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/rv_bookings">
+
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/ic_calendar"
+                app:tint="@color/solar_slate_subtle"
+                android:alpha="0.5"
+                android:contentDescription="No bookings" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="No reservations yet"
+                android:textColor="@color/solar_slate_body"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_empty_bookings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Your booking history will appear here"
+                android:textColor="@color/solar_slate_muted"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- Bookings RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_bookings"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:clipToPadding="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chip_group_filter" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- ═══ BOTTOM NAVIGATION BAR (76dp, zero overlap) ═══ -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/solar_border" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav_bookings"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottom_nav_height"
+        android:background="@color/solar_surface"
+        app:backgroundTint="@color/solar_surface"
+        app:elevation="0dp"
+        app:itemIconSize="24dp"
+        app:itemPaddingTop="10dp"
+        app:itemPaddingBottom="10dp"
+        app:itemIconTint="@color/bottom_nav_item_color"
+        app:itemTextColor="@color/bottom_nav_item_color"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_nav_prosumer" />
+
+</LinearLayout>

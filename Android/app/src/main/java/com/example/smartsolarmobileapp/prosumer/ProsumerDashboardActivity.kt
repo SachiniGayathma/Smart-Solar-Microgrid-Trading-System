@@ -6,9 +6,8 @@ package com.example.smartsolarmobileapp.prosumer
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import com.example.smartsolarmobileapp.R
@@ -17,19 +16,21 @@ import com.example.smartsolarmobileapp.database.ReservationDao
 import com.example.smartsolarmobileapp.database.UserDao
 import com.example.smartsolarmobileapp.utils.SessionManager
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class ProsumerDashboardActivity : AppCompatActivity() {
 
-    private lateinit var tvWelcome: TextView
+    private lateinit var tvAvatar: TextView
+    private lateinit var tvUserName: TextView
     private lateinit var tvNic: TextView
     private lateinit var tvCountPending: TextView
     private lateinit var tvCountApproved: TextView
-    private lateinit var btnProfile: Button
-    private lateinit var btnLogout: Button
     private lateinit var cardBookSlot: CardView
     private lateinit var btnBookSlot: Button
     private lateinit var cardMyBookings: CardView
     private lateinit var btnViewBookings: Button
+    private lateinit var btnHeaderLogout: ImageButton
+    private lateinit var bottomNav: BottomNavigationView
 
     private lateinit var sessionManager: SessionManager
     private lateinit var dbHelper: DatabaseHelper
@@ -53,30 +54,33 @@ class ProsumerDashboardActivity : AppCompatActivity() {
 
         initializeViews()
         setupListeners()
+        setupBottomNavigation()
     }
 
     override fun onResume() {
         super.onResume()
         refreshDashboard()
+        // Ensure bottom nav has Home selected when on dashboard
+        bottomNav.selectedItemId = R.id.nav_home
     }
 
     private fun initializeViews() {
-        tvWelcome = findViewById(R.id.tv_dashboard_welcome)
+        tvAvatar = findViewById(R.id.tv_dashboard_avatar)
+        tvUserName = findViewById(R.id.tv_dashboard_user_name)
         tvNic = findViewById(R.id.tv_dashboard_nic)
         tvCountPending = findViewById(R.id.tv_count_pending)
         tvCountApproved = findViewById(R.id.tv_count_approved)
-        btnProfile = findViewById(R.id.btn_dashboard_profile)
-        btnLogout = findViewById(R.id.btn_dashboard_logout)
         cardBookSlot = findViewById(R.id.card_book_slot)
         btnBookSlot = findViewById(R.id.btn_book_slot)
         cardMyBookings = findViewById(R.id.card_my_bookings)
         btnViewBookings = findViewById(R.id.btn_view_bookings)
+        btnHeaderLogout = findViewById(R.id.btn_header_logout)
+        bottomNav = findViewById(R.id.bottom_nav)
     }
 
     private fun setupListeners() {
-        btnProfile.setOnClickListener {
-            val intent = Intent(this, ProfileActivity::class.java)
-            startActivity(intent)
+        btnHeaderLogout.setOnClickListener {
+            confirmLogout()
         }
 
         btnBookSlot.setOnClickListener {
@@ -94,10 +98,50 @@ class ProsumerDashboardActivity : AppCompatActivity() {
         cardMyBookings.setOnClickListener {
             navigateToBookingList()
         }
+    }
 
-        btnLogout.setOnClickListener {
-            confirmLogout()
+    /**
+     * Configures bottom navigation bar tab selection handling.
+     */
+    private fun setupBottomNavigation() {
+        bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> {
+                    // Already on home — no-op
+                    true
+                }
+                R.id.nav_bookings -> {
+                    navigateToBookingList()
+                    true
+                }
+                R.id.nav_profile -> {
+                    val intent = Intent(this, ProfileActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                else -> false
+            }
         }
+    }
+
+    /**
+     * Confirms prosumer logout intent with a modern styled alert dialog.
+     */
+    private fun confirmLogout() {
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = "Log Out",
+            message = "Are you sure you want to end your prosumer session and return to the login screen?",
+            type = UiAlertUtils.AlertType.WARNING,
+            positiveButtonText = "Log Out",
+            onPositiveClick = { executeLogout() },
+            negativeButtonText = "Cancel"
+        )
+    }
+
+    private fun executeLogout() {
+        sessionManager.logout()
+        navigateToLogin()
     }
 
     /**
@@ -110,8 +154,16 @@ class ProsumerDashboardActivity : AppCompatActivity() {
             return
         }
 
-        tvWelcome.text = "Welcome, ${user.fullName}"
-        tvNic.text = "NIC: ${user.nic} • Prosumer Portal"
+        // Generate initials from full name
+        val initials = user.fullName
+            .split(" ")
+            .filter { it.isNotBlank() }
+            .take(2)
+            .joinToString("") { it.first().uppercase() }
+
+        tvAvatar.text = if (initials.isNotBlank()) initials else "SP"
+        tvUserName.text = user.fullName
+        tvNic.text = "NIC: ${user.nic}"
 
         // Load live metric counts from local database
         val pendingCount = reservationDao.getPendingCount(user.nic)
@@ -129,31 +181,6 @@ class ProsumerDashboardActivity : AppCompatActivity() {
     private fun navigateToBookingList() {
         val intent = Intent(this, BookingListActivity::class.java)
         startActivity(intent)
-    }
-
-    /**
-     * Displays a confirmation dialog before clearing credentials and ending the session.
-     */
-    private fun confirmLogout() {
-        UiAlertUtils.showModernDialog(
-            context = this,
-            title = "Confirm Logout",
-            message = "Are you sure you want to log out of your prosumer account?",
-            type = UiAlertUtils.AlertType.WARNING,
-            positiveButtonText = "Log Out",
-            onPositiveClick = { executeLogout() },
-            negativeButtonText = "Cancel"
-        )
-    }
-
-    /**
-     * Clears all session credentials, updates local state, and routes to login screen.
-     */
-    private fun executeLogout() {
-        sessionManager.clearSession()
-        userDao.clearUserSession()
-
-        navigateToLogin()
     }
 
     private fun navigateToLogin() {

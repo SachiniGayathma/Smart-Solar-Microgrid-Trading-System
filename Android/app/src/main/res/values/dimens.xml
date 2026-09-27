@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Centralized dimension values for consistent UI spacing and typography -->
+<resources>
+    <dimen name="toolbar_height">64dp</dimen>
+    <dimen name="bottom_nav_height">76dp</dimen>
+    <dimen name="card_corner_radius">18dp</dimen>
+    <dimen name="screen_padding_horizontal">20dp</dimen>
+    <dimen name="avatar_size">72dp</dimen>
+    <dimen name="avatar_size_small">44dp</dimen>
+    <dimen name="btn_corner_radius">12dp</dimen>
+</resources>
