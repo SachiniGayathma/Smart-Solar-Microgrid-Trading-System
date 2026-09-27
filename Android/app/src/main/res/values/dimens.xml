@@ -14,4 +14,6 @@
     <dimen name="metric_value_text">26sp</dimen>
     <dimen name="map_min_height">180dp</dimen>
     <dimen name="qr_size">220dp</dimen>
+    <dimen name="operator_card_radius">12dp</dimen>
+    <dimen name="operator_btn_radius">8dp</dimen>
 </resources>

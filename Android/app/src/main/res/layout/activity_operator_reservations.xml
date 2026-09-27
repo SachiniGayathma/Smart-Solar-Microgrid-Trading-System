@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/solar_bg"
+    android:background="@color/operator_paper"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
     android:padding="@dimen/screen_padding">
@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Reservations"
-        android:textColor="@color/solar_slate_dark"
+        android:textColor="@color/operator_ink"
         android:textSize="@dimen/title_text"
         android:textStyle="bold" />
 
@@ -20,12 +20,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:background="@color/solar_surface"
+        android:background="@color/operator_card"
         android:hint="Search NIC, station, or booking id"
         android:inputType="text"
         android:padding="12dp"
-        android:textColor="@color/solar_slate_dark"
-        android:textColorHint="@color/solar_slate_muted" />
+        android:textColor="@color/operator_ink"
+        android:textColorHint="@color/operator_muted" />
 
     <HorizontalScrollView
         android:layout_width="match_parent"
@@ -78,7 +78,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="No reservations yet."
-        android:textColor="@color/solar_slate_muted"
+        android:textColor="@color/operator_muted"
         android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView

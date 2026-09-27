@@ -43,11 +43,11 @@
         <activity android:name=".prosumer.BookingSummaryActivity" android:exported="false" />
         <activity android:name=".prosumer.QRDisplayActivity" android:exported="false" />
 
-        <activity android:name=".operator.OperatorDashboardActivity" android:exported="false" />
-        <activity android:name=".operator.ReservationListActivity" android:exported="false" />
-        <activity android:name=".operator.QrScanActivity" android:exported="false" />
-        <activity android:name=".operator.MapActivity" android:exported="false" />
-        <activity android:name=".operator.StationDetailsActivity" android:exported="false" />
+        <activity android:name=".operator.OperatorDashboardActivity" android:exported="false" android:theme="@style/Theme.SmartSolarMobileApp.Operator" />
+        <activity android:name=".operator.ReservationListActivity" android:exported="false" android:theme="@style/Theme.SmartSolarMobileApp.Operator" />
+        <activity android:name=".operator.QrScanActivity" android:exported="false" android:theme="@style/Theme.SmartSolarMobileApp.Operator" />
+        <activity android:name=".operator.MapActivity" android:exported="false" android:theme="@style/Theme.SmartSolarMobileApp.Operator" />
+        <activity android:name=".operator.StationDetailsActivity" android:exported="false" android:theme="@style/Theme.SmartSolarMobileApp.Operator" />
     </application>
 
 </manifest>

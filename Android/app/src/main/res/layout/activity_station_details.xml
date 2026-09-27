@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/solar_bg"
+    android:background="@color/operator_paper"
     android:fillViewport="true"
     android:fitsSystemWindows="true">
 
@@ -16,7 +16,7 @@
             android:id="@+id/tv_station_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/solar_slate_dark"
+            android:textColor="@color/operator_ink"
             android:textSize="22sp"
             android:textStyle="bold" />
 
@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:textColor="@color/solar_status_approved"
+            android:textColor="@color/operator_ok"
             android:textStyle="bold" />
 
         <TextView
@@ -33,28 +33,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:textColor="@color/solar_slate_body" />
+            android:textColor="@color/operator_muted" />
 
         <TextView
             android:id="@+id/tv_station_capacity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:textColor="@color/solar_slate_body" />
+            android:textColor="@color/operator_muted" />
 
         <TextView
             android:id="@+id/tv_station_schedule"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:textColor="@color/solar_slate_body" />
+            android:textColor="@color/operator_muted" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Battery storage slots"
-            android:textColor="@color/solar_slate_heading"
+            android:textColor="@color/operator_text"
             android:textStyle="bold" />
 
         <EditText
@@ -62,10 +62,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="@color/solar_surface"
+            android:background="@color/operator_card"
             android:inputType="number"
             android:padding="12dp"
-            android:textColor="@color/solar_slate_dark" />
+            android:textColor="@color/operator_ink" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_save_availability"

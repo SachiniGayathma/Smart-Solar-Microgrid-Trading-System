@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/solar_bg"
+    android:background="@color/operator_paper"
     android:fillViewport="true"
     android:fitsSystemWindows="true">
 
@@ -30,7 +30,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Grid Operator"
-                    android:textColor="@color/solar_slate_dark"
+                    android:textColor="@color/operator_ink"
                     android:textSize="@dimen/title_text"
                     android:textStyle="bold" />
 
@@ -40,7 +40,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Operator mode"
-                    android:textColor="@color/solar_slate_body"
+                    android:textColor="@color/operator_muted"
                     android:textSize="13sp" />
             </LinearLayout>
         </LinearLayout>
@@ -56,8 +56,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                app:cardBackgroundColor="@color/solar_surface"
-                app:cardCornerRadius="14dp"
+                app:cardBackgroundColor="@color/operator_card"
+                app:cardCornerRadius="@dimen/operator_card_radius"
                 app:cardElevation="2dp">
 
                 <LinearLayout
@@ -71,7 +71,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="@color/solar_green_primary"
+                        android:textColor="@color/operator_navy"
                         android:textSize="@dimen/metric_value_text"
                         android:textStyle="bold" />
 
@@ -82,7 +82,7 @@
                         android:layout_marginTop="4dp"
                         android:maxLines="2"
                         android:text="Pending"
-                        android:textColor="@color/solar_slate_body"
+                        android:textColor="@color/operator_muted"
                         android:textSize="13sp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -92,8 +92,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                app:cardBackgroundColor="@color/solar_surface"
-                app:cardCornerRadius="14dp"
+                app:cardBackgroundColor="@color/operator_card"
+                app:cardCornerRadius="@dimen/operator_card_radius"
                 app:cardElevation="2dp">
 
                 <LinearLayout
@@ -107,7 +107,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="@color/solar_green_primary"
+                        android:textColor="@color/operator_navy"
                         android:textSize="@dimen/metric_value_text"
                         android:textStyle="bold" />
 
@@ -118,7 +118,7 @@
                         android:layout_marginTop="4dp"
                         android:maxLines="2"
                         android:text="Approved future"
-                        android:textColor="@color/solar_slate_body"
+                        android:textColor="@color/operator_muted"
                         android:textSize="13sp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -135,8 +135,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                app:cardBackgroundColor="@color/solar_surface"
-                app:cardCornerRadius="14dp"
+                app:cardBackgroundColor="@color/operator_card"
+                app:cardCornerRadius="@dimen/operator_card_radius"
                 app:cardElevation="2dp">
 
                 <LinearLayout
@@ -150,7 +150,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="@color/solar_green_primary"
+                        android:textColor="@color/operator_navy"
                         android:textSize="@dimen/metric_value_text"
                         android:textStyle="bold" />
 
@@ -161,7 +161,7 @@
                         android:layout_marginTop="4dp"
                         android:maxLines="2"
                         android:text="Current"
-                        android:textColor="@color/solar_slate_body"
+                        android:textColor="@color/operator_muted"
                         android:textSize="13sp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -171,8 +171,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                app:cardBackgroundColor="@color/solar_surface"
-                app:cardCornerRadius="14dp"
+                app:cardBackgroundColor="@color/operator_card"
+                app:cardCornerRadius="@dimen/operator_card_radius"
                 app:cardElevation="2dp">
 
                 <LinearLayout
@@ -186,7 +186,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="@color/solar_green_primary"
+                        android:textColor="@color/operator_navy"
                         android:textSize="@dimen/metric_value_text"
                         android:textStyle="bold" />
 
@@ -197,7 +197,7 @@
                         android:layout_marginTop="4dp"
                         android:maxLines="2"
                         android:text="History"
-                        android:textColor="@color/solar_slate_body"
+                        android:textColor="@color/operator_muted"
                         android:textSize="13sp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -210,8 +210,8 @@
             android:layout_marginTop="24dp"
             android:clickable="true"
             android:focusable="true"
-            app:cardBackgroundColor="@color/solar_surface"
-            app:cardCornerRadius="14dp"
+            app:cardBackgroundColor="@color/operator_card"
+            app:cardCornerRadius="@dimen/operator_card_radius"
             app:cardElevation="2dp">
 
             <TextView
@@ -219,7 +219,7 @@
                 android:layout_height="wrap_content"
                 android:padding="18dp"
                 android:text="Scan Prosumer QR"
-                android:textColor="@color/solar_slate_dark"
+                android:textColor="@color/operator_ink"
                 android:textSize="16sp"
                 android:textStyle="bold" />
         </androidx.cardview.widget.CardView>
@@ -231,8 +231,8 @@
             android:layout_marginTop="10dp"
             android:clickable="true"
             android:focusable="true"
-            app:cardBackgroundColor="@color/solar_surface"
-            app:cardCornerRadius="14dp"
+            app:cardBackgroundColor="@color/operator_card"
+            app:cardCornerRadius="@dimen/operator_card_radius"
             app:cardElevation="2dp">
 
             <TextView
@@ -240,7 +240,7 @@
                 android:layout_height="wrap_content"
                 android:padding="18dp"
                 android:text="View Station Map"
-                android:textColor="@color/solar_slate_dark"
+                android:textColor="@color/operator_ink"
                 android:textSize="16sp"
                 android:textStyle="bold" />
         </androidx.cardview.widget.CardView>
@@ -252,8 +252,8 @@
             android:layout_marginTop="10dp"
             android:clickable="true"
             android:focusable="true"
-            app:cardBackgroundColor="@color/solar_surface"
-            app:cardCornerRadius="14dp"
+            app:cardBackgroundColor="@color/operator_card"
+            app:cardCornerRadius="@dimen/operator_card_radius"
             app:cardElevation="2dp">
 
             <TextView
@@ -261,7 +261,7 @@
                 android:layout_height="wrap_content"
                 android:padding="18dp"
                 android:text="View All Bookings"
-                android:textColor="@color/solar_slate_dark"
+                android:textColor="@color/operator_ink"
                 android:textSize="16sp"
                 android:textStyle="bold" />
         </androidx.cardview.widget.CardView>
@@ -274,8 +274,8 @@
             android:layout_marginTop="16dp"
             android:text="Sign Out"
             android:textAllCaps="false"
-            android:textColor="@color/solar_green_primary"
-            app:cornerRadius="12dp"
-            app:strokeColor="@color/solar_green_primary" />
+            android:textColor="@color/operator_navy"
+            app:cornerRadius="@dimen/operator_btn_radius"
+            app:strokeColor="@color/operator_navy" />
     </LinearLayout>
 </ScrollView>

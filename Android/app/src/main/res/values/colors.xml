@@ -42,4 +42,23 @@
     <!-- Base Fallbacks -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Grid Operator screens only. Same palette as the web staff portal. -->
+    <color name="operator_navy">#12344D</color>
+    <color name="operator_navy_pressed">#0C283C</color>
+    <color name="operator_gold">#D39212</color>
+    <color name="operator_gold_wash">#F8EFD0</color>
+    <color name="operator_paper">#E7EEF3</color>
+    <color name="operator_card">#FFFFFF</color>
+    <color name="operator_line">#D5E0EA</color>
+    <color name="operator_input">#C5D3E0</color>
+    <color name="operator_ink">#102033</color>
+    <color name="operator_text">#1B2836</color>
+    <color name="operator_muted">#5C6E80</color>
+    <color name="operator_ok">#0F7A4A</color>
+    <color name="operator_ok_bg">#E5F6EE</color>
+    <color name="operator_wait">#8A5A00</color>
+    <color name="operator_wait_bg">#FFF4D6</color>
+    <color name="operator_stop">#8D3D36</color>
+    <color name="operator_stop_bg">#F8E9E6</color>
 </resources>

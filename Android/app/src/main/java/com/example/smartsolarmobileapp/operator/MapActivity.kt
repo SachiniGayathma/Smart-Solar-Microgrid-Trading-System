@@ -195,7 +195,7 @@ class MapActivity : AppCompatActivity() {
             style.addLayer(
                 CircleLayer(LAYER_ID, SOURCE_ID).withProperties(
                     circleRadius(8f),
-                    circleColor("#1B5E20"),
+                    circleColor("#D39212"),
                     circleStrokeWidth(2f),
                     circleStrokeColor("#FFFFFF")
                 )

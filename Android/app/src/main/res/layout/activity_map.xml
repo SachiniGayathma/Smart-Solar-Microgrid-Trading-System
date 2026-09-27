@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/solar_bg"
+    android:background="@color/operator_paper"
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
@@ -12,7 +12,7 @@
         android:paddingHorizontal="@dimen/screen_padding"
         android:paddingTop="@dimen/screen_padding"
         android:text="Nearby stations"
-        android:textColor="@color/solar_slate_dark"
+        android:textColor="@color/operator_ink"
         android:textSize="@dimen/title_text"
         android:textStyle="bold" />
 
@@ -23,7 +23,7 @@
         android:paddingHorizontal="@dimen/screen_padding"
         android:paddingTop="4dp"
         android:text="Stations are loaded from the server."
-        android:textColor="@color/solar_slate_muted"
+        android:textColor="@color/operator_muted"
         android:textSize="13sp" />
 
     <org.maplibre.android.maps.MapView

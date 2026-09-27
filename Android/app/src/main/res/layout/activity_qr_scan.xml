@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/solar_bg"
+    android:background="@color/operator_paper"
     android:fillViewport="true"
     android:fitsSystemWindows="true">
 
@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Verify energy transfer"
-            android:textColor="@color/solar_slate_dark"
+            android:textColor="@color/operator_ink"
             android:textSize="22sp"
             android:textStyle="bold" />
 
@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Scan the prosumer QR code. The server checks the token and marks the booking completed."
-            android:textColor="@color/solar_slate_body"
+            android:textColor="@color/operator_muted"
             android:textSize="14sp" />
 
         <com.google.android.material.button.MaterialButton
@@ -42,12 +42,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:background="@color/solar_surface"
+            android:background="@color/operator_card"
             android:hint="Or paste the QR token"
             android:inputType="text"
             android:padding="12dp"
-            android:textColor="@color/solar_slate_dark"
-            android:textColorHint="@color/solar_slate_muted" />
+            android:textColor="@color/operator_ink"
+            android:textColorHint="@color/operator_muted" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_verify_qr"
@@ -72,8 +72,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:visibility="gone"
-            app:cardBackgroundColor="@color/solar_surface"
-            app:cardCornerRadius="14dp"
+            app:cardBackgroundColor="@color/operator_card"
+            app:cardCornerRadius="@dimen/operator_card_radius"
             app:cardElevation="2dp">
 
             <LinearLayout
@@ -90,7 +90,7 @@
                     android:paddingHorizontal="10dp"
                     android:paddingVertical="4dp"
                     android:text="Energy Transfer Completed"
-                    android:textColor="@color/solar_status_approved"
+                    android:textColor="@color/operator_ok"
                     android:textStyle="bold"
                     android:visibility="gone" />
 
@@ -99,7 +99,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:textColor="@color/solar_slate_dark"
+                    android:textColor="@color/operator_ink"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -108,7 +108,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:textColor="@color/solar_slate_body"
+                    android:textColor="@color/operator_muted"
                     android:textSize="14sp" />
 
                 <TextView
@@ -116,7 +116,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:textColor="@color/solar_slate_heading"
+                    android:textColor="@color/operator_text"
                     android:textSize="14sp" />
 
                 <TextView
@@ -124,7 +124,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:textColor="@color/solar_slate_heading"
+                    android:textColor="@color/operator_text"
                     android:textSize="14sp" />
 
                 <TextView
@@ -132,7 +132,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:textColor="@color/solar_slate_heading"
+                    android:textColor="@color/operator_text"
                     android:textSize="14sp" />
 
                 <TextView
@@ -140,7 +140,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:textColor="@color/solar_slate_heading"
+                    android:textColor="@color/operator_text"
                     android:textSize="14sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>

@@ -30,7 +30,13 @@ class ReservationListActivity : AppCompatActivity() {
         repository = OperatorRepository(this)
 
         val recycler = findViewById<RecyclerView>(R.id.rv_operator_reservations)
-        adapter = BookingAdapter(emptyList()) { reservation -> onReservationClicked(reservation) }
+        adapter = BookingAdapter(
+            emptyList(),
+            R.layout.item_operator_booking,
+            webStatusColors = true
+        ) { reservation ->
+            onReservationClicked(reservation)
+        }
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = adapter
 
