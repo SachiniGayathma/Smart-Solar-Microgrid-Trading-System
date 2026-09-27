@@ -37,16 +37,10 @@ class OperatorDashboardActivity : AppCompatActivity() {
         setContentView(R.layout.activity_operator_dashboard)
         repository = OperatorRepository(this)
 
-        findViewById<TextView>(R.id.tv_operator_welcome).text =
-            "Welcome, ${sessionManager.getUserFullName() ?: "Operator"}"
-        findViewById<TextView>(R.id.tv_operator_role).text =
+        findViewById<TextView>(R.id.tv_operator_welcome)?.text =
+            "Welcome, ${sessionManager.getUserFullName()?.ifBlank { null } ?: "Operator"}"
+        findViewById<TextView>(R.id.tv_operator_role)?.text =
             sessionManager.getUser()?.role ?: RoleRouter.ROLE_GRID_OPERATOR
-
-        findViewById<TextView>(R.id.card_pending).let { }
-        labelMetric(R.id.card_pending, "Pending")
-        labelMetric(R.id.card_approved, "Approved future")
-        labelMetric(R.id.card_current, "Current")
-        labelMetric(R.id.card_history, "History")
 
         findViewById<android.view.View>(R.id.btn_operator_logout).setOnClickListener {
             sessionManager.clearSession()
@@ -68,33 +62,28 @@ class OperatorDashboardActivity : AppCompatActivity() {
         super.onResume()
         if (!::repository.isInitialized) return
         lifecycleScope.launch {
-            when (val result = repository.loadDashboard()) {
-                is OperatorLoad.Fresh -> bindCounts(result.data)
-                is OperatorLoad.Cached -> {
-                    bindCounts(result.data)
-                    Toast.makeText(this@OperatorDashboardActivity, "Showing saved counts", Toast.LENGTH_SHORT).show()
+            try {
+                when (val result = repository.loadDashboard()) {
+                    is OperatorLoad.Fresh -> bindCounts(result.data)
+                    is OperatorLoad.Cached -> bindCounts(result.data)
+                    is OperatorLoad.Failed -> {
+                        Toast.makeText(this@OperatorDashboardActivity, result.message, Toast.LENGTH_LONG).show()
+                    }
                 }
-                is OperatorLoad.Failed -> {
-                    Toast.makeText(this@OperatorDashboardActivity, result.message, Toast.LENGTH_LONG).show()
-                }
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@OperatorDashboardActivity,
+                    e.message ?: "Could not load operator dashboard.",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
 
-    private fun labelMetric(includeId: Int, label: String) {
-        findViewById<android.view.View>(includeId)
-            .findViewById<TextView>(R.id.tv_metric_label).text = label
-    }
-
     private fun bindCounts(dashboard: com.example.smartsolarmobileapp.models.ReservationDashboard) {
-        setMetric(R.id.card_pending, dashboard.pendingCount)
-        setMetric(R.id.card_approved, dashboard.approvedFutureCount)
-        setMetric(R.id.card_current, dashboard.currentCount)
-        setMetric(R.id.card_history, dashboard.historyCount)
-    }
-
-    private fun setMetric(includeId: Int, value: Int) {
-        findViewById<android.view.View>(includeId)
-            .findViewById<TextView>(R.id.tv_metric_value).text = value.toString()
+        findViewById<TextView>(R.id.tv_pending_value)?.text = dashboard.pendingCount.toString()
+        findViewById<TextView>(R.id.tv_approved_value)?.text = dashboard.approvedFutureCount.toString()
+        findViewById<TextView>(R.id.tv_current_value)?.text = dashboard.currentCount.toString()
+        findViewById<TextView>(R.id.tv_history_value)?.text = dashboard.historyCount.toString()
     }
 }

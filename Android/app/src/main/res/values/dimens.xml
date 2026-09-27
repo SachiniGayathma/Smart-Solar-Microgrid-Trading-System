@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="screen_padding">16dp</dimen>
+    <dimen name="screen_padding_large">20dp</dimen>
+    <dimen name="title_text">22sp</dimen>
+    <dimen name="metric_value_text">26sp</dimen>
+    <dimen name="map_min_height">180dp</dimen>
+    <dimen name="qr_size">220dp</dimen>
+</resources>

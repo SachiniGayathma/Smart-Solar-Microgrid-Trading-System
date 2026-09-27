@@ -2,16 +2,21 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
-val mapboxSecrets = java.util.Properties().apply {
-    val secretsFile = rootProject.file("secrets.properties")
-    if (secretsFile.exists()) {
-        secretsFile.inputStream().use { load(it) }
-    }
-}
+val mapboxAccessToken = rootProject.file("secrets.properties")
+    .takeIf { it.exists() }
+    ?.readLines()
+    ?.firstOrNull { it.trim().startsWith("MAPBOX_ACCESS_TOKEN=") }
+    ?.substringAfter("=")
+    ?.trim()
+    .orEmpty()
 
 android {
     namespace = "com.example.smartsolarmobileapp"
     compileSdk = 35
+
+    buildFeatures {
+        resValues = true
+    }
 
     defaultConfig {
         applicationId = "com.example.smartsolarmobileapp"
@@ -24,7 +29,7 @@ android {
         resValue(
             "string",
             "mapbox_access_token",
-            mapboxSecrets.getProperty("MAPBOX_ACCESS_TOKEN", "")
+            mapboxAccessToken
         )
     }
 

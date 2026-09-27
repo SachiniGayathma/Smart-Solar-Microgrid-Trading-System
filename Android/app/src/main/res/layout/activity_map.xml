@@ -9,18 +9,18 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="16dp"
+        android:paddingHorizontal="@dimen/screen_padding"
+        android:paddingTop="@dimen/screen_padding"
         android:text="Nearby stations"
         android:textColor="@color/solar_slate_dark"
-        android:textSize="22sp"
+        android:textSize="@dimen/title_text"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tv_map_note"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
+        android:paddingHorizontal="@dimen/screen_padding"
         android:paddingTop="4dp"
         android:text="Stations are loaded from the server."
         android:textColor="@color/solar_slate_muted"
@@ -29,13 +29,16 @@
     <org.maplibre.android.maps.MapView
         android:id="@+id/map_stations"
         android:layout_width="match_parent"
-        android:layout_height="220dp"
-        android:layout_marginTop="12dp" />
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:layout_weight="1.2"
+        android:minHeight="@dimen/map_min_height" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_operator_stations"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="12dp" />
+        android:clipToPadding="false"
+        android:padding="@dimen/screen_padding" />
 </LinearLayout>

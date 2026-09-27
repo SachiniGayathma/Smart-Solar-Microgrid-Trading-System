@@ -95,7 +95,11 @@ class OperatorRepository(context: Context) {
                 OperatorLoad.Cached(dashboardFromCache())
             }
         } catch (e: Exception) {
-            OperatorLoad.Cached(dashboardFromCache())
+            try {
+                OperatorLoad.Cached(dashboardFromCache())
+            } catch (cacheError: Exception) {
+                OperatorLoad.Failed(e.message ?: "Could not load dashboard counts.")
+            }
         }
     }
 

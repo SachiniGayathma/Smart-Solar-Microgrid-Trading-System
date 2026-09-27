@@ -23,7 +23,9 @@ import com.example.smartsolarmobileapp.utils.GeoUtils
 import com.google.android.gms.location.LocationServices
 import org.maplibre.android.MapLibre
 import org.maplibre.android.camera.CameraPosition
+import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.geometry.LatLngBounds
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.style.layers.CircleLayer
@@ -67,7 +69,9 @@ class MapActivity : AppCompatActivity() {
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync { map ->
             mapLibreMap = map
-            map.setStyle(mapboxStyle()) {
+            map.uiSettings.isAttributionEnabled = true
+            map.uiSettings.isLogoEnabled = true
+            map.setStyle(STREET_STYLE) {
                 plot(stations)
             }
             map.addOnMapClickListener { latLng ->
@@ -117,11 +121,6 @@ class MapActivity : AppCompatActivity() {
     override fun onDestroy() {
         mapView.onDestroy()
         super.onDestroy()
-    }
-
-    private fun mapboxStyle(): String {
-        val token = getString(R.string.mapbox_access_token)
-        return "https://api.mapbox.com/styles/v1/mapbox/streets-v12?access_token=$token"
     }
 
     private fun readLocation() {
@@ -181,7 +180,7 @@ class MapActivity : AppCompatActivity() {
     private fun plot(stations: List<Station>) {
         val map = mapLibreMap ?: return
         val style = map.style ?: return
-        val features = stations.map { station ->
+        val features = stations.filter { it.hasMapPosition() }.map { station ->
             Feature.fromGeometry(
                 Point.fromLngLat(station.longitude, station.latitude)
             ).apply {
@@ -205,11 +204,45 @@ class MapActivity : AppCompatActivity() {
             existing.setGeoJson(collection)
         }
 
-        val focus = userLatLng ?: stations.firstOrNull()?.let { LatLng(it.latitude, it.longitude) }
-        if (focus != null) {
+        frameStations(stations)
+    }
+
+    private fun frameStations(stations: List<Station>) {
+        val map = mapLibreMap ?: return
+        val stationPoints = stations.filter { it.hasMapPosition() }.map { LatLng(it.latitude, it.longitude) }
+        val points = buildList {
+            addAll(stationPoints)
+            val origin = userLatLng
+            if (origin != null && stationPoints.any { point ->
+                    GeoUtils.distanceKm(origin.latitude, origin.longitude, point.latitude, point.longitude) < 150.0
+                }
+            ) {
+                add(origin)
+            }
+            if (isEmpty() && origin != null) add(origin)
+        }
+        if (points.isEmpty()) return
+        if (mapView.width == 0 || mapView.height == 0) {
+            mapView.post { frameStations(stations) }
+            return
+        }
+        if (points.size == 1) {
             map.cameraPosition = CameraPosition.Builder()
-                .target(focus)
-                .zoom(13.0)
+                .target(points.first())
+                .zoom(12.0)
+                .build()
+            return
+        }
+        try {
+            val bounds = LatLngBounds.Builder().apply {
+                points.forEach { include(it) }
+            }.build()
+            val padding = (48 * resources.displayMetrics.density).toInt()
+            map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding))
+        } catch (e: Exception) {
+            map.cameraPosition = CameraPosition.Builder()
+                .target(points.first())
+                .zoom(8.0)
                 .build()
         }
     }
@@ -232,6 +265,10 @@ class MapActivity : AppCompatActivity() {
         )
     }
 
+    private fun Station.hasMapPosition(): Boolean {
+        return latitude != 0.0 || longitude != 0.0
+    }
+
     private fun hasLocationPermission(): Boolean {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
@@ -240,5 +277,6 @@ class MapActivity : AppCompatActivity() {
     companion object {
         private const val SOURCE_ID = "stations"
         private const val LAYER_ID = "station-circles"
+        private const val STREET_STYLE = "https://tiles.openfreemap.org/styles/liberty"
     }
 }

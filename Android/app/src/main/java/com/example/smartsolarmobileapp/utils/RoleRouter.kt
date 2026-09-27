@@ -14,9 +14,10 @@ object RoleRouter {
     const val ROLE_BACKOFFICE = "Backoffice"
 
     fun isOperatorRole(role: String?): Boolean {
-        return role.equals(ROLE_OPERATOR, ignoreCase = true) ||
-            role.equals(ROLE_GRID_OPERATOR, ignoreCase = true) ||
-            role.equals(ROLE_BACKOFFICE, ignoreCase = true)
+        val normalized = role?.trim()?.replace(" ", "").orEmpty()
+        return normalized.equals(ROLE_OPERATOR, ignoreCase = true) ||
+            normalized.equals(ROLE_GRID_OPERATOR, ignoreCase = true) ||
+            normalized.equals(ROLE_BACKOFFICE, ignoreCase = true)
     }
 
     fun homeActivity(role: String?): Class<out Activity> {

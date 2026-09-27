@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="@dimen/screen_padding_large">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -31,7 +31,7 @@
                     android:layout_height="wrap_content"
                     android:text="Grid Operator"
                     android:textColor="@color/solar_slate_dark"
-                    android:textSize="22sp"
+                    android:textSize="@dimen/title_text"
                     android:textStyle="bold" />
 
                 <TextView
@@ -51,21 +51,77 @@
             android:layout_marginTop="20dp"
             android:orientation="horizontal">
 
-            <include
-                android:id="@+id/card_pending"
-                layout="@layout/include_operator_metric"
+            <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/solar_surface"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="2dp">
 
-            <include
-                android:id="@+id/card_approved"
-                layout="@layout/include_operator_metric"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tv_pending_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="@color/solar_green_primary"
+                        android:textSize="@dimen/metric_value_text"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_pending_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:maxLines="2"
+                        android:text="Pending"
+                        android:textColor="@color/solar_slate_body"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/solar_surface"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tv_approved_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="@color/solar_green_primary"
+                        android:textSize="@dimen/metric_value_text"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_approved_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:maxLines="2"
+                        android:text="Approved future"
+                        android:textColor="@color/solar_slate_body"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
 
         <LinearLayout
@@ -74,21 +130,77 @@
             android:layout_marginTop="12dp"
             android:orientation="horizontal">
 
-            <include
-                android:id="@+id/card_current"
-                layout="@layout/include_operator_metric"
+            <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/solar_surface"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="2dp">
 
-            <include
-                android:id="@+id/card_history"
-                layout="@layout/include_operator_metric"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tv_current_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="@color/solar_green_primary"
+                        android:textSize="@dimen/metric_value_text"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_current_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:maxLines="2"
+                        android:text="Current"
+                        android:textColor="@color/solar_slate_body"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/solar_surface"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tv_history_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="@color/solar_green_primary"
+                        android:textSize="@dimen/metric_value_text"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_history_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:maxLines="2"
+                        android:text="History"
+                        android:textColor="@color/solar_slate_body"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
 
         <androidx.cardview.widget.CardView
@@ -98,7 +210,6 @@
             android:layout_marginTop="24dp"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"
             app:cardBackgroundColor="@color/solar_surface"
             app:cardCornerRadius="14dp"
             app:cardElevation="2dp">
@@ -120,7 +231,6 @@
             android:layout_marginTop="10dp"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"
             app:cardBackgroundColor="@color/solar_surface"
             app:cardCornerRadius="14dp"
             app:cardElevation="2dp">
@@ -142,7 +252,6 @@
             android:layout_marginTop="10dp"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"
             app:cardBackgroundColor="@color/solar_surface"
             app:cardCornerRadius="14dp"
             app:cardElevation="2dp">
@@ -159,7 +268,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_operator_logout"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="?attr/materialButtonOutlinedStyle"
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:layout_marginTop="16dp"

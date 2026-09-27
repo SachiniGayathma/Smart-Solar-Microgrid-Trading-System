@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layout_qr_display"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:background="@color/solar_bg"
-    android:paddingHorizontal="24dp"
-    android:paddingTop="28dp"
-    android:paddingBottom="24dp"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true"
     tools:context=".prosumer.QRDisplayActivity">
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/layout_qr_display"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="@dimen/screen_padding_large"
+    android:paddingTop="28dp"
+    android:paddingBottom="24dp">
 
     <!-- Top Header Bar with Back Navigation -->
     <LinearLayout
@@ -77,9 +82,11 @@
 
             <ImageView
                 android:id="@+id/iv_qr_code"
-                android:layout_width="250dp"
-                android:layout_height="250dp"
-                android:contentDescription="Booking QR Code Pass" />
+                android:layout_width="@dimen/qr_size"
+                android:layout_height="@dimen/qr_size"
+                android:adjustViewBounds="true"
+                android:contentDescription="Booking QR Code Pass"
+                android:scaleType="fitCenter" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -100,3 +107,4 @@
         app:layout_constraintTop_toBottomOf="@+id/card_qr_container" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
