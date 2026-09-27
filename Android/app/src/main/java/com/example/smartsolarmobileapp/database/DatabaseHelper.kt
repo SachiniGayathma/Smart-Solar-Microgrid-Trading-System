@@ -114,6 +114,20 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         // Seed initial reference microgrid stations for offline persistence and Google Maps pins
         seedInitialStations(db)
+        seedInitialUsers(db)
+    }
+
+    /**
+     * Inserts standard reference users into local storage for offline testing resilience.
+     */
+    fun seedInitialUsers(db: SQLiteDatabase) {
+        val userQueries = listOf(
+            "INSERT OR REPLACE INTO $TABLE_USERS ($COL_USER_NIC, $COL_USER_FULL_NAME, $COL_USER_EMAIL, $COL_USER_PHONE, $COL_USER_ROLE, $COL_USER_STATUS) VALUES ('200012345678', 'Amara Perera', 'amara@example.com', '0771234567', 'Prosumer', 'Active');",
+            "INSERT OR REPLACE INTO $TABLE_USERS ($COL_USER_NIC, $COL_USER_FULL_NAME, $COL_USER_EMAIL, $COL_USER_PHONE, $COL_USER_ROLE, $COL_USER_STATUS) VALUES ('199812345V', 'Grid Operator One', 'operator@smartsolar.local', '0770000001', 'GridOperator', 'Active');"
+        )
+        for (sql in userQueries) {
+            db.execSQL(sql)
+        }
     }
 
     /**
@@ -142,9 +156,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     override fun onOpen(db: SQLiteDatabase) {
         super.onOpen(db)
-        // Testing / Offline Demo Fallback: Seed and activate demo prosumer account for walkthrough testing
+        // Testing / Offline Demo Fallback: Seed and activate demo accounts for walkthrough testing
         // until central C# Web API and MongoDB server are actively running.
-        db.execSQL("UPDATE $TABLE_USERS SET $COL_USER_STATUS = 'Active' WHERE $COL_USER_NIC = '200012345678' OR $COL_USER_EMAIL = 'amara@example.com';")
-        db.execSQL("INSERT OR IGNORE INTO $TABLE_USERS ($COL_USER_NIC, $COL_USER_FULL_NAME, $COL_USER_EMAIL, $COL_USER_PHONE, $COL_USER_ROLE, $COL_USER_STATUS) VALUES ('200012345678', 'Amara Perera', 'amara@example.com', '0771234567', 'Prosumer', 'Active');")
+        seedInitialUsers(db)
     }
 }

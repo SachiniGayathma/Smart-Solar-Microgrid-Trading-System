@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +24,8 @@ import com.example.smartsolarmobileapp.models.User
 import com.example.smartsolarmobileapp.utils.RoleRouter
 import com.example.smartsolarmobileapp.utils.SessionManager
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,13 +33,21 @@ import kotlinx.coroutines.withContext
 
 class LoginActivity : AppCompatActivity() {
 
+    private lateinit var tvLoginTitle: TextView
+    private lateinit var tvLoginSubtitle: TextView
+    private lateinit var toggleGroupRole: MaterialButtonToggleGroup
+    private lateinit var btnRoleProsumer: MaterialButton
+    private lateinit var btnRoleOperator: MaterialButton
     private lateinit var tilIdentifier: TextInputLayout
     private lateinit var tilPassword: TextInputLayout
     private lateinit var etIdentifier: EditText
     private lateinit var etPassword: EditText
     private lateinit var btnLogin: Button
     private lateinit var btnToRegister: Button
+    private var layoutOperatorNotice: View? = null
     private lateinit var pbLogin: ProgressBar
+
+    private var isOperatorMode = false
 
     private lateinit var sessionManager: SessionManager
     private lateinit var dbHelper: DatabaseHelper
@@ -69,12 +80,18 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun initializeViews() {
+        tvLoginTitle = findViewById(R.id.tv_login_title)
+        tvLoginSubtitle = findViewById(R.id.tv_login_subtitle)
+        toggleGroupRole = findViewById(R.id.toggle_group_role)
+        btnRoleProsumer = findViewById(R.id.btn_role_prosumer)
+        btnRoleOperator = findViewById(R.id.btn_role_operator)
         tilIdentifier = findViewById(R.id.til_login_identifier)
         tilPassword = findViewById(R.id.til_login_password)
         etIdentifier = findViewById(R.id.et_login_identifier)
         etPassword = findViewById(R.id.et_login_password)
         btnLogin = findViewById(R.id.btn_login)
         btnToRegister = findViewById(R.id.btn_to_register)
+        layoutOperatorNotice = findViewById(R.id.layout_operator_notice)
         pbLogin = findViewById(R.id.pb_login)
 
         // Prevent Material error exclamation mark from replacing the password toggle eye
@@ -83,6 +100,15 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
+        toggleGroupRole.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                when (checkedId) {
+                    R.id.btn_role_prosumer -> setLoginMode(isOperator = false)
+                    R.id.btn_role_operator -> setLoginMode(isOperator = true)
+                }
+            }
+        }
+
         btnLogin.setOnClickListener {
             handleLogin()
         }
@@ -102,6 +128,31 @@ class LoginActivity : AppCompatActivity() {
     }
 
     /**
+     * Toggles UI dynamically between Solar Prosumer and Grid Operator modes.
+     */
+    private fun setLoginMode(isOperator: Boolean) {
+        isOperatorMode = isOperator
+        tilIdentifier.error = null
+        tilPassword.error = null
+
+        if (isOperator) {
+            tvLoginTitle.text = "Grid Operator Sign In"
+            tvLoginSubtitle.text = "Field operations, on-site physical QR verification, and station dispatch."
+            tilIdentifier.hint = "Operator Email or Staff ID"
+            tilIdentifier.setStartIconDrawable(R.drawable.ic_email)
+            btnToRegister.visibility = View.GONE
+            layoutOperatorNotice?.visibility = View.VISIBLE
+        } else {
+            tvLoginTitle.text = "Prosumer Sign In"
+            tvLoginSubtitle.text = "Access your clean energy trading portal, slot reservations, and microgrid transaction QR codes."
+            tilIdentifier.hint = "NIC or Email Address"
+            tilIdentifier.setStartIconDrawable(R.drawable.ic_badge_nic)
+            btnToRegister.visibility = View.VISIBLE
+            layoutOperatorNotice?.visibility = View.GONE
+        }
+    }
+
+    /**
      * Validates input fields and initiates authentication dispatch.
      */
     private fun handleLogin() {
@@ -112,7 +163,7 @@ class LoginActivity : AppCompatActivity() {
         tilPassword.error = null
 
         if (identifier.isBlank()) {
-            tilIdentifier.error = "NIC or Email is required"
+            tilIdentifier.error = if (isOperatorMode) "Operator Email or Staff ID is required" else "NIC or Email is required"
             etIdentifier.requestFocus()
             return
         }
@@ -235,7 +286,14 @@ class LoginActivity : AppCompatActivity() {
             // Password verification check:
             // For testing and offline demo purposes until central C# Web API and MongoDB server are actively running.
             // Verified against standard registered/demo credentials.
-            if (password != "Password123!") {
+            val isOperatorRole = cachedUser.role.equals("GridOperator", ignoreCase = true) || cachedUser.role.equals("Operator", ignoreCase = true)
+            val isPasswordValid = if (isOperatorRole) {
+                password == "Operator@123" || password == "Password123!"
+            } else {
+                password == "Password123!"
+            }
+
+            if (!isPasswordValid) {
                 tilPassword.error = "Incorrect password"
                 showErrorDialog("Incorrect Password", "The password you entered is incorrect. Please verify your credentials and try again.")
                 return

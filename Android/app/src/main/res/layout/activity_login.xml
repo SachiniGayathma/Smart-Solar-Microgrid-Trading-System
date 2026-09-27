@@ -81,18 +81,82 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_login_title" />
 
+        <!-- Role Selection Pill Capsule Container -->
+        <FrameLayout
+            android:id="@+id/container_role_toggle"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/bg_role_toggle_pill"
+            android:padding="3dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_login_subtitle">
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggle_group_role"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:checkedButton="@id/btn_role_prosumer"
+                app:selectionRequired="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_role_prosumer"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Solar Prosumer"
+                    android:textAllCaps="false"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/role_toggle_btn_text"
+                    app:backgroundTint="@color/role_toggle_btn_bg"
+                    app:cornerRadius="21dp"
+                    app:icon="@drawable/ic_solar_bolt"
+                    app:iconGravity="textStart"
+                    app:iconPadding="6dp"
+                    app:iconSize="16dp"
+                    app:iconTint="@color/role_toggle_btn_text"
+                    app:rippleColor="#20FFFFFF"
+                    app:strokeWidth="0dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_role_operator"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Grid Operator"
+                    android:textAllCaps="false"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/role_toggle_btn_text"
+                    app:backgroundTint="@color/role_toggle_btn_bg"
+                    app:cornerRadius="21dp"
+                    app:icon="@drawable/ic_person"
+                    app:iconGravity="textStart"
+                    app:iconPadding="6dp"
+                    app:iconSize="16dp"
+                    app:iconTint="@color/role_toggle_btn_text"
+                    app:rippleColor="#20FFFFFF"
+                    app:strokeWidth="0dp" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+        </FrameLayout>
+
         <!-- Login Form Card -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_login_form"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             app:cardCornerRadius="@dimen/card_corner_radius"
             app:cardElevation="3dp"
             app:cardBackgroundColor="@color/solar_surface"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_login_subtitle">
+            app:layout_constraintTop_toBottomOf="@+id/container_role_toggle">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -200,6 +264,41 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/card_login_form" />
+
+        <!-- Operator Registration Info Notice (Operator mode only) -->
+        <LinearLayout
+            android:id="@+id/layout_operator_notice"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_info_card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/card_login_form">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_info_circle"
+                app:tint="@color/solar_green_primary"
+                android:contentDescription="Info" />
+
+            <TextView
+                android:id="@+id/tv_operator_notice"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:lineSpacingExtra="2dp"
+                android:text="Grid Operator accounts are provisioned exclusively by Backoffice administrators on the Web Portal."
+                android:textColor="@color/solar_slate_heading"
+                android:textSize="12sp" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
