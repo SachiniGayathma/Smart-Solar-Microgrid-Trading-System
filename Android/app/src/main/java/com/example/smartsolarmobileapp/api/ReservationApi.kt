@@ -3,7 +3,9 @@
  */
 package com.example.smartsolarmobileapp.api
 
+import com.example.smartsolarmobileapp.models.QRVerificationRequest
 import com.example.smartsolarmobileapp.models.Reservation
+import com.example.smartsolarmobileapp.models.ReservationDashboard
 import com.example.smartsolarmobileapp.models.ReservationRequest
 import retrofit2.Response
 import retrofit2.http.Body
@@ -14,12 +16,6 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ReservationApi {
-
-    /**
-     * Retrieves aggregated booking metrics for the dashboard.
-     */
-    @GET("reservations/dashboard")
-    suspend fun getDashboard(): Response<Map<String, Any>>
 
     /**
      * Creates a new energy slot reservation for the authenticated prosumer.
@@ -70,4 +66,35 @@ interface ReservationApi {
     suspend fun getQrToken(
         @Path("id") id: String
     ): Response<Map<String, String>>
+
+    /**
+     * Returns pending, approved-future, current, and history counts.
+     * Operators receive counts for every booking.
+     */
+    @GET("Reservations/dashboard")
+    suspend fun getDashboard(): Response<ReservationDashboard>
+
+    /**
+     * Approves a pending reservation and issues a QR token.
+     */
+    @POST("Reservations/{id}/approve")
+    suspend fun approveReservation(
+        @Path("id") id: String
+    ): Response<Reservation>
+
+    /**
+     * Verifies a scanned QR token and marks the energy transfer completed.
+     */
+    @POST("Reservations/verify-qr")
+    suspend fun verifyQr(
+        @Body request: QRVerificationRequest
+    ): Response<Reservation>
+
+    /**
+     * Marks a verified reservation as completed when verify-qr leaves it approved.
+     */
+    @PUT("Reservations/{id}/complete")
+    suspend fun completeReservation(
+        @Path("id") id: String
+    ): Response<Reservation>
 }

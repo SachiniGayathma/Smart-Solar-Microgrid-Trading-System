@@ -25,3 +25,10 @@ data class Station(
     val schedule: String = "08:00 - 18:00",
     val status: String = "Active"
 )
+
+/**
+ * Body for PATCH /api/stations/{id}/availability.
+ */
+data class UpdateStationAvailabilityRequest(
+    val batteryStorageSlots: Int
+)

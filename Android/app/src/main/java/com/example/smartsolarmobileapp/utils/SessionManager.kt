@@ -88,6 +88,14 @@ class SessionManager(private val prefs: SharedPreferences) {
     /**
      * Returns the NIC of the currently logged-in prosumer.
      */
+    fun getUserRole(): String? {
+        return prefs.getString(KEY_USER_ROLE, null)
+    }
+
+    fun isOperator(): Boolean {
+        return RoleRouter.isOperatorRole(getUserRole())
+    }
+
     fun getUserNic(): String? {
         return prefs.getString(KEY_USER_NIC, null)
     }
@@ -97,6 +105,10 @@ class SessionManager(private val prefs: SharedPreferences) {
      */
     fun getUserName(): String? {
         return prefs.getString(KEY_USER_NAME, null)
+    }
+
+    fun getUserFullName(): String? {
+        return getUserName()
     }
 
     /**

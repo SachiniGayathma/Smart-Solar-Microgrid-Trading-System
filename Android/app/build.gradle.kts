@@ -2,6 +2,13 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+val mapboxSecrets = java.util.Properties().apply {
+    val secretsFile = rootProject.file("secrets.properties")
+    if (secretsFile.exists()) {
+        secretsFile.inputStream().use { load(it) }
+    }
+}
+
 android {
     namespace = "com.example.smartsolarmobileapp"
     compileSdk = 35
@@ -14,6 +21,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        resValue(
+            "string",
+            "mapbox_access_token",
+            mapboxSecrets.getProperty("MAPBOX_ACCESS_TOKEN", "")
+        )
     }
 
     buildTypes {
@@ -51,8 +63,13 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.gson)
 
-    // QR Code Generation (ZXing for Prosumer Barcode)
+    // QR generation for prosumers and camera scanning for operators
     implementation(libs.zxing.core)
+    implementation(libs.zxing.embedded)
+
+    // Mapbox streets tiles via MapLibre, plus device location
+    implementation(libs.maplibre)
+    implementation(libs.play.services.location)
 
     // Lifecycle & Coroutines
     implementation(libs.lifecycle.viewmodel)

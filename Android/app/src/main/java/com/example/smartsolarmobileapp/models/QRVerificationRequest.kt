@@ -1,4 +1,8 @@
+/**
+ * Body for POST /api/reservations/verify-qr.
+ */
 package com.example.smartsolarmobileapp.models
 
-class QRVerificationRequest {
-}
+data class QRVerificationRequest(
+    val qrToken: String
+)

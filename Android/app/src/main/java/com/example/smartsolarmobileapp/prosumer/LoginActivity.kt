@@ -20,6 +20,7 @@ import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.UserDao
 import com.example.smartsolarmobileapp.models.LoginRequest
 import com.example.smartsolarmobileapp.models.User
+import com.example.smartsolarmobileapp.utils.RoleRouter
 import com.example.smartsolarmobileapp.utils.SessionManager
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import com.google.android.material.textfield.TextInputLayout
@@ -307,8 +308,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun navigateToDashboard() {
-        val intent = Intent(this, ProsumerDashboardActivity::class.java)
-        startActivity(intent)
+        val destination = RoleRouter.homeActivity(sessionManager.getUserRole())
+        startActivity(Intent(this, destination))
         finish()
     }
 }

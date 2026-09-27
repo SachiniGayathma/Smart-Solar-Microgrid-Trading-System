@@ -7,7 +7,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.smartsolarmobileapp.prosumer.LoginActivity
-import com.example.smartsolarmobileapp.prosumer.ProsumerDashboardActivity
+import com.example.smartsolarmobileapp.utils.RoleRouter
 import com.example.smartsolarmobileapp.utils.SessionManager
 
 class MainActivity : AppCompatActivity() {
@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
 
         val sessionManager = SessionManager(this)
         if (sessionManager.isLoggedIn()) {
-            startActivity(Intent(this, ProsumerDashboardActivity::class.java))
+            startActivity(Intent(this, RoleRouter.homeActivity(sessionManager.getUserRole())))
         } else {
             startActivity(Intent(this, LoginActivity::class.java))
         }

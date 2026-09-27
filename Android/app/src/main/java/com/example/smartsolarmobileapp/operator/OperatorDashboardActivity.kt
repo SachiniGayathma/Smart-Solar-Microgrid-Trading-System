@@ -1,38 +1,100 @@
 /**
- * TODO: Member 4 (Grid Operator) — Operator Dashboard Activity
- *
- * This activity serves as the home screen for Grid Operator users after login.
- * LoginActivity already routes "Operator" role users to this screen via the
- * role-based home routing in validateAndProcessUser().
- *
- * Implementation checklist for Member 4:
- * ──────────────────────────────────────
- * 1. Extend AppCompatActivity and set up the operator-specific dashboard layout.
- *
- * 2. Display operator welcome greeting (name from SessionManager).
- *
- * 3. Navigation cards/buttons:
- *       a) "Scan QR Code"   → Launches QrScanActivity
- *       b) "View Stations"  → Launches MapActivity (Google Maps with station pins)
- *       c) "Reservations"   → Launches ReservationListActivity (all reservations list)
- *       d) "Logout"         → Clears SessionManager and navigates to LoginActivity
- *
- * 4. Optional dashboard metrics:
- *       - Total stations managed
- *       - Pending reservations awaiting verification
- *       - Completed energy transfers today
- *
- * Files to reference:
- *   - ProsumerDashboardActivity.kt — similar dashboard pattern for prosumer role
- *   - SessionManager.kt (utils/SessionManager.kt) — session/user data access
- *   - LoginActivity.kt — role routing logic (look for "Operator" role check)
- *
- * Layout file: Create activity_operator_dashboard.xml
+ * Grid Operator home. Shows live booking counts and opens scan, map, and reservations.
  */
 package com.example.smartsolarmobileapp.operator
 
+import android.content.Intent
+import android.os.Bundle
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.example.smartsolarmobileapp.R
+import com.example.smartsolarmobileapp.prosumer.LoginActivity
+import com.example.smartsolarmobileapp.utils.RoleRouter
+import com.example.smartsolarmobileapp.utils.SessionManager
+import kotlinx.coroutines.launch
 
 class OperatorDashboardActivity : AppCompatActivity() {
-    // TODO: Member 4 — Implement operator dashboard with navigation to scan/map/reservations
+
+    private lateinit var sessionManager: SessionManager
+    private lateinit var repository: OperatorRepository
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sessionManager = SessionManager(this)
+        if (!sessionManager.isLoggedIn()) {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+            return
+        }
+        if (!sessionManager.isOperator()) {
+            startActivity(Intent(this, RoleRouter.homeActivity(sessionManager.getUserRole())))
+            finish()
+            return
+        }
+
+        setContentView(R.layout.activity_operator_dashboard)
+        repository = OperatorRepository(this)
+
+        findViewById<TextView>(R.id.tv_operator_welcome).text =
+            "Welcome, ${sessionManager.getUserFullName() ?: "Operator"}"
+        findViewById<TextView>(R.id.tv_operator_role).text =
+            sessionManager.getUser()?.role ?: RoleRouter.ROLE_GRID_OPERATOR
+
+        findViewById<TextView>(R.id.card_pending).let { }
+        labelMetric(R.id.card_pending, "Pending")
+        labelMetric(R.id.card_approved, "Approved future")
+        labelMetric(R.id.card_current, "Current")
+        labelMetric(R.id.card_history, "History")
+
+        findViewById<android.view.View>(R.id.btn_operator_logout).setOnClickListener {
+            sessionManager.clearSession()
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        }
+        findViewById<android.view.View>(R.id.card_scan_qr).setOnClickListener {
+            startActivity(Intent(this, QrScanActivity::class.java))
+        }
+        findViewById<android.view.View>(R.id.card_view_map).setOnClickListener {
+            startActivity(Intent(this, MapActivity::class.java))
+        }
+        findViewById<android.view.View>(R.id.card_view_bookings).setOnClickListener {
+            startActivity(Intent(this, ReservationListActivity::class.java))
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!::repository.isInitialized) return
+        lifecycleScope.launch {
+            when (val result = repository.loadDashboard()) {
+                is OperatorLoad.Fresh -> bindCounts(result.data)
+                is OperatorLoad.Cached -> {
+                    bindCounts(result.data)
+                    Toast.makeText(this@OperatorDashboardActivity, "Showing saved counts", Toast.LENGTH_SHORT).show()
+                }
+                is OperatorLoad.Failed -> {
+                    Toast.makeText(this@OperatorDashboardActivity, result.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun labelMetric(includeId: Int, label: String) {
+        findViewById<android.view.View>(includeId)
+            .findViewById<TextView>(R.id.tv_metric_label).text = label
+    }
+
+    private fun bindCounts(dashboard: com.example.smartsolarmobileapp.models.ReservationDashboard) {
+        setMetric(R.id.card_pending, dashboard.pendingCount)
+        setMetric(R.id.card_approved, dashboard.approvedFutureCount)
+        setMetric(R.id.card_current, dashboard.currentCount)
+        setMetric(R.id.card_history, dashboard.historyCount)
+    }
+
+    private fun setMetric(includeId: Int, value: Int) {
+        findViewById<android.view.View>(includeId)
+            .findViewById<TextView>(R.id.tv_metric_value).text = value.toString()
+    }
 }
