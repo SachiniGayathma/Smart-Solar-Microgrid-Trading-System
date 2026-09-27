@@ -20,6 +20,7 @@ import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.UserDao
 import com.example.smartsolarmobileapp.models.LoginRequest
 import com.example.smartsolarmobileapp.models.User
+import com.example.smartsolarmobileapp.utils.RoleRouter
 import com.example.smartsolarmobileapp.utils.SessionManager
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import com.google.android.material.textfield.TextInputLayout
@@ -207,10 +208,20 @@ class LoginActivity : AppCompatActivity() {
         }
 
         // Active account: persist session in SharedPreferences and SQLite
-        sessionManager.saveSession(token, user)
-        userDao.saveUserSession(user, token)
+        val safeNic = user.nic.blankTo(user.email.blankTo(user.id ?: "operator"))
+        val safeUser = user.copy(
+            nic = safeNic,
+            fullName = user.fullName.blankTo("Operator"),
+            email = user.email.blankTo(safeNic),
+            phone = user.phone.blankTo("-")
+        )
+        sessionManager.saveSession(token, safeUser)
+        try {
+            userDao.saveUserSession(safeUser, token)
+        } catch (e: Exception) {
+            // Session is already stored. A local database error must not close the app.
+        }
 
-        UiAlertUtils.showToast(this, "Welcome back, ${user.fullName}!", UiAlertUtils.AlertType.SUCCESS)
         navigateToDashboard()
     }
 
@@ -306,9 +317,13 @@ class LoginActivity : AppCompatActivity() {
         )
     }
 
+    private fun String?.blankTo(fallback: String): String {
+        return this?.takeIf { it.isNotBlank() } ?: fallback
+    }
+
     private fun navigateToDashboard() {
-        val intent = Intent(this, ProsumerDashboardActivity::class.java)
-        startActivity(intent)
+        val destination = RoleRouter.homeActivity(sessionManager.getUserRole())
+        startActivity(Intent(this, destination))
         finish()
     }
 }

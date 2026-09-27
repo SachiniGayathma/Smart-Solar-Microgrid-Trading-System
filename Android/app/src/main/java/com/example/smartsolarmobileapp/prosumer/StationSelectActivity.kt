@@ -113,7 +113,7 @@ class StationSelectActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val response = ApiClient.stationApi.getActiveStations()
+                val response = ApiClient.stationApi.getStations()
 
                 withContext(Dispatchers.Main) {
                     pbStations.visibility = View.GONE

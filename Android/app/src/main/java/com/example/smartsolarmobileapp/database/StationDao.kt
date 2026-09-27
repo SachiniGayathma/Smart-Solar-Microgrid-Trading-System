@@ -47,6 +47,25 @@ class StationDao(private val dbHelper: DatabaseHelper) {
     /**
      * Retrieves all active charging stations sorted alphabetically by name.
      */
+    fun getAllStations(): List<Station> {
+        val db: SQLiteDatabase = dbHelper.readableDatabase
+        val list = mutableListOf<Station>()
+        val cursor: Cursor = db.query(
+            DatabaseHelper.TABLE_STATIONS,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "${DatabaseHelper.COL_STATION_NAME} ASC"
+        )
+        while (cursor.moveToNext()) {
+            list.add(extractStationFromCursor(cursor))
+        }
+        cursor.close()
+        return list
+    }
+
     fun getActiveStations(): List<Station> {
         val db: SQLiteDatabase = dbHelper.readableDatabase
         val list = mutableListOf<Station>()

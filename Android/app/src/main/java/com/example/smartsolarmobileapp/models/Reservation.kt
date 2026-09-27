@@ -39,3 +39,13 @@ data class ReservationRequest(
     val slotId: String,
     val prosumerNic: String? = null
 )
+
+/**
+ * Dashboard counts returned by GET /api/reservations/dashboard.
+ */
+data class ReservationDashboard(
+    val pendingCount: Int = 0,
+    val approvedFutureCount: Int = 0,
+    val currentCount: Int = 0,
+    val historyCount: Int = 0
+)

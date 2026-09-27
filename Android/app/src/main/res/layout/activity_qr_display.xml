@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- QR Display: Consistent toolbar + centered QR pass card -->
+<!-- QR Display: toolbar and bottom nav stay fixed; the pass scrolls on short screens. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/solar_bg"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    android:background="@color/solar_bg"
     tools:context=".prosumer.QRDisplayActivity">
 
-    <!-- ═══ TOOLBAR ═══ -->
     <LinearLayout
         android:id="@+id/header_bar_qr"
         android:layout_width="match_parent"
@@ -50,80 +49,84 @@
             app:tint="@color/solar_status_cancelled" />
     </LinearLayout>
 
-    <!-- Toolbar bottom divider -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/solar_border" />
 
-    <!-- ═══ CONTENT AREA ═══ -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout_qr_display"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:paddingHorizontal="24dp"
-        android:paddingTop="20dp"
-        android:paddingBottom="24dp">
+        android:fillViewport="true">
 
-        <TextView
-            android:id="@+id/tv_qr_instructions"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_qr_display"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Present this digital QR pass to the station operator upon arrival"
-            android:textAlignment="center"
-            android:textColor="@color/solar_slate_body"
-            android:textSize="13sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:paddingHorizontal="@dimen/screen_padding_horizontal"
+            android:paddingTop="20dp"
+            android:paddingBottom="24dp">
 
-        <!-- QR Pass Card Container -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_qr_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/solar_surface"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_qr_instructions">
+            <TextView
+                android:id="@+id/tv_qr_instructions"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Present this digital QR pass to the station operator upon arrival"
+                android:textAlignment="center"
+                android:textColor="@color/solar_slate_body"
+                android:textSize="13sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <LinearLayout
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_qr_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
+                android:layout_marginTop="28dp"
+                app:cardBackgroundColor="@color/solar_surface"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_qr_instructions">
 
-                <ImageView
-                    android:id="@+id/iv_qr_code"
-                    android:layout_width="250dp"
-                    android:layout_height="250dp"
-                    android:contentDescription="Booking QR Code Pass" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-        <TextView
-            android:id="@+id/tv_qr_reservation_id"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:background="@drawable/bg_pill_badge"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="6dp"
-            android:text="Reservation #12345"
-            android:textColor="@color/solar_green_primary"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/card_qr_container" />
+                    <ImageView
+                        android:id="@+id/iv_qr_code"
+                        android:layout_width="@dimen/qr_size"
+                        android:layout_height="@dimen/qr_size"
+                        android:adjustViewBounds="true"
+                        android:contentDescription="Booking QR Code Pass"
+                        android:scaleType="fitCenter" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/tv_qr_reservation_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/bg_pill_badge"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="6dp"
+                android:text="Reservation #12345"
+                android:textColor="@color/solar_green_primary"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/card_qr_container" />
 
-    <!-- ═══ BOTTOM NAVIGATION BAR (76dp, zero overlap) ═══ -->
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -137,9 +140,9 @@
         app:backgroundTint="@color/solar_surface"
         app:elevation="0dp"
         app:itemIconSize="24dp"
-        app:itemPaddingTop="10dp"
-        app:itemPaddingBottom="10dp"
         app:itemIconTint="@color/bottom_nav_item_color"
+        app:itemPaddingBottom="10dp"
+        app:itemPaddingTop="10dp"
         app:itemTextColor="@color/bottom_nav_item_color"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_prosumer" />

@@ -32,7 +32,6 @@ data class AuthResponse(
     val message: String? = null,
     val token: String? = null,
     val user: User? = null,
-    // Flat fields returned directly by central C# Web API
     val id: String? = null,
     val nic: String? = null,
     val fullName: String? = null,
@@ -42,21 +41,25 @@ data class AuthResponse(
     val status: String? = null
 ) {
     /**
-     * Resolves the authenticated user whether returned in a nested 'user' object or flat at top-level.
+     * Resolves the authenticated user from either a nested user object or the flat Web API payload.
      */
     fun getResolvedUser(): User? {
-        if (user != null) return user
+        if (user != null && user.nic.isNotBlank()) {
+            return user
+        }
         if (!nic.isNullOrBlank() || !email.isNullOrBlank() || !fullName.isNullOrBlank()) {
             return User(
                 id = id,
                 nic = nic ?: "",
                 fullName = fullName ?: "",
                 email = email ?: "",
-                phone = phone ?: "",
-                role = role ?: "Prosumer",
-                status = status ?: "Pending"
+                phone = phone ?: user?.phone ?: "",
+                role = role ?: user?.role ?: "Prosumer",
+                status = status ?: user?.status ?: "Pending"
             )
         }
-        return null
+        return user
     }
+
+    fun toUser(): User? = getResolvedUser()
 }
