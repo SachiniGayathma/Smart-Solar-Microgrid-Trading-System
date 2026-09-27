@@ -117,6 +117,10 @@ class SlotBookingActivity : AppCompatActivity() {
             finish()
         }
 
+        findViewById<android.widget.ImageButton>(R.id.btn_header_logout_slots)?.setOnClickListener {
+            confirmLogout()
+        }
+
         btnChangeDate.setOnClickListener {
             UiAlertUtils.showToast(this, "Select a date within the allowed 7-day booking window", UiAlertUtils.AlertType.INFO)
             showDatePicker()
@@ -380,6 +384,26 @@ class SlotBookingActivity : AppCompatActivity() {
             message = message,
             type = UiAlertUtils.AlertType.WARNING,
             positiveButtonText = "Understood"
+        )
+    }
+
+    private fun confirmLogout() {
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = "Log Out",
+            message = "Are you sure you want to end your prosumer session and return to the login screen?",
+            type = UiAlertUtils.AlertType.WARNING,
+            positiveButtonText = "Log Out",
+            onPositiveClick = {
+                com.example.smartsolarmobileapp.utils.SessionManager(this).logout()
+                val intent = Intent(this, LoginActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    putExtra("EXTRA_NOTICE", "Logged out successfully")
+                }
+                startActivity(intent)
+                finish()
+            },
+            negativeButtonText = "Cancel"
         )
     }
 

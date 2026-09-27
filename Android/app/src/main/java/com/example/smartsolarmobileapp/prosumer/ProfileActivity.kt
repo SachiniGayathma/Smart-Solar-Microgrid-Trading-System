@@ -9,6 +9,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -24,6 +25,7 @@ import com.example.smartsolarmobileapp.models.User
 import com.example.smartsolarmobileapp.utils.SessionManager
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import com.example.smartsolarmobileapp.utils.ValidationUtils
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,11 +34,16 @@ class ProfileActivity : AppCompatActivity() {
 
     private lateinit var tvNic: TextView
     private lateinit var tvStatus: TextView
+    private lateinit var tvDisplayName: TextView
+    private lateinit var tvAvatarInitials: TextView
     private lateinit var etName: EditText
     private lateinit var etEmail: EditText
     private lateinit var etPhone: EditText
     private lateinit var btnUpdate: Button
     private lateinit var btnDeactivate: Button
+    private lateinit var btnLogout: Button
+    private lateinit var btnHeaderLogout: ImageButton
+    private lateinit var bottomNav: BottomNavigationView
     private lateinit var pbProfile: ProgressBar
 
     private lateinit var sessionManager: SessionManager
@@ -58,19 +65,30 @@ class ProfileActivity : AppCompatActivity() {
 
         initializeViews()
         setupListeners()
+        setupBottomNavigation()
 
         loadLocalProfile()
         fetchRemoteProfile()
     }
 
+    override fun onResume() {
+        super.onResume()
+        bottomNav.selectedItemId = R.id.nav_profile
+    }
+
     private fun initializeViews() {
         tvNic = findViewById(R.id.tv_profile_nic)
         tvStatus = findViewById(R.id.tv_profile_status)
+        tvDisplayName = findViewById(R.id.tv_profile_display_name)
+        tvAvatarInitials = findViewById(R.id.tv_avatar_initials)
         etName = findViewById(R.id.et_profile_name)
         etEmail = findViewById(R.id.et_profile_email)
         etPhone = findViewById(R.id.et_profile_phone)
         btnUpdate = findViewById(R.id.btn_update_profile)
         btnDeactivate = findViewById(R.id.btn_deactivate_profile)
+        btnLogout = findViewById(R.id.btn_logout_profile)
+        btnHeaderLogout = findViewById(R.id.btn_header_logout_profile)
+        bottomNav = findViewById(R.id.bottom_nav_profile)
         pbProfile = findViewById(R.id.pb_profile)
     }
 
@@ -79,12 +97,49 @@ class ProfileActivity : AppCompatActivity() {
             finish()
         }
 
+        btnHeaderLogout.setOnClickListener {
+            confirmLogout()
+        }
+
         btnUpdate.setOnClickListener {
             handleProfileUpdate()
         }
 
         btnDeactivate.setOnClickListener {
             confirmAccountDeactivation()
+        }
+
+        btnLogout.setOnClickListener {
+            confirmLogout()
+        }
+    }
+
+    private fun setupBottomNavigation() {
+        bottomNav.selectedItemId = R.id.nav_profile
+        bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> {
+                    val intent = Intent(this, ProsumerDashboardActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    }
+                    startActivity(intent)
+                    finish()
+                    true
+                }
+                R.id.nav_bookings -> {
+                    val intent = Intent(this, BookingListActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    }
+                    startActivity(intent)
+                    finish()
+                    true
+                }
+                R.id.nav_profile -> {
+                    // Already on Profile
+                    true
+                }
+                else -> false
+            }
         }
     }
 
@@ -104,14 +159,32 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     /**
-     * Populates UI fields with user information.
+     * Populates UI fields with user information, including avatar initials.
      */
     private fun displayUserData(user: User) {
-        tvNic.text = "NIC: ${user.nic} (Read-only)"
-        tvStatus.text = "Status: ${user.status ?: "Active"}"
+        tvNic.text = "NIC: ${user.nic}"
+        tvStatus.text = user.status ?: "Active"
+        tvDisplayName.text = user.fullName
         etName.setText(user.fullName)
         etEmail.setText(user.email)
         etPhone.setText(user.phone)
+
+        // Generate initials from full name (e.g., "Amara Perera" → "AP")
+        val initials = user.fullName
+            .split(" ")
+            .filter { it.isNotBlank() }
+            .take(2)
+            .joinToString("") { it.first().uppercase() }
+        tvAvatarInitials.text = if (initials.isNotBlank()) initials else "?"
+
+        // Style status badge color based on status
+        val statusColor = when {
+            user.status.equals("Active", ignoreCase = true) -> R.color.solar_green_primary
+            user.status.equals("Pending", ignoreCase = true) -> R.color.solar_amber_primary
+            user.status.equals("Deactivated", ignoreCase = true) -> R.color.solar_status_cancelled
+            else -> R.color.solar_green_primary
+        }
+        tvStatus.setTextColor(getColor(statusColor))
     }
 
     /**
@@ -213,6 +286,7 @@ class ProfileActivity : AppCompatActivity() {
                     currentUser = localUpdated
                     sessionManager.saveSession(sessionManager.getAuthToken(), localUpdated)
 
+                    displayUserData(localUpdated)
                     UiAlertUtils.showToast(
                         this@ProfileActivity,
                         "Offline Mode: Profile changes saved locally.",
@@ -236,6 +310,30 @@ class ProfileActivity : AppCompatActivity() {
             onPositiveClick = { executeDeactivation() },
             negativeButtonText = "Cancel"
         )
+    }
+
+    /**
+     * Displays a confirmation dialog before clearing credentials and ending the session.
+     */
+    private fun confirmLogout() {
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = "Confirm Logout",
+            message = "Are you sure you want to log out of your prosumer account?",
+            type = UiAlertUtils.AlertType.WARNING,
+            positiveButtonText = "Log Out",
+            onPositiveClick = { executeLogout() },
+            negativeButtonText = "Cancel"
+        )
+    }
+
+    /**
+     * Clears all session credentials, updates local state, and routes to login screen.
+     */
+    private fun executeLogout() {
+        sessionManager.clearSession()
+        userDao.clearUserSession()
+        navigateToLogin()
     }
 
     /**
@@ -284,7 +382,7 @@ class ProfileActivity : AppCompatActivity() {
     private fun navigateToLogin() {
         val intent = Intent(this, LoginActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            putExtra("EXTRA_NOTICE", "Account has been deactivated.")
+            putExtra("EXTRA_NOTICE", "Logged out successfully")
         }
         startActivity(intent)
         finish()

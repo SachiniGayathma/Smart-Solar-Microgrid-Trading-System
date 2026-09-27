@@ -37,6 +37,7 @@ class BookingAdapter(
     override fun getItemCount(): Int = bookings.size
 
     inner class BookingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val cardRoot: View = itemView.findViewById(R.id.card_booking_root) ?: itemView
         private val tvId: TextView = itemView.findViewById(R.id.tv_item_booking_id)
         private val tvStatus: TextView = itemView.findViewById(R.id.tv_item_booking_status)
         private val tvStation: TextView = itemView.findViewById(R.id.tv_item_booking_station)
@@ -82,9 +83,11 @@ class BookingAdapter(
                 }
             }
 
-            itemView.setOnClickListener {
+            val clickListener = View.OnClickListener {
                 onBookingClick(booking)
             }
+            cardRoot.setOnClickListener(clickListener)
+            itemView.setOnClickListener(clickListener)
         }
     }
 }

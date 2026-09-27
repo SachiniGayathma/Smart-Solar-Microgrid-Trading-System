@@ -28,7 +28,7 @@ import kotlinx.coroutines.withContext
 class StationSelectActivity : AppCompatActivity() {
 
     private lateinit var rvStations: RecyclerView
-    private lateinit var tvEmpty: TextView
+    private lateinit var layoutEmpty: View
     private lateinit var pbStations: ProgressBar
 
     private lateinit var dbHelper: DatabaseHelper
@@ -54,11 +54,36 @@ class StationSelectActivity : AppCompatActivity() {
 
     private fun initializeViews() {
         rvStations = findViewById(R.id.rv_stations)
-        tvEmpty = findViewById(R.id.tv_empty_stations)
+        layoutEmpty = findViewById(R.id.layout_empty_stations)
         pbStations = findViewById(R.id.pb_stations)
+
         findViewById<android.widget.ImageButton>(R.id.btn_back_stations)?.setOnClickListener {
             finish()
         }
+
+        findViewById<android.widget.ImageButton>(R.id.btn_header_logout_stations)?.setOnClickListener {
+            confirmLogout()
+        }
+    }
+
+    private fun confirmLogout() {
+        com.example.smartsolarmobileapp.utils.UiAlertUtils.showModernDialog(
+            context = this,
+            title = "Log Out",
+            message = "Are you sure you want to end your prosumer session and return to the login screen?",
+            type = com.example.smartsolarmobileapp.utils.UiAlertUtils.AlertType.WARNING,
+            positiveButtonText = "Log Out",
+            onPositiveClick = {
+                com.example.smartsolarmobileapp.utils.SessionManager(this).logout()
+                val intent = Intent(this, LoginActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    putExtra("EXTRA_NOTICE", "Logged out successfully")
+                }
+                startActivity(intent)
+                finish()
+            },
+            negativeButtonText = "Cancel"
+        )
     }
 
     private fun setupRecyclerView() {
@@ -76,7 +101,7 @@ class StationSelectActivity : AppCompatActivity() {
         val cached = stationDao.getActiveStations()
         if (cached.isNotEmpty()) {
             stationAdapter.updateData(cached)
-            tvEmpty.visibility = View.GONE
+            layoutEmpty.visibility = View.GONE
         }
     }
 
@@ -102,7 +127,7 @@ class StationSelectActivity : AppCompatActivity() {
 
                         // Update list display
                         stationAdapter.updateData(activeStations)
-                        tvEmpty.visibility = if (activeStations.isEmpty()) View.VISIBLE else View.GONE
+                        layoutEmpty.visibility = if (activeStations.isEmpty()) View.VISIBLE else View.GONE
                     } else {
                         handleFetchFailure()
                     }
@@ -120,10 +145,10 @@ class StationSelectActivity : AppCompatActivity() {
         val localStations = stationDao.getActiveStations()
         if (localStations.isNotEmpty()) {
             stationAdapter.updateData(localStations)
-            tvEmpty.visibility = View.GONE
+            layoutEmpty.visibility = View.GONE
             UiAlertUtils.showToast(this, "Showing cached station directory (Offline)", UiAlertUtils.AlertType.INFO)
         } else {
-            tvEmpty.visibility = View.VISIBLE
+            layoutEmpty.visibility = View.VISIBLE
         }
     }
 
