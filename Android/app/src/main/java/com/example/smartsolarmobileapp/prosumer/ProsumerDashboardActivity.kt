@@ -14,6 +14,7 @@ import com.example.smartsolarmobileapp.R
 import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.ReservationDao
 import com.example.smartsolarmobileapp.database.UserDao
+import com.example.smartsolarmobileapp.utils.RoleRouter
 import com.example.smartsolarmobileapp.utils.SessionManager
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -43,6 +44,11 @@ class ProsumerDashboardActivity : AppCompatActivity() {
         sessionManager = SessionManager(this)
         if (!sessionManager.isLoggedIn()) {
             navigateToLogin()
+            return
+        }
+        if (sessionManager.isOperator()) {
+            startActivity(Intent(this, RoleRouter.homeActivity(sessionManager.getUserRole())))
+            finish()
             return
         }
 
