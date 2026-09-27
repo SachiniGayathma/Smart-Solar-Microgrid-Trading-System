@@ -106,4 +106,11 @@ class SessionManager(private val prefs: SharedPreferences) {
         prefs.edit().clear().apply()
         ApiClient.setAuthToken(null)
     }
+
+    /**
+     * Logs out the user by terminating the active session.
+     */
+    fun logout() {
+        clearSession()
+    }
 }

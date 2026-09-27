@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Circular touch target background for header buttons -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/solar_border">
+    <item android:id="@android:id/mask">
+        <shape android:shape="oval">
+            <solid android:color="@android:color/white" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/solar_header_btn_bg" />
+            <size android:width="40dp" android:height="40dp" />
+        </shape>
+    </item>
+</ripple>

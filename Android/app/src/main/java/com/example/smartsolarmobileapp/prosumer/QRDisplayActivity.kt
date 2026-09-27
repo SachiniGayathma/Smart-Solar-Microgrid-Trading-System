@@ -24,6 +24,7 @@ import com.example.smartsolarmobileapp.R
 import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.ReservationDao
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 
@@ -33,6 +34,7 @@ class QRDisplayActivity : AppCompatActivity() {
     private lateinit var tvInstructions: TextView
     private lateinit var ivQrCode: ImageView
     private lateinit var tvReservationId: TextView
+    private lateinit var bottomNav: BottomNavigationView
 
     private lateinit var reservationDao: ReservationDao
 
@@ -55,6 +57,7 @@ class QRDisplayActivity : AppCompatActivity() {
 
         extractIntentExtras()
         initializeViews()
+        setupBottomNavigation()
         renderQrCode()
     }
 
@@ -101,6 +104,45 @@ class QRDisplayActivity : AppCompatActivity() {
         findViewById<android.widget.ImageButton>(R.id.btn_back_qr)?.setOnClickListener {
             finish()
         }
+
+        findViewById<android.widget.ImageButton>(R.id.btn_header_logout_qr)?.setOnClickListener {
+            confirmLogout()
+        }
+
+        bottomNav = findViewById(R.id.bottom_nav_qr)
+    }
+
+    private fun setupBottomNavigation() {
+        bottomNav.menu.findItem(R.id.nav_bookings)?.isChecked = true
+        bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> {
+                    val intent = android.content.Intent(this, ProsumerDashboardActivity::class.java).apply {
+                        flags = android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP or android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    }
+                    startActivity(intent)
+                    finish()
+                    true
+                }
+                R.id.nav_bookings -> {
+                    val intent = android.content.Intent(this, BookingListActivity::class.java).apply {
+                        flags = android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP or android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    }
+                    startActivity(intent)
+                    finish()
+                    true
+                }
+                R.id.nav_profile -> {
+                    val intent = android.content.Intent(this, ProfileActivity::class.java).apply {
+                        flags = android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP or android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    }
+                    startActivity(intent)
+                    finish()
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
     /**
@@ -129,6 +171,26 @@ class QRDisplayActivity : AppCompatActivity() {
         } catch (e: Exception) {
             UiAlertUtils.showToast(this, "Failed to render QR Code: ${e.message}", UiAlertUtils.AlertType.ERROR)
         }
+    }
+
+    private fun confirmLogout() {
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = "Log Out",
+            message = "Are you sure you want to end your prosumer session and return to the login screen?",
+            type = UiAlertUtils.AlertType.WARNING,
+            positiveButtonText = "Log Out",
+            onPositiveClick = {
+                com.example.smartsolarmobileapp.utils.SessionManager(this).logout()
+                val intent = android.content.Intent(this, LoginActivity::class.java).apply {
+                    flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    putExtra("EXTRA_NOTICE", "Logged out successfully")
+                }
+                startActivity(intent)
+                finish()
+            },
+            negativeButtonText = "Cancel"
+        )
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -14,36 +14,44 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingHorizontal="24dp"
-        android:paddingTop="28dp"
+        android:paddingTop="20dp"
         android:paddingBottom="36dp">
 
         <ImageButton
             android:id="@+id/btn_back_register"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="@drawable/bg_header_button"
             android:contentDescription="Back to Sign In"
             android:src="@drawable/ic_arrow_back"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Solar Microgrid Branding Badge -->
-        <ImageView
-            android:id="@+id/iv_register_logo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/ic_solar_bolt"
-            app:tint="@color/solar_green_primary"
+        <!-- Solar Microgrid Branding Badge Container -->
+        <FrameLayout
+            android:id="@+id/frame_register_logo"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@drawable/bg_logo_badge"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:contentDescription="Smart Solar Logo" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_register_logo"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_solar_bolt"
+                app:tint="@color/solar_green_primary"
+                android:contentDescription="Smart Solar Logo" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/tv_brand_badge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/bg_pill_badge"
             android:paddingHorizontal="14dp"
             android:paddingVertical="4dp"
@@ -54,17 +62,17 @@
             android:letterSpacing="0.08"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/iv_register_logo" />
+            app:layout_constraintTop_toBottomOf="@+id/frame_register_logo" />
 
-        <!-- Title & Subtitle safely inset below camera notch -->
+        <!-- Title & Subtitle -->
         <TextView
             android:id="@+id/tv_register_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="10dp"
             android:text="Prosumer Registration"
             android:textColor="@color/solar_slate_dark"
-            android:textSize="22sp"
+            android:textSize="24sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -89,8 +97,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
+            app:cardCornerRadius="@dimen/card_corner_radius"
+            app:cardElevation="3dp"
             app:cardBackgroundColor="@color/solar_surface"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -100,7 +108,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="22dp">
+
+                <!-- Section: Personal Details -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="PERSONAL INFORMATION"
+                    android:textColor="@color/solar_slate_muted"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.06" />
 
                 <!-- NIC Input -->
                 <com.google.android.material.textfield.TextInputLayout
@@ -109,14 +128,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="NIC (National Identity Card)"
-                    app:boxCornerRadiusBottomEnd="10dp"
-                    app:boxCornerRadiusBottomStart="10dp"
-                    app:boxCornerRadiusTopEnd="10dp"
-                    app:boxCornerRadiusTopStart="10dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
                     app:boxStrokeColor="@color/solar_green_primary"
                     app:hintTextColor="@color/solar_green_primary"
                     app:startIconDrawable="@drawable/ic_badge_nic"
-                    app:startIconTint="@color/solar_slate_muted">
+                    app:startIconTint="@color/solar_green_primary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_register_nic"
@@ -133,16 +152,16 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="14dp"
                     android:hint="Full Name"
-                    app:boxCornerRadiusBottomEnd="10dp"
-                    app:boxCornerRadiusBottomStart="10dp"
-                    app:boxCornerRadiusTopEnd="10dp"
-                    app:boxCornerRadiusTopStart="10dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
                     app:boxStrokeColor="@color/solar_green_primary"
                     app:hintTextColor="@color/solar_green_primary"
                     app:startIconDrawable="@drawable/ic_person"
-                    app:startIconTint="@color/solar_slate_muted">
+                    app:startIconTint="@color/solar_green_primary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_register_name"
@@ -153,22 +172,33 @@
                         android:textSize="14sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Section: Contact Details -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="CONTACT INFORMATION"
+                    android:textColor="@color/solar_slate_muted"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.06" />
+
                 <!-- Email Input -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/til_register_email"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
                     android:hint="Email Address"
-                    app:boxCornerRadiusBottomEnd="10dp"
-                    app:boxCornerRadiusBottomStart="10dp"
-                    app:boxCornerRadiusTopEnd="10dp"
-                    app:boxCornerRadiusTopStart="10dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
                     app:boxStrokeColor="@color/solar_green_primary"
                     app:hintTextColor="@color/solar_green_primary"
                     app:startIconDrawable="@drawable/ic_email"
-                    app:startIconTint="@color/solar_slate_muted">
+                    app:startIconTint="@color/solar_green_primary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_register_email"
@@ -185,16 +215,16 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="14dp"
                     android:hint="Phone Number (e.g. 0771234567)"
-                    app:boxCornerRadiusBottomEnd="10dp"
-                    app:boxCornerRadiusBottomStart="10dp"
-                    app:boxCornerRadiusTopEnd="10dp"
-                    app:boxCornerRadiusTopStart="10dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
                     app:boxStrokeColor="@color/solar_green_primary"
                     app:hintTextColor="@color/solar_green_primary"
                     app:startIconDrawable="@drawable/ic_phone"
-                    app:startIconTint="@color/solar_slate_muted">
+                    app:startIconTint="@color/solar_green_primary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_register_phone"
@@ -205,24 +235,35 @@
                         android:textSize="14sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Section: Security -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="ACCOUNT SECURITY"
+                    android:textColor="@color/solar_slate_muted"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.06" />
+
                 <!-- Password Input -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/til_register_password"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
                     android:hint="Password (min. 6 characters)"
-                    app:boxCornerRadiusBottomEnd="10dp"
-                    app:boxCornerRadiusBottomStart="10dp"
-                    app:boxCornerRadiusTopEnd="10dp"
-                    app:boxCornerRadiusTopStart="10dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
                     app:boxStrokeColor="@color/solar_green_primary"
                     app:hintTextColor="@color/solar_green_primary"
                     app:endIconMode="password_toggle"
                     app:errorIconDrawable="@null"
                     app:startIconDrawable="@drawable/ic_lock"
-                    app:startIconTint="@color/solar_slate_muted">
+                    app:startIconTint="@color/solar_green_primary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_register_password"
@@ -237,7 +278,7 @@
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp">
+                    android:layout_marginTop="22dp">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_register"
@@ -247,7 +288,7 @@
                         android:textAllCaps="false"
                         android:textSize="15sp"
                         android:textStyle="bold"
-                        app:cornerRadius="12dp"
+                        app:cornerRadius="@dimen/btn_corner_radius"
                         app:backgroundTint="@color/solar_green_primary" />
 
                     <ProgressBar
@@ -271,7 +312,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:text="Already have an account? Sign In"
             android:textAllCaps="false"
             android:textColor="@color/solar_green_primary"
