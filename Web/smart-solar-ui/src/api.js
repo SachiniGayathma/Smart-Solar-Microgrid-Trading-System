@@ -1,7 +1,7 @@
 import { ApiError } from "./api-error.js";
 import { clearSession, loadSession } from "./session.js";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5192";
+const API_BASE = import.meta.env.VITE_API_URL || "https://produce-dexterity-harmonica.ngrok-free.dev";
 
 export { ApiError };
 
@@ -25,7 +25,10 @@ function readError(data, status) {
 }
 
 export async function api(path, { method = "GET", body, auth = true } = {}) {
-  const headers = { Accept: "application/json" };
+  const headers = {
+    Accept: "application/json",
+    "ngrok-skip-browser-warning": "true",
+  };
   if (body !== undefined) {
     headers["Content-Type"] = "application/json";
   }
@@ -45,7 +48,7 @@ export async function api(path, { method = "GET", body, auth = true } = {}) {
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch {
-    throw new ApiError("Cannot reach the trading API. Start the backend, then try again.", 0);
+    throw new ApiError("Cannot reach the trading API.", 0);
   }
 
   const text = await response.text();
