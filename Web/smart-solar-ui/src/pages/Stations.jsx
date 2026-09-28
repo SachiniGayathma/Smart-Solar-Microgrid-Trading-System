@@ -5,6 +5,8 @@ import { useAuth } from "../auth.jsx";
 import { matchesQuery } from "../format.js";
 import { setFlash } from "../session.js";
 import { LocationPicker } from "../location-picker.jsx";
+import { ScheduleClock } from "../schedule-clock.jsx";
+import { NodeBoard } from "../energy-view.jsx";
 import { Banner, Empty, Rule, Status, useConfirm, usePage } from "../shell.jsx";
 
 export function Stations() {
@@ -97,6 +99,7 @@ export function Stations() {
         {isBackoffice && <Link className="btn btn-primary push" to="/stations/new"><i className="bi bi-plus-lg" /> New hub</Link>}
       </form>
       <p className="result-count">{visible.length} hub{visible.length === 1 ? "" : "s"}</p>
+      <NodeBoard stations={visible} />
       <div className="table-panel">
         <table className="table">
           <thead>
@@ -149,7 +152,7 @@ export function StationForm() {
   const editing = Boolean(id);
   usePage(editing ? "Update hub" : "New microgrid hub", "Set the hub on the map, then record energy capacity, battery slots, and the operating schedule.");
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", latitude: "", longitude: "", capacityKwh: "", batteryStorageSlots: "0", schedule: "" });
+  const [form, setForm] = useState({ name: "", latitude: "", longitude: "", capacityKwh: "", batteryStorageSlots: "0", schedule: "06:00-18:00 daily" });
   const [errors, setErrors] = useState({});
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -195,7 +198,7 @@ export function StationForm() {
     }
     if (form.capacityKwh === "" || Number.isNaN(capacityKwh) || capacityKwh <= 0) next.capacityKwh = "Capacity must be greater than zero.";
     if (!Number.isInteger(batteryStorageSlots) || batteryStorageSlots < 0) next.batteryStorageSlots = "Battery storage slots cannot be negative.";
-    if (!form.schedule.trim()) next.schedule = "Enter the operating schedule.";
+    if (!form.schedule.trim()) next.schedule = "Choose opening and closing times on the clocks.";
     setErrors(next);
     if (Object.keys(next).length > 0) return;
     const body = {
@@ -255,10 +258,12 @@ export function StationForm() {
           <input name="batteryStorageSlots" value={form.batteryStorageSlots} onChange={update} />
           <FieldError>{errors.batteryStorageSlots}</FieldError>
         </label>
-        <label className="span-2">Schedule
-          <input name="schedule" value={form.schedule} onChange={update} placeholder="06:00-18:00 daily" />
+        <div className="span-2">
+          <span className="map-label">Schedule</span>
+          <ScheduleClock value={form.schedule} onChange={(schedule) => setForm((current) => ({ ...current, schedule }))} />
+          <p className="hint">Every day, {form.schedule.replace(" daily", "")}.</p>
           <FieldError>{errors.schedule}</FieldError>
-        </label>
+        </div>
         <div className="span-2 form-actions">
           <button className="btn btn-primary" type="submit" disabled={busy}>{editing ? "Save hub" : "Create hub"}</button>
           <Link className="btn btn-ghost" to="/stations">Cancel</Link>

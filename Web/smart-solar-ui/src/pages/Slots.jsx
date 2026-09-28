@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { api } from "../api.js";
 import { useAuth } from "../auth.jsx";
 import { defaultSlotWindow, formatWindow, fromColomboInput, toColomboInput } from "../format.js";
+import { SlotBoard } from "../energy-view.jsx";
 import { setFlash } from "../session.js";
 import { Banner, Empty, Rule, Status, useConfirm, usePage } from "../shell.jsx";
 
@@ -108,6 +109,7 @@ export function Slots() {
         <Link className="btn btn-primary push" to="/slots/new"><i className="bi bi-plus-lg" /> New slot</Link>
       </form>
       <p className="result-count">{rows.length} slot{rows.length === 1 ? "" : "s"}. Times are Sri Lanka time.</p>
+      <SlotBoard rows={rows.map(({ slot, stationName }) => ({ slot, stationName, windowLabel: formatWindow(slot.startTime, slot.endTime), places: slot.availableCapacity }))} />
       <div className="table-panel">
         <table className="table">
           <thead>
@@ -259,6 +261,13 @@ export function SlotForm() {
           <span className="hint">How many bookings this window can still accept.</span>
           <FieldError>{errors.availableCapacity}</FieldError>
         </label>
+        <div className="span-2">
+          <SlotBoard rows={[{
+            stationName: stations.find((station) => station.id === form.stationId)?.name || "Select a hub",
+            windowLabel: form.startTime ? formatWindow(fromColomboInput(form.startTime), form.endTime ? fromColomboInput(form.endTime) : "") : "Choose a start and end",
+            places: form.availableCapacity || "0",
+          }]} />
+        </div>
         <div className="span-2 form-actions">
           <button className="btn btn-primary" type="submit" disabled={busy || stations.length === 0}>{editing ? "Save slot" : "Create slot"}</button>
           <Link className="btn btn-ghost" to="/slots">Cancel</Link>
