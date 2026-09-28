@@ -288,6 +288,77 @@ h1, h2, p { margin: 0; }
 }
 .clock-num.is-on { border-radius: 50%; }
 
+.scene { margin: 4px 0 16px; }
+.scene-label {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+.node-board, .slot-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.node-card, .slot-card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+  animation: rise 0.45s ease both;
+}
+.node-card.is-live { border-color: #bbf7d0; }
+.node-top, .slot-top { display: flex; align-items: flex-start; gap: 10px; }
+.node-top div, .slot-top { flex: 1; }
+.node-top strong, .slot-top strong, .node-top span { display: block; }
+.node-top span, .node-card p, .slot-card p { color: var(--muted); font-size: 0.82rem; font-weight: 500; }
+.node-card p, .slot-card p { margin-top: 8px; }
+.solar-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #f1f5f9;
+  flex: none;
+}
+.solar-badge.is-live { animation: hub-pulse 2.4s ease-in-out infinite; }
+.solar-rays { transform-origin: 14px 14px; animation: solar-spin 14s linear infinite; }
+.meter { height: 7px; margin-top: 12px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+.meter span {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #15803d, #22c55e);
+  animation: charge 0.9s ease forwards;
+}
+.slot-track { position: relative; height: 8px; margin-top: 12px; background: #dcfce7; border-radius: 99px; overflow: hidden; }
+.energy-bead {
+  position: absolute;
+  top: 0;
+  left: -30%;
+  width: 30%;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, transparent, #22c55e, #0d7a46);
+  animation: travel 2.6s ease-in-out infinite;
+}
+.slot-card.is-off { opacity: 0.72; }
+.slot-card.is-off .energy-bead { animation: none; left: 0; width: 100%; background: #cbd5e1; }
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes solar-spin { to { transform: rotate(360deg); } }
+@keyframes hub-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.35); }
+  50% { box-shadow: 0 0 0 7px rgba(34, 197, 94, 0); }
+}
+@keyframes charge { to { width: var(--fill); } }
+@keyframes travel { to { left: 100%; } }
+@media (prefers-reduced-motion: reduce) {
+  .node-card, .slot-card, .solar-rays, .solar-badge.is-live, .meter span, .energy-bead { animation: none; }
+  .meter span { width: var(--fill); }
+  .energy-bead { left: 0; width: 100%; }
+}
+
 .status {
   display: inline-flex;
   align-items: center;

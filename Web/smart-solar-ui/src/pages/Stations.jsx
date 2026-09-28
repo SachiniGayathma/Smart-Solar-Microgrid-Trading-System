@@ -6,6 +6,7 @@ import { matchesQuery } from "../format.js";
 import { setFlash } from "../session.js";
 import { LocationPicker } from "../location-picker.jsx";
 import { ScheduleClock } from "../schedule-clock.jsx";
+import { NodeBoard } from "../energy-view.jsx";
 import { Banner, Empty, Rule, Status, useConfirm, usePage } from "../shell.jsx";
 
 export function Stations() {
@@ -98,6 +99,7 @@ export function Stations() {
         {isBackoffice && <Link className="btn btn-primary push" to="/stations/new"><i className="bi bi-plus-lg" /> New hub</Link>}
       </form>
       <p className="result-count">{visible.length} hub{visible.length === 1 ? "" : "s"}</p>
+      <NodeBoard stations={visible} />
       <div className="table-panel">
         <table className="table">
           <thead>
