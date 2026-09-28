@@ -4,6 +4,7 @@ import { api } from "../api.js";
 import { useAuth } from "../auth.jsx";
 import { matchesQuery } from "../format.js";
 import { setFlash } from "../session.js";
+import { LocationPicker } from "../location-picker.jsx";
 import { Banner, Empty, Rule, Status, useConfirm, usePage } from "../shell.jsx";
 
 export function Stations() {
@@ -146,7 +147,7 @@ export function Stations() {
 export function StationForm() {
   const { id } = useParams();
   const editing = Boolean(id);
-  usePage(editing ? "Update hub" : "New microgrid hub", "Record the GPS location, energy capacity, battery slots, and operating schedule.");
+  usePage(editing ? "Update hub" : "New microgrid hub", "Set the hub on the map, then record energy capacity, battery slots, and the operating schedule.");
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", latitude: "", longitude: "", capacityKwh: "", batteryStorageSlots: "0", schedule: "" });
   const [errors, setErrors] = useState({});
@@ -189,8 +190,9 @@ export function StationForm() {
     const batteryStorageSlots = Number(form.batteryStorageSlots);
     const next = {};
     if (!form.name.trim()) next.name = "Hub name is required.";
-    if (form.latitude === "" || Number.isNaN(latitude) || latitude < -90 || latitude > 90) next.latitude = "Latitude must be between -90 and 90.";
-    if (form.longitude === "" || Number.isNaN(longitude) || longitude < -180 || longitude > 180) next.longitude = "Longitude must be between -180 and 180.";
+    if (form.latitude === "" || form.longitude === "" || Number.isNaN(latitude) || Number.isNaN(longitude) || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+      next.location = "Choose the hub location on the map.";
+    }
     if (form.capacityKwh === "" || Number.isNaN(capacityKwh) || capacityKwh <= 0) next.capacityKwh = "Capacity must be greater than zero.";
     if (!Number.isInteger(batteryStorageSlots) || batteryStorageSlots < 0) next.batteryStorageSlots = "Battery storage slots cannot be negative.";
     if (!form.schedule.trim()) next.schedule = "Enter the operating schedule.";
@@ -235,14 +237,15 @@ export function StationForm() {
           <input name="name" value={form.name} onChange={update} placeholder="Nugegoda Solar Hub" />
           <FieldError>{errors.name}</FieldError>
         </label>
-        <label>Latitude
-          <input name="latitude" value={form.latitude} onChange={update} placeholder="6.8649" />
-          <FieldError>{errors.latitude}</FieldError>
-        </label>
-        <label>Longitude
-          <input name="longitude" value={form.longitude} onChange={update} placeholder="79.8997" />
-          <FieldError>{errors.longitude}</FieldError>
-        </label>
+        <div className="span-2">
+          <span className="map-label">Location</span>
+          <LocationPicker
+            latitude={form.latitude}
+            longitude={form.longitude}
+            onPick={(latitude, longitude) => setForm((current) => ({ ...current, latitude: String(latitude), longitude: String(longitude) }))}
+          />
+          <FieldError>{errors.location}</FieldError>
+        </div>
         <label>Capacity (kWh)
           <input name="capacityKwh" value={form.capacityKwh} onChange={update} />
           <span className="hint">Energy capacity of the hub, in kWh.</span>
