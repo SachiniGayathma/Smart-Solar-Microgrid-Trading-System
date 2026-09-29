@@ -318,28 +318,44 @@ class SlotBookingActivity : AppCompatActivity() {
         }
 
         if (isModifyMode) {
-            val oldTime = currentSlotDisplay?.takeIf { it.isNotBlank() } ?: "Current Slot"
-            val startParsed = DateTimeUtils.parseIsoString(slot.startTime)
-            val endParsed = DateTimeUtils.parseIsoString(slot.endTime)
-            val newTime = if (startParsed != null && endParsed != null) {
-                "${DateTimeUtils.formatDisplayTime(startParsed)} - ${DateTimeUtils.formatDisplayTime(endParsed)}"
-            } else {
-                "${slot.startTime} - ${slot.endTime}"
-            }
-
-            UiAlertUtils.showModernDialog(
-                context = this,
-                title = "Confirm Slot Modification",
-                message = "You are modifying your energy reservation:\n\n• Current: $oldTime\n• New: $newTime\n\n⚠️ Submitting this change requires Backoffice re-approval and will return your reservation status to PENDING. Do you wish to proceed?",
-                type = UiAlertUtils.AlertType.WARNING,
-                positiveButtonText = "Yes, Change Slot",
-                onPositiveClick = { executeBooking(slot) },
-                negativeButtonText = "Keep Current Slot"
-            )
+            showModernSlotModificationDialog(slot)
             return
         }
 
         executeBooking(slot)
+    }
+
+    private fun showModernSlotModificationDialog(slot: Slot) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_confirm_modify_slot, null)
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val oldTime = currentSlotDisplay?.takeIf { it.isNotBlank() } ?: "Current Slot"
+        val startParsed = DateTimeUtils.parseIsoString(slot.startTime)
+        val endParsed = DateTimeUtils.parseIsoString(slot.endTime)
+        val newTime = if (startParsed != null && endParsed != null) {
+            "${DateTimeUtils.formatDisplayTime(startParsed)} - ${DateTimeUtils.formatDisplayTime(endParsed)}"
+        } else {
+            "${slot.startTime} - ${slot.endTime}"
+        }
+
+        dialogView.findViewById<TextView>(R.id.tv_dialog_current_slot).text = oldTime
+        dialogView.findViewById<TextView>(R.id.tv_dialog_new_slot).text = newTime
+
+        dialogView.findViewById<View>(R.id.btn_dialog_confirm_change).setOnClickListener {
+            dialog.dismiss()
+            executeBooking(slot)
+        }
+
+        dialogView.findViewById<View>(R.id.btn_dialog_cancel_change).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun executeBooking(slot: Slot) {
