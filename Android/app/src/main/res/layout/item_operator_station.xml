@@ -9,8 +9,8 @@
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
-    app:cardBackgroundColor="@color/operator_card"
-    app:cardCornerRadius="@dimen/operator_card_radius"
+    app:cardBackgroundColor="@color/solar_surface"
+    app:cardCornerRadius="@dimen/card_corner_radius"
     app:cardElevation="2dp">
 
     <LinearLayout
@@ -23,7 +23,7 @@
             android:id="@+id/tv_operator_station_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/operator_ink"
+            android:textColor="@color/solar_slate_dark"
             android:textSize="17sp"
             android:textStyle="bold" />
 
@@ -32,7 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:textColor="@color/operator_muted"
+            android:textColor="@color/solar_slate_muted"
             android:textSize="13sp" />
 
         <TextView
@@ -40,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textColor="@color/operator_navy"
+            android:textColor="@color/solar_green_primary"
             android:textSize="13sp"
             android:textStyle="bold" />
     </LinearLayout>

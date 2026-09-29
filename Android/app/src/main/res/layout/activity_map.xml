@@ -1,30 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/operator_paper"
-    android:fitsSystemWindows="true"
+    android:background="@color/solar_bg"
     android:orientation="vertical">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/screen_padding"
-        android:paddingTop="@dimen/screen_padding"
-        android:text="Nearby stations"
-        android:textColor="@color/operator_ink"
-        android:textSize="@dimen/title_text"
-        android:textStyle="bold" />
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingBottom="4dp">
+
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:contentDescription="Map"
+            android:src="@drawable/ic_map_pin"
+            app:tint="@color/solar_green_primary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:gravity="center"
+            android:text="Nearby stations"
+            android:textColor="@color/solar_slate_dark"
+            android:textSize="@dimen/title_text"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_map_note"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/screen_padding"
-        android:paddingTop="4dp"
+        android:gravity="center"
+        android:paddingTop="6dp"
         android:text="Stations are loaded from the server."
-        android:textColor="@color/operator_muted"
+        android:textColor="@color/solar_slate_muted"
         android:textSize="13sp" />
+
+    <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/switch_use_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:checked="false"
+        android:text="Use my live location"
+        android:textColor="@color/solar_slate_dark"
+        android:textSize="14sp"
+        app:thumbTint="@color/solar_green_primary"
+        app:trackTint="@color/solar_green_container" />
 
     <org.maplibre.android.maps.MapView
         android:id="@+id/map_stations"
@@ -40,5 +67,6 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:clipToPadding="false"
-        android:padding="@dimen/screen_padding" />
+        android:paddingTop="12dp"
+        android:paddingBottom="4dp" />
 </LinearLayout>

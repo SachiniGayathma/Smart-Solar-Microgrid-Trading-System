@@ -17,6 +17,7 @@ class BookingAdapter(
     private var bookings: List<Reservation>,
     private val layoutRes: Int = R.layout.item_booking,
     private val webStatusColors: Boolean = false,
+    private val operatorGreenStatus: Boolean = false,
     private val onBookingClick: (Reservation) -> Unit
 ) : RecyclerView.Adapter<BookingAdapter.BookingViewHolder>() {
 
@@ -63,6 +64,7 @@ class BookingAdapter(
             tvStatus.text = booking.status
 
             when {
+                operatorGreenStatus -> applyOperatorGreenStatus(booking.status)
                 booking.status.equals("Approved", ignoreCase = true) -> {
                     tvStatus.setTextColor(Color.parseColor(if (webStatusColors) "#0F7A4A" else "#2E7D32"))
                     tvStatus.setBackgroundColor(Color.parseColor(if (webStatusColors) "#E5F6EE" else "#E8F5E9"))
@@ -90,6 +92,29 @@ class BookingAdapter(
             }
             cardRoot.setOnClickListener(clickListener)
             itemView.setOnClickListener(clickListener)
+        }
+
+        private fun applyOperatorGreenStatus(status: String) {
+            val green = Color.parseColor("#0D7A46")
+            when {
+                status.equals("Completed", ignoreCase = true) -> {
+                    tvStatus.setTextColor(green)
+                    tvStatus.setBackgroundColor(Color.parseColor("#DCFCE7"))
+                }
+                status.equals("Pending", ignoreCase = true) ||
+                    status.equals("Approved", ignoreCase = true) -> {
+                    tvStatus.setTextColor(green)
+                    tvStatus.setBackgroundColor(Color.WHITE)
+                }
+                status.equals("Cancelled", ignoreCase = true) -> {
+                    tvStatus.setTextColor(Color.parseColor("#DC2626"))
+                    tvStatus.setBackgroundColor(Color.parseColor("#FEE2E2"))
+                }
+                else -> {
+                    tvStatus.setTextColor(green)
+                    tvStatus.setBackgroundColor(Color.WHITE)
+                }
+            }
         }
     }
 }

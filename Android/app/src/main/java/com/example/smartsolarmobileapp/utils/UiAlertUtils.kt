@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
@@ -49,7 +50,7 @@ object UiAlertUtils {
         val btnSecondary = view.findViewById<MaterialButton>(R.id.btn_alert_secondary)
 
         tvTitle.text = title
-        tvMessage.text = message
+        tvMessage.text = brief(message)
         btnPrimary.text = positiveButtonText
 
         // Apply visual theming based on AlertType
@@ -112,7 +113,21 @@ object UiAlertUtils {
         }
 
         dialog.show()
+        val density = context.resources.displayMetrics.density
+        val maxWidth = (320 * density).toInt()
+        val width = (context.resources.displayMetrics.widthPixels * 0.84f).toInt().coerceAtMost(maxWidth)
+        dialog.window?.setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
         return dialog
+    }
+
+    private fun brief(message: String): String {
+        val cleaned = message
+            .replace(Regex("<[^>]+>"), " ")
+            .lineSequence()
+            .map { it.trim() }
+            .firstOrNull { it.isNotEmpty() }
+            .orEmpty()
+        return if (cleaned.length > 160) cleaned.take(157) + "..." else cleaned.ifBlank { "Something went wrong. Please try again." }
     }
 
     /**

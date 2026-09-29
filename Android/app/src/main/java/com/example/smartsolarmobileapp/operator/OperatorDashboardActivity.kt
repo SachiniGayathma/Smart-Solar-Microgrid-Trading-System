@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.smartsolarmobileapp.R
 import com.example.smartsolarmobileapp.prosumer.LoginActivity
 import com.example.smartsolarmobileapp.utils.RoleRouter
+import com.example.smartsolarmobileapp.utils.ScreenInsets
 import com.example.smartsolarmobileapp.utils.SessionManager
 import kotlinx.coroutines.launch
 
@@ -35,6 +36,7 @@ class OperatorDashboardActivity : AppCompatActivity() {
         }
 
         setContentView(R.layout.activity_operator_dashboard)
+        ScreenInsets.apply(findViewById(android.R.id.content), extraHorizontalDp = 28, extraVerticalDp = 28)
         repository = OperatorRepository(this)
 
         findViewById<TextView>(R.id.tv_operator_welcome)?.text =

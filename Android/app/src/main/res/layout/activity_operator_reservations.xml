@@ -2,16 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/operator_paper"
-    android:fitsSystemWindows="true"
-    android:orientation="vertical"
-    android:padding="@dimen/screen_padding">
+    android:background="@color/solar_bg"
+    android:orientation="vertical">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Reservations"
-        android:textColor="@color/operator_ink"
+        android:gravity="center"
+        android:text="View all bookings"
+        android:textColor="@color/solar_slate_dark"
         android:textSize="@dimen/title_text"
         android:textStyle="bold" />
 
@@ -19,13 +18,14 @@
         android:id="@+id/et_reservation_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:background="@color/operator_card"
+        android:layout_marginTop="16dp"
+        android:background="@color/solar_surface"
         android:hint="Search NIC, station, or booking id"
         android:inputType="text"
-        android:padding="12dp"
-        android:textColor="@color/operator_ink"
-        android:textColorHint="@color/operator_muted" />
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="12dp"
+        android:textColor="@color/solar_slate_dark"
+        android:textColorHint="@color/solar_slate_muted" />
 
     <HorizontalScrollView
         android:layout_width="match_parent"
@@ -40,51 +40,74 @@
 
             <Button
                 android:id="@+id/btn_filter_all"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/bg_operator_filter"
+                android:minWidth="0dp"
+                android:paddingHorizontal="14dp"
                 android:text="All"
-                android:textAllCaps="false" />
+                android:textAllCaps="false"
+                android:textColor="@color/operator_filter_text"
+                android:textSize="13sp" />
 
             <Button
                 android:id="@+id/btn_filter_pending"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/bg_operator_filter"
+                android:minWidth="0dp"
+                android:paddingHorizontal="14dp"
                 android:text="Pending"
-                android:textAllCaps="false" />
+                android:textAllCaps="false"
+                android:textColor="@color/operator_filter_text"
+                android:textSize="13sp" />
 
             <Button
                 android:id="@+id/btn_filter_approved"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/bg_operator_filter"
+                android:minWidth="0dp"
+                android:paddingHorizontal="14dp"
                 android:text="Approved"
-                android:textAllCaps="false" />
+                android:textAllCaps="false"
+                android:textColor="@color/operator_filter_text"
+                android:textSize="13sp" />
 
             <Button
                 android:id="@+id/btn_filter_completed"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_operator_filter"
+                android:minWidth="0dp"
+                android:paddingHorizontal="14dp"
                 android:text="Completed"
-                android:textAllCaps="false" />
+                android:textAllCaps="false"
+                android:textColor="@color/operator_filter_text"
+                android:textSize="13sp" />
         </LinearLayout>
     </HorizontalScrollView>
 
     <TextView
         android:id="@+id/tv_reservation_empty"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:padding="24dp"
         android:text="No reservations yet."
-        android:textColor="@color/operator_muted"
+        android:textColor="@color/solar_slate_muted"
         android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_operator_reservations"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:layout_weight="1" />
+        android:layout_marginTop="12dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp" />
 </LinearLayout>

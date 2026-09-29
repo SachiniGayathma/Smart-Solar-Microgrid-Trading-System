@@ -43,22 +43,22 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Grid Operator screens only. Same palette as the web staff portal. -->
-    <color name="operator_navy">#12344D</color>
-    <color name="operator_navy_pressed">#0C283C</color>
-    <color name="operator_gold">#D39212</color>
-    <color name="operator_gold_wash">#F8EFD0</color>
-    <color name="operator_paper">#E7EEF3</color>
-    <color name="operator_card">#FFFFFF</color>
-    <color name="operator_line">#D5E0EA</color>
-    <color name="operator_input">#C5D3E0</color>
-    <color name="operator_ink">#102033</color>
-    <color name="operator_text">#1B2836</color>
-    <color name="operator_muted">#5C6E80</color>
-    <color name="operator_ok">#0F7A4A</color>
-    <color name="operator_ok_bg">#E5F6EE</color>
-    <color name="operator_wait">#8A5A00</color>
-    <color name="operator_wait_bg">#FFF4D6</color>
-    <color name="operator_stop">#8D3D36</color>
-    <color name="operator_stop_bg">#F8E9E6</color>
+    <!-- Operator screens use the same prosumer palette. -->
+    <color name="operator_navy">@color/solar_green_primary</color>
+    <color name="operator_navy_pressed">@color/solar_green_medium</color>
+    <color name="operator_gold">@color/solar_amber_primary</color>
+    <color name="operator_gold_wash">@color/solar_amber_container</color>
+    <color name="operator_paper">@color/solar_bg</color>
+    <color name="operator_card">@color/solar_surface</color>
+    <color name="operator_line">@color/solar_border</color>
+    <color name="operator_input">@color/solar_divider</color>
+    <color name="operator_ink">@color/solar_slate_dark</color>
+    <color name="operator_text">@color/solar_slate_heading</color>
+    <color name="operator_muted">@color/solar_slate_muted</color>
+    <color name="operator_ok">@color/solar_status_approved</color>
+    <color name="operator_ok_bg">@color/solar_status_approved_bg</color>
+    <color name="operator_wait">@color/solar_status_pending</color>
+    <color name="operator_wait_bg">@color/solar_status_pending_bg</color>
+    <color name="operator_stop">@color/solar_status_cancelled</color>
+    <color name="operator_stop_bg">@color/solar_status_cancelled_bg</color>
 </resources>
