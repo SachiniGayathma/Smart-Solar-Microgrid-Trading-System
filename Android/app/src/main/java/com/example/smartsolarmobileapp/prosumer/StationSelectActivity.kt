@@ -17,9 +17,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.smartsolarmobileapp.R
 import com.example.smartsolarmobileapp.api.ApiClient
 import com.example.smartsolarmobileapp.database.DatabaseHelper
+import com.example.smartsolarmobileapp.database.ReservationDao
 import com.example.smartsolarmobileapp.database.StationDao
 import com.example.smartsolarmobileapp.models.Station
 import com.example.smartsolarmobileapp.prosumer.adapter.StationAdapter
+import com.example.smartsolarmobileapp.utils.SessionManager
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -173,9 +175,48 @@ class StationSelectActivity : AppCompatActivity() {
     }
 
     /**
-     * Navigates to the slot booking calendar passing selected station metadata.
+     * Navigates to the slot booking calendar or displays active booking options if already booked.
      */
     private fun onStationSelected(station: Station) {
+        val sessionManager = SessionManager(this)
+        val userNic = sessionManager.getUserNic() ?: ""
+        val activeBooking = if (userNic.isNotBlank()) {
+            val resDao = ReservationDao(dbHelper)
+            resDao.getReservationsByNic(userNic).firstOrNull { res ->
+                res.stationId == station.id && (res.status.equals("Approved", ignoreCase = true) || res.status.equals("Pending", ignoreCase = true))
+            }
+        } else null
+
+        if (activeBooking != null) {
+            UiAlertUtils.showModernDialog(
+                context = this,
+                title = station.name,
+                message = "You have an active reservation at this station (${activeBooking.status}). Would you like to view your booking or schedule a new energy slot?",
+                type = UiAlertUtils.AlertType.INFO,
+                positiveButtonText = "View My Booking",
+                onPositiveClick = {
+                    val intent = Intent(this, BookingSummaryActivity::class.java).apply {
+                        putExtra("EXTRA_RESERVATION_ID", activeBooking.id)
+                        putExtra("EXTRA_STATION_NAME", if (!activeBooking.stationName.isNullOrBlank()) activeBooking.stationName else station.name)
+                        putExtra("EXTRA_STATION_ID", activeBooking.stationId)
+                        putExtra("EXTRA_SCHEDULED_AT", activeBooking.scheduledAt)
+                        putExtra("EXTRA_STATUS", activeBooking.status)
+                        putExtra("EXTRA_SUMMARY", activeBooking.summary)
+                        putExtra("EXTRA_QR_TOKEN", activeBooking.qrToken)
+                    }
+                    startActivity(intent)
+                },
+                negativeButtonText = "Book New Slot",
+                onNegativeClick = {
+                    navigateToSlotBooking(station)
+                }
+            )
+        } else {
+            navigateToSlotBooking(station)
+        }
+    }
+
+    private fun navigateToSlotBooking(station: Station) {
         val intent = Intent(this, SlotBookingActivity::class.java).apply {
             putExtra("EXTRA_STATION_ID", station.id)
             putExtra("EXTRA_STATION_NAME", station.name)
