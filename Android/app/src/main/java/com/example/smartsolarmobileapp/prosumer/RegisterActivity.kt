@@ -164,16 +164,16 @@ class RegisterActivity : AppCompatActivity() {
                         userDao.saveUserSession(registeredUser, null)
                         showRegistrationSuccessDialog(nic)
                     } else {
-                        val errorMsg = response.body()?.message
-                            ?: response.errorBody()?.string()
-                            ?: "Registration rejected by server."
-
-                        // Detect ngrok tunnel offline (ERR_NGROK_3200 / HTTP 502)
-                        // or other gateway errors and fall back to local storage
-                        if (isServerOfflineResponse(response.code(), errorMsg)) {
+                        val rawError = response.errorBody()?.string()
+                        if (isServerOfflineResponse(response.code(), rawError)) {
                             saveRegistrationLocally(nic, name, email, phone)
                         } else {
-                            showErrorDialog(errorMsg)
+                            val cleanMsg = rawError?.let { raw ->
+                                try {
+                                    com.google.gson.JsonParser.parseString(raw).asJsonObject.get("message")?.asString
+                                } catch (e: Exception) { null }
+                            } ?: response.body()?.message ?: rawError ?: "Registration rejected by server."
+                            showErrorDialog(cleanMsg)
                         }
                     }
                 }

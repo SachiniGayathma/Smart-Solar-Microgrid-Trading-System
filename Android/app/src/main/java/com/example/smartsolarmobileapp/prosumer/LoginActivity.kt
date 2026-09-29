@@ -210,16 +210,17 @@ class LoginActivity : AppCompatActivity() {
                             showErrorDialog("Authentication Failed", loginResponse.message ?: "Authentication failed.")
                         }
                     } else {
-                        val errorMsg = response.errorBody()?.string()
-                            ?: "Invalid credentials. Please verify your NIC/email and password."
-
-                        // Detect ngrok tunnel offline (ERR_NGROK_3200 / HTTP 502)
-                        // or other gateway errors and fall back to offline mode
-                        if (isServerOfflineResponse(response.code(), errorMsg)) {
+                        val rawError = response.errorBody()?.string()
+                        if (isServerOfflineResponse(response.code(), rawError)) {
                             handleOfflineLogin(identifier, password)
                         } else {
+                            val cleanMsg = rawError?.let { raw ->
+                                try {
+                                    com.google.gson.JsonParser.parseString(raw).asJsonObject.get("message")?.asString
+                                } catch (e: Exception) { null }
+                            } ?: rawError ?: "Invalid credentials. Please verify your NIC/email and password."
                             tilPassword.error = "Invalid credentials"
-                            showErrorDialog("Login Failed", errorMsg)
+                            showErrorDialog("Login Failed", cleanMsg)
                         }
                     }
                 }
