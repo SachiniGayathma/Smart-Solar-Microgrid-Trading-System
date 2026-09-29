@@ -246,6 +246,17 @@ class SlotBookingActivity : AppCompatActivity() {
             return
         }
 
+        val currentUser = sessionManager.getUser()
+        if (currentUser?.status.equals("Pending", ignoreCase = true)) {
+            UiAlertUtils.showModernDialog(
+                this,
+                "Account Pending Activation",
+                "Your account is pending activation by Backoffice on the Web Management Portal. Slot booking will be enabled once your account is verified.",
+                UiAlertUtils.AlertType.WARNING
+            )
+            return
+        }
+
         val slotDate = DateTimeUtils.parseIsoString(slot.startTime) ?: selectedCalendar.time
         val now = java.util.Date()
 

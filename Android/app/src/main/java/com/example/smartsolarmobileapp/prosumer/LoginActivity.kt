@@ -238,15 +238,8 @@ class LoginActivity : AppCompatActivity() {
     private fun validateAndProcessUser(token: String?, user: User) {
         val status = user.status ?: "Active"
 
-        if (status.equals("Pending", ignoreCase = true)) {
-            UiAlertUtils.showModernDialog(
-                this,
-                "Account Pending Activation",
-                "Your account is pending activation by Backoffice.",
-                UiAlertUtils.AlertType.INFO
-            )
-            return
-        }
+        // Option B: Allow Pending prosumer to access their dashboard with restricted actions.
+        // Account activation status will be reactively synced and displayed via an Amber banner.
 
         if (status.equals("Deactivated", ignoreCase = true)) {
             UiAlertUtils.showModernDialog(
@@ -300,15 +293,6 @@ class LoginActivity : AppCompatActivity() {
             }
 
             val status = cachedUser.status ?: "Active"
-            if (status.equals("Pending", ignoreCase = true)) {
-                UiAlertUtils.showModernDialog(
-                    this,
-                    "Account Pending Activation",
-                    "Your account status is currently recorded as pending Backoffice activation. If your account was just activated on the Web Portal, please ensure server connection is active and tap Sign In again.",
-                    UiAlertUtils.AlertType.INFO
-                )
-                return
-            }
 
             if (status.equals("Deactivated", ignoreCase = true)) {
                 UiAlertUtils.showModernDialog(

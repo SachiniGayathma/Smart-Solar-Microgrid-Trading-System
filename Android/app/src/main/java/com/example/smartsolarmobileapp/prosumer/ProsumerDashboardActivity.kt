@@ -17,11 +17,16 @@ import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.ReservationDao
 import com.example.smartsolarmobileapp.database.StationDao
 import com.example.smartsolarmobileapp.database.UserDao
+import android.view.View
+import android.widget.ProgressBar
 import com.example.smartsolarmobileapp.utils.RoleRouter
 import com.example.smartsolarmobileapp.utils.SessionManager
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -38,6 +43,14 @@ class ProsumerDashboardActivity : AppCompatActivity() {
     private lateinit var btnViewBookings: Button
     private lateinit var btnHeaderLogout: ImageButton
     private lateinit var bottomNav: BottomNavigationView
+
+    // Option B: Amber Pending Banner and Status Indicator components
+    private var cardPendingBanner: View? = null
+    private var btnCheckStatus: View? = null
+    private var pbCheckingStatus: ProgressBar? = null
+    private var tvStatusPill: TextView? = null
+    private var isAccountPending: Boolean = false
+    private var statusPollJob: Job? = null
 
     private lateinit var sessionManager: SessionManager
     private lateinit var dbHelper: DatabaseHelper
@@ -75,8 +88,16 @@ class ProsumerDashboardActivity : AppCompatActivity() {
         super.onResume()
         refreshDashboard()
         syncDataFromApi()
+        checkAccountStatus(silent = true)
+        startStatusPollerIfPending()
         // Ensure bottom nav has Home selected when on dashboard
         bottomNav.selectedItemId = R.id.nav_home
+    }
+
+    override fun onPause() {
+        super.onPause()
+        statusPollJob?.cancel()
+        statusPollJob = null
     }
 
     private fun initializeViews() {
@@ -91,6 +112,11 @@ class ProsumerDashboardActivity : AppCompatActivity() {
         btnViewBookings = findViewById(R.id.btn_view_bookings)
         btnHeaderLogout = findViewById(R.id.btn_header_logout)
         bottomNav = findViewById(R.id.bottom_nav)
+
+        cardPendingBanner = findViewById(R.id.card_pending_banner)
+        btnCheckStatus = findViewById(R.id.btn_check_activation_status)
+        pbCheckingStatus = findViewById(R.id.pb_checking_status)
+        tvStatusPill = findViewById(R.id.tv_dashboard_status_pill)
     }
 
     private fun setupListeners() {
@@ -98,12 +124,24 @@ class ProsumerDashboardActivity : AppCompatActivity() {
             confirmLogout()
         }
 
+        btnCheckStatus?.setOnClickListener {
+            checkAccountStatus(silent = false)
+        }
+
         btnBookSlot.setOnClickListener {
-            navigateToStationSelect()
+            if (isAccountPending) {
+                showPendingActivationDialog()
+            } else {
+                navigateToStationSelect()
+            }
         }
 
         cardBookSlot.setOnClickListener {
-            navigateToStationSelect()
+            if (isAccountPending) {
+                showPendingActivationDialog()
+            } else {
+                navigateToStationSelect()
+            }
         }
 
         btnViewBookings.setOnClickListener {
@@ -112,6 +150,108 @@ class ProsumerDashboardActivity : AppCompatActivity() {
 
         cardMyBookings.setOnClickListener {
             navigateToBookingList()
+        }
+    }
+
+    private fun showPendingActivationDialog() {
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = "Account Pending Activation",
+            message = "Slot booking is locked until your account is approved by Backoffice on the Web Management Portal. You can explore charging stations on the map or review your profile.",
+            type = UiAlertUtils.AlertType.WARNING,
+            positiveButtonText = "Check Status",
+            onPositiveClick = { checkAccountStatus(silent = false) },
+            negativeButtonText = "Close"
+        )
+    }
+
+    /**
+     * Starts a coroutine poller checking every 8 seconds while dashboard is in foreground and status is Pending.
+     */
+    private fun startStatusPollerIfPending() {
+        statusPollJob?.cancel()
+        if (!isAccountPending) return
+
+        statusPollJob = lifecycleScope.launch {
+            while (isActive && isAccountPending) {
+                delay(8000)
+                checkAccountStatus(silent = true)
+            }
+        }
+    }
+
+    /**
+     * Queries the backend for fresh user profile status and updates UI reactively.
+     */
+    private fun checkAccountStatus(silent: Boolean = false) {
+        if (!silent) {
+            pbCheckingStatus?.visibility = View.VISIBLE
+            btnCheckStatus?.isEnabled = false
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val response = ApiClient.userApi.getProfile()
+                withContext(Dispatchers.Main) {
+                    if (!silent) {
+                        pbCheckingStatus?.visibility = View.GONE
+                        btnCheckStatus?.isEnabled = true
+                    }
+
+                    if (response.isSuccessful && response.body() != null) {
+                        val remoteUser = response.body()!!
+                        val wasPending = isAccountPending
+                        val nowStatus = remoteUser.status ?: "Active"
+                        val isNowActive = nowStatus.equals("Active", ignoreCase = true)
+
+                        sessionManager.saveUser(remoteUser)
+                        userDao.insertOrUpdateUser(remoteUser)
+                        refreshDashboard()
+
+                        if (wasPending && isNowActive) {
+                            statusPollJob?.cancel()
+                            statusPollJob = null
+                            UiAlertUtils.showToast(
+                                this@ProsumerDashboardActivity,
+                                "🎉 Account Approved! You can now book solar charging slots.",
+                                UiAlertUtils.AlertType.SUCCESS
+                            )
+                        } else if (!silent) {
+                            if (isNowActive) {
+                                UiAlertUtils.showToast(
+                                    this@ProsumerDashboardActivity,
+                                    "Your account is Active!",
+                                    UiAlertUtils.AlertType.SUCCESS
+                                )
+                            } else {
+                                UiAlertUtils.showToast(
+                                    this@ProsumerDashboardActivity,
+                                    "Account is still pending Backoffice review.",
+                                    UiAlertUtils.AlertType.INFO
+                                )
+                            }
+                        }
+                    } else if (!silent) {
+                        UiAlertUtils.showToast(
+                            this@ProsumerDashboardActivity,
+                            "Unable to reach server to check status.",
+                            UiAlertUtils.AlertType.WARNING
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    if (!silent) {
+                        pbCheckingStatus?.visibility = View.GONE
+                        btnCheckStatus?.isEnabled = true
+                        UiAlertUtils.showToast(
+                            this@ProsumerDashboardActivity,
+                            "Network connection unavailable.",
+                            UiAlertUtils.AlertType.WARNING
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -167,6 +307,29 @@ class ProsumerDashboardActivity : AppCompatActivity() {
         if (user == null) {
             navigateToLogin()
             return
+        }
+
+        val status = user.status ?: "Active"
+        isAccountPending = status.equals("Pending", ignoreCase = true)
+
+        if (isAccountPending) {
+            cardPendingBanner?.visibility = View.VISIBLE
+            tvStatusPill?.text = "Pending"
+            tvStatusPill?.setBackgroundResource(R.drawable.bg_pill_badge_amber)
+            tvStatusPill?.setTextColor(android.graphics.Color.parseColor("#B45309"))
+
+            btnBookSlot.text = "Awaiting Activation 🔒"
+            btnBookSlot.setBackgroundColor(android.graphics.Color.parseColor("#CBD5E1"))
+            btnBookSlot.setTextColor(android.graphics.Color.parseColor("#475569"))
+        } else {
+            cardPendingBanner?.visibility = View.GONE
+            tvStatusPill?.text = "Active"
+            tvStatusPill?.setBackgroundResource(R.drawable.bg_pill_badge)
+            tvStatusPill?.setTextColor(getColor(R.color.solar_green_primary))
+
+            btnBookSlot.text = "Reserve Energy Slot"
+            btnBookSlot.setBackgroundColor(getColor(R.color.solar_green_primary))
+            btnBookSlot.setTextColor(getColor(R.color.white))
         }
 
         // Generate initials from full name

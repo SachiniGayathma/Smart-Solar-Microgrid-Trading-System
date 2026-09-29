@@ -53,6 +53,14 @@ class UserDao(private val dbHelper: DatabaseHelper) {
     }
 
     /**
+     * Inserts or updates a user entity, retaining their existing auth token if already stored.
+     */
+    fun insertOrUpdateUser(user: User): Long {
+        val existingToken = getAuthToken()
+        return saveUserSession(user, existingToken)
+    }
+
+    /**
      * Retrieves the currently active logged-in User from SQLite.
      *
      * @return Active User instance or null if no user is currently logged in.
