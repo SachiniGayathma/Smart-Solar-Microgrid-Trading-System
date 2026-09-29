@@ -452,10 +452,22 @@ class BookingSummaryActivity : AppCompatActivity() {
 
     private fun executeCancellation() {
         lifecycleScope.launch(Dispatchers.IO) {
+            var serverErrorMessage: String? = null
+
             try {
-                ApiClient.reservationApi.cancelReservation(reservationId)
+                val response = ApiClient.reservationApi.cancelReservation(reservationId)
+                if (!response.isSuccessful) {
+                    serverErrorMessage = com.example.smartsolarmobileapp.api.ApiMessages.from(response, "Cancellation rejected by server.")
+                }
             } catch (e: Exception) {
-                // Network unavailable or server error; handled via local cache update
+                // Network unavailable; handled via local cache update
+            }
+
+            if (serverErrorMessage != null) {
+                withContext(Dispatchers.Main) {
+                    showRuleViolationDialog("Cancellation Failed", serverErrorMessage)
+                }
+                return@launch
             }
 
             // Update local SQLite persistence
