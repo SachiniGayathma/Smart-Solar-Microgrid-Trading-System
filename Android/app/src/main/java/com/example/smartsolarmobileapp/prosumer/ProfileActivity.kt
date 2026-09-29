@@ -45,6 +45,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var btnHeaderLogout: ImageButton
     private lateinit var bottomNav: BottomNavigationView
     private lateinit var pbProfile: ProgressBar
+    private lateinit var swipeRefresh: androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
     private lateinit var sessionManager: SessionManager
     private lateinit var dbHelper: DatabaseHelper
@@ -90,6 +91,11 @@ class ProfileActivity : AppCompatActivity() {
         btnHeaderLogout = findViewById(R.id.btn_header_logout_profile)
         bottomNav = findViewById(R.id.bottom_nav_profile)
         pbProfile = findViewById(R.id.pb_profile)
+        swipeRefresh = findViewById(R.id.swipe_refresh_profile)
+        swipeRefresh.setColorSchemeColors(getColor(R.color.solar_green_primary))
+        swipeRefresh.setOnRefreshListener {
+            fetchRemoteProfile(isManual = true)
+        }
     }
 
     private fun setupListeners() {
@@ -190,7 +196,7 @@ class ProfileActivity : AppCompatActivity() {
     /**
      * Asynchronously queries the backend server for fresh profile attributes.
      */
-    private fun fetchRemoteProfile() {
+    private fun fetchRemoteProfile(isManual: Boolean = false) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val response = ApiClient.userApi.getProfile()
@@ -199,13 +205,23 @@ class ProfileActivity : AppCompatActivity() {
                     currentUser = remoteUser
 
                     withContext(Dispatchers.Main) {
+                        swipeRefresh.isRefreshing = false
                         displayUserData(remoteUser)
                         sessionManager.saveSession(sessionManager.getAuthToken(), remoteUser)
                         userDao.saveUserSession(remoteUser, sessionManager.getAuthToken())
+                        if (isManual) {
+                            UiAlertUtils.showToast(this@ProfileActivity, "Profile refreshed", UiAlertUtils.AlertType.INFO)
+                        }
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        swipeRefresh.isRefreshing = false
                     }
                 }
             } catch (_: Exception) {
-                // Network unavailable; local cached profile remains active
+                withContext(Dispatchers.Main) {
+                    swipeRefresh.isRefreshing = false
+                }
             }
         }
     }

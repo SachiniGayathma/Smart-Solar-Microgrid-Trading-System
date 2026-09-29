@@ -204,8 +204,8 @@ class RegisterActivity : AppCompatActivity() {
 
         UiAlertUtils.showModernDialog(
             context = this@RegisterActivity,
-            title = "Registration Saved Locally",
-            message = "Server connection unavailable. Your registration with NIC $nic has been stored locally as PENDING and will be synchronized when online.",
+            title = "Unable to Reach Server",
+            message = "Could not connect to the server. Your registration with NIC $nic has been saved locally and will be synchronized when the server is online.",
             type = UiAlertUtils.AlertType.INFO,
             positiveButtonText = "Proceed to Login",
             onPositiveClick = { navigateToLogin() }

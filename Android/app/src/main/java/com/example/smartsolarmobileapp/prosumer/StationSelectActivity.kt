@@ -30,6 +30,7 @@ class StationSelectActivity : AppCompatActivity() {
     private lateinit var rvStations: RecyclerView
     private lateinit var layoutEmpty: View
     private lateinit var pbStations: ProgressBar
+    private lateinit var swipeRefresh: androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
     private lateinit var dbHelper: DatabaseHelper
     private lateinit var stationDao: StationDao
@@ -56,6 +57,11 @@ class StationSelectActivity : AppCompatActivity() {
         rvStations = findViewById(R.id.rv_stations)
         layoutEmpty = findViewById(R.id.layout_empty_stations)
         pbStations = findViewById(R.id.pb_stations)
+        swipeRefresh = findViewById(R.id.swipe_refresh_stations)
+        swipeRefresh.setColorSchemeColors(getColor(R.color.solar_green_primary))
+        swipeRefresh.setOnRefreshListener {
+            fetchRemoteStations(isManual = true)
+        }
 
         findViewById<android.widget.ImageButton>(R.id.btn_back_stations)?.setOnClickListener {
             finish()
@@ -120,8 +126,8 @@ class StationSelectActivity : AppCompatActivity() {
     /**
      * Fetches fresh active stations from the central Web API and updates SQLite cache.
      */
-    private fun fetchRemoteStations() {
-        pbStations.visibility = View.VISIBLE
+    private fun fetchRemoteStations(isManual: Boolean = false) {
+        if (!isManual) pbStations.visibility = View.VISIBLE
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -129,6 +135,7 @@ class StationSelectActivity : AppCompatActivity() {
 
                 withContext(Dispatchers.Main) {
                     pbStations.visibility = View.GONE
+                    swipeRefresh.isRefreshing = false
                     if (response.isSuccessful && response.body() != null) {
                         val activeStations = response.body()!!.filter {
                             it.status.equals("Active", ignoreCase = true)
@@ -140,6 +147,9 @@ class StationSelectActivity : AppCompatActivity() {
                         // Update list display
                         stationAdapter.updateData(activeStations)
                         layoutEmpty.visibility = if (activeStations.isEmpty()) View.VISIBLE else View.GONE
+                        if (isManual) {
+                            UiAlertUtils.showToast(this@StationSelectActivity, "Stations updated", UiAlertUtils.AlertType.INFO)
+                        }
                     } else {
                         handleFetchFailure()
                     }
@@ -147,6 +157,7 @@ class StationSelectActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     pbStations.visibility = View.GONE
+                    swipeRefresh.isRefreshing = false
                     handleFetchFailure()
                 }
             }

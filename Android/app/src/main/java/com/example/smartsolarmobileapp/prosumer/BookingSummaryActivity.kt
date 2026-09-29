@@ -25,6 +25,7 @@ import com.example.smartsolarmobileapp.utils.SessionManager
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -42,9 +43,11 @@ class BookingSummaryActivity : AppCompatActivity() {
     private lateinit var btnCancelBooking: Button
     private lateinit var btnAllBookings: Button
     private lateinit var bottomNav: BottomNavigationView
+    private lateinit var swipeRefresh: androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
     private lateinit var reservationDao: ReservationDao
     private lateinit var sessionManager: SessionManager
+    private var approvalPollingJob: kotlinx.coroutines.Job? = null
 
     private var reservationId: String = ""
     private var stationName: String = ""
@@ -75,6 +78,74 @@ class BookingSummaryActivity : AppCompatActivity() {
         populateDetails()
         setupListeners()
         setupBottomNavigation()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        fetchLatestReservationStatus(isManual = false)
+        startApprovalPoller()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        approvalPollingJob?.cancel()
+    }
+
+    private fun startApprovalPoller() {
+        approvalPollingJob?.cancel()
+        if (!status.equals("Pending", ignoreCase = true)) return
+
+        approvalPollingJob = lifecycleScope.launch {
+            while (isActive && status.equals("Pending", ignoreCase = true)) {
+                kotlinx.coroutines.delay(6000)
+                fetchLatestReservationStatus(isManual = false)
+            }
+        }
+    }
+
+    private fun fetchLatestReservationStatus(isManual: Boolean = false) {
+        if (reservationId.isBlank()) {
+            if (isManual) swipeRefresh.isRefreshing = false
+            return
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val response = ApiClient.reservationApi.getReservationById(reservationId)
+                if (response.isSuccessful && response.body() != null) {
+                    val updated = response.body()!!
+                    status = updated.status
+                    if (!updated.qrToken.isNullOrBlank()) {
+                        qrToken = updated.qrToken
+                    }
+                    if (!updated.scheduledAt.isNullOrBlank()) {
+                        scheduledAt = updated.scheduledAt
+                    }
+
+                    reservationDao.insertOrUpdateReservation(updated)
+
+                    withContext(Dispatchers.Main) {
+                        applyStatusStyling(status)
+                        populateDetails()
+                        if (isManual) {
+                            swipeRefresh.isRefreshing = false
+                            UiAlertUtils.showToast(this@BookingSummaryActivity, "Status updated: $status", UiAlertUtils.AlertType.INFO)
+                        }
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        if (isManual) swipeRefresh.isRefreshing = false
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    if (isManual) {
+                        swipeRefresh.isRefreshing = false
+                        UiAlertUtils.showToast(this@BookingSummaryActivity, "Unable to reach server", UiAlertUtils.AlertType.WARNING)
+                    }
+                }
+            }
+        }
     }
 
     private fun extractExtras() {
@@ -126,6 +197,11 @@ class BookingSummaryActivity : AppCompatActivity() {
         btnCancelBooking = findViewById(R.id.btn_cancel_booking)
         btnAllBookings = findViewById(R.id.btn_summary_all_bookings)
         bottomNav = findViewById(R.id.bottom_nav_summary)
+        swipeRefresh = findViewById(R.id.swipe_refresh_summary)
+        swipeRefresh.setColorSchemeColors(getColor(R.color.solar_green_primary))
+        swipeRefresh.setOnRefreshListener {
+            fetchLatestReservationStatus(isManual = true)
+        }
     }
 
     private fun populateDetails() {
@@ -257,9 +333,10 @@ class BookingSummaryActivity : AppCompatActivity() {
                 title = "QR Pass Pending Approval ⏳",
                 message = "Per microgrid trading rules, transaction QR passes are generated and activated once your reservation is approved by Backoffice on the Web Management Portal.\n\nCurrent Status: PENDING\nPlease wait for Backoffice confirmation before presenting your pass at the station.",
                 type = UiAlertUtils.AlertType.INFO,
-                positiveButtonText = "Preview Pass",
-                onPositiveClick = { launchQrActivity() },
-                negativeButtonText = "Close"
+                positiveButtonText = "Check Status Now",
+                onPositiveClick = { fetchLatestReservationStatus(isManual = true) },
+                negativeButtonText = "Preview Pass",
+                onNegativeClick = { launchQrActivity() }
             )
             return
         }

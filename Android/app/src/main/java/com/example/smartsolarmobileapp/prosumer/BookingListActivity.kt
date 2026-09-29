@@ -38,6 +38,7 @@ class BookingListActivity : AppCompatActivity() {
     private lateinit var rvBookings: RecyclerView
     private lateinit var btnHeaderLogout: ImageButton
     private lateinit var bottomNav: BottomNavigationView
+    private lateinit var swipeRefresh: androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
     private lateinit var reservationDao: ReservationDao
     private lateinit var stationDao: StationDao
@@ -82,6 +83,11 @@ class BookingListActivity : AppCompatActivity() {
         rvBookings = findViewById(R.id.rv_bookings)
         btnHeaderLogout = findViewById(R.id.btn_header_logout_bookings)
         bottomNav = findViewById(R.id.bottom_nav_bookings)
+        swipeRefresh = findViewById(R.id.swipe_refresh_bookings)
+        swipeRefresh.setColorSchemeColors(getColor(R.color.solar_green_primary))
+        swipeRefresh.setOnRefreshListener {
+            syncRemoteBookings()
+        }
 
         findViewById<ImageButton>(R.id.btn_back_booking_list)?.setOnClickListener {
             finish()
@@ -212,6 +218,7 @@ class BookingListActivity : AppCompatActivity() {
 
                     withContext(Dispatchers.Main) {
                         pbBookings.visibility = View.GONE
+                        swipeRefresh.isRefreshing = false
                         val userNic = sessionManager.getUserNic() ?: ""
                         allBookings = if (userNic.isNotBlank()) {
                             decorateWithStationNames(reservationDao.getReservationsByNic(userNic))
@@ -223,11 +230,13 @@ class BookingListActivity : AppCompatActivity() {
                 } else {
                     withContext(Dispatchers.Main) {
                         pbBookings.visibility = View.GONE
+                        swipeRefresh.isRefreshing = false
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     pbBookings.visibility = View.GONE
+                    swipeRefresh.isRefreshing = false
                 }
             }
         }

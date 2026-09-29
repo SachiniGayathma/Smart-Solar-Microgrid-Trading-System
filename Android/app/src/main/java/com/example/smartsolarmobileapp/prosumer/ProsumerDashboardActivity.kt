@@ -43,6 +43,7 @@ class ProsumerDashboardActivity : AppCompatActivity() {
     private lateinit var btnViewBookings: Button
     private lateinit var btnHeaderLogout: ImageButton
     private lateinit var bottomNav: BottomNavigationView
+    private lateinit var swipeRefresh: androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
     // Option B: Amber Pending Banner and Status Indicator components
     private var cardPendingBanner: View? = null
@@ -117,6 +118,13 @@ class ProsumerDashboardActivity : AppCompatActivity() {
         btnCheckStatus = findViewById(R.id.btn_check_activation_status)
         pbCheckingStatus = findViewById(R.id.pb_checking_status)
         tvStatusPill = findViewById(R.id.tv_dashboard_status_pill)
+        swipeRefresh = findViewById(R.id.swipe_refresh_dashboard)
+        swipeRefresh.setColorSchemeColors(getColor(R.color.solar_green_primary))
+        swipeRefresh.setOnRefreshListener {
+            refreshDashboard()
+            syncDataFromApi(isManual = true)
+            checkAccountStatus(silent = false)
+        }
     }
 
     private fun setupListeners() {
@@ -354,7 +362,7 @@ class ProsumerDashboardActivity : AppCompatActivity() {
     /**
      * Synchronizes stations and reservations from the central Web API into SQLite cache.
      */
-    private fun syncDataFromApi() {
+    private fun syncDataFromApi(isManual: Boolean = false) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val stResponse = ApiClient.stationApi.getStations()
@@ -374,6 +382,13 @@ class ProsumerDashboardActivity : AppCompatActivity() {
                     }
                 }
             } catch (_: Exception) {}
+
+            withContext(Dispatchers.Main) {
+                swipeRefresh.isRefreshing = false
+                if (isManual) {
+                    UiAlertUtils.showToast(this@ProsumerDashboardActivity, "Dashboard refreshed", UiAlertUtils.AlertType.INFO)
+                }
+            }
         }
     }
 
