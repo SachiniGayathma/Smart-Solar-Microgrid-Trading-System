@@ -55,6 +55,14 @@ class SessionManager(private val prefs: SharedPreferences) {
     }
 
     /**
+     * Updates stored user details while preserving the active auth token.
+     */
+    fun saveUser(user: User) {
+        val token = getAuthToken()
+        saveSession(token, user)
+    }
+
+    /**
      * Retrieves the stored JWT authentication token.
      */
     fun getAuthToken(): String? {

@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_modern_dialog_card"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Top Badge Icon: Amber Warning Triangle -->
+    <FrameLayout
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:background="@drawable/bg_dialog_circle"
+        android:backgroundTint="@color/solar_amber_container">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:contentDescription="Modify Slot"
+            android:src="@drawable/ic_alert_triangle"
+            app:tint="@color/solar_amber_primary" />
+    </FrameLayout>
+
+    <!-- Dialog Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Confirm Slot Modification"
+        android:textAlignment="center"
+        android:textColor="@color/solar_slate_dark"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <!-- Subtitle -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="You are updating your reservation time:"
+        android:textAlignment="center"
+        android:textColor="@color/solar_slate_body"
+        android:textSize="13sp" />
+
+    <!-- Slot Comparison Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:cardBackgroundColor="@color/solar_bg"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <!-- Current Slot Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_clock"
+                    app:tint="@color/solar_amber_primary"
+                    android:contentDescription="Current Slot" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CURRENT RESERVATION"
+                        android:textColor="@color/solar_amber_primary"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.04" />
+
+                    <TextView
+                        android:id="@+id/tv_dialog_current_slot"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Wed, Sep 30, 2026 at 12:00 PM"
+                        android:textColor="@color/solar_slate_dark"
+                        android:textSize="13.5sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Transition Divider Arrow -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginVertical="8dp">
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:background="@color/solar_border" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10dp"
+                    android:text="▼  CHANGING TO"
+                    android:textColor="@color/solar_slate_muted"
+                    android:textSize="9.5sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:background="@color/solar_border" />
+            </LinearLayout>
+
+            <!-- New Slot Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_solar_bolt"
+                    app:tint="@color/solar_green_primary"
+                    android:contentDescription="New Slot" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="NEW REQUESTED SLOT"
+                        android:textColor="@color/solar_green_primary"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.04" />
+
+                    <TextView
+                        android:id="@+id/tv_dialog_new_slot"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="01:00 PM - 02:00 PM"
+                        android:textColor="@color/solar_green_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Warning / Re-approval Notice Card -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/bg_pill_badge_amber"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="10dp">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_info_circle"
+            app:tint="@color/solar_amber_primary"
+            android:contentDescription="Warning" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="Submitting this change requires Backoffice re-approval and will return your reservation status to PENDING."
+            android:textColor="@color/solar_slate_heading"
+            android:textSize="12sp"
+            android:lineSpacingMultiplier="1.15" />
+    </LinearLayout>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_dialog_confirm_change"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:backgroundTint="@color/solar_amber_primary"
+            android:text="Yes, Change Slot"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="14.5sp"
+            android:textStyle="bold"
+            app:cornerRadius="12dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_dialog_cancel_change"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="4dp"
+            android:text="Keep Current Slot"
+            android:textAllCaps="false"
+            android:textColor="@color/solar_slate_body"
+            android:textSize="13.5sp" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -111,37 +111,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.execSQL(createUsersTable)
         db.execSQL(createReservationsTable)
         db.execSQL(createStationsTable)
-
-        // Seed initial reference microgrid stations for offline persistence and Google Maps pins
-        seedInitialStations(db)
-        seedInitialUsers(db)
-    }
-
-    /**
-     * Inserts standard reference users into local storage for offline testing resilience.
-     */
-    fun seedInitialUsers(db: SQLiteDatabase) {
-        val userQueries = listOf(
-            "INSERT OR REPLACE INTO $TABLE_USERS ($COL_USER_NIC, $COL_USER_FULL_NAME, $COL_USER_EMAIL, $COL_USER_PHONE, $COL_USER_ROLE, $COL_USER_STATUS) VALUES ('200012345678', 'Amara Perera', 'amara@example.com', '0771234567', 'Prosumer', 'Active');",
-            "INSERT OR REPLACE INTO $TABLE_USERS ($COL_USER_NIC, $COL_USER_FULL_NAME, $COL_USER_EMAIL, $COL_USER_PHONE, $COL_USER_ROLE, $COL_USER_STATUS) VALUES ('199812345V', 'Grid Operator One', 'operator@smartsolar.local', '0770000001', 'GridOperator', 'Active');"
-        )
-        for (sql in userQueries) {
-            db.execSQL(sql)
-        }
-    }
-
-    /**
-     * Inserts standard reference stations into local storage.
-     */
-    fun seedInitialStations(db: SQLiteDatabase) {
-        val seedQueries = listOf(
-            "INSERT OR REPLACE INTO $TABLE_STATIONS ($COL_STATION_ID, $COL_STATION_NAME, $COL_STATION_LATITUDE, $COL_STATION_LONGITUDE, $COL_STATION_CAPACITY_KWH, $COL_STATION_BATTERY_SLOTS, $COL_STATION_SCHEDULE, $COL_STATION_STATUS) VALUES ('station_colombo_01', 'Colombo Central Hub', 6.9271, 79.8612, 150.0, 4, '08:00 - 18:00', 'Active');",
-            "INSERT OR REPLACE INTO $TABLE_STATIONS ($COL_STATION_ID, $COL_STATION_NAME, $COL_STATION_LATITUDE, $COL_STATION_LONGITUDE, $COL_STATION_CAPACITY_KWH, $COL_STATION_BATTERY_SLOTS, $COL_STATION_SCHEDULE, $COL_STATION_STATUS) VALUES ('station_kandy_02', 'Kandy Solar Node', 7.2906, 80.6337, 120.0, 3, '08:00 - 18:00', 'Active');",
-            "INSERT OR REPLACE INTO $TABLE_STATIONS ($COL_STATION_ID, $COL_STATION_NAME, $COL_STATION_LATITUDE, $COL_STATION_LONGITUDE, $COL_STATION_CAPACITY_KWH, $COL_STATION_BATTERY_SLOTS, $COL_STATION_SCHEDULE, $COL_STATION_STATUS) VALUES ('station_galle_03', 'Galle Green Energy Station', 6.0535, 80.2210, 100.0, 2, '09:00 - 17:00', 'Active');"
-        )
-        for (sql in seedQueries) {
-            db.execSQL(sql)
-        }
     }
 
     /**
@@ -156,8 +125,15 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     override fun onOpen(db: SQLiteDatabase) {
         super.onOpen(db)
-        // Testing / Offline Demo Fallback: Seed and activate demo accounts for walkthrough testing
-        // until central C# Web API and MongoDB server are actively running.
-        seedInitialUsers(db)
+        // Clean up legacy mock placeholder records from early development if present in local SQLite
+        try {
+            db.execSQL("DELETE FROM $TABLE_STATIONS WHERE $COL_STATION_ID IN ('station_colombo_01', 'station_kandy_02', 'station_galle_03');")
+            db.execSQL("DELETE FROM $TABLE_USERS WHERE $COL_USER_NIC = '200012345678' AND $COL_USER_FULL_NAME = 'Amara Perera';")
+
+            // Automatically backfill station names from the cached stations table for any reservations missing station_name
+            db.execSQL("UPDATE $TABLE_RESERVATIONS SET $COL_RES_STATION_NAME = (SELECT $COL_STATION_NAME FROM $TABLE_STATIONS WHERE $TABLE_STATIONS.$COL_STATION_ID = $TABLE_RESERVATIONS.$COL_RES_STATION_ID) WHERE ($COL_RES_STATION_NAME IS NULL OR $COL_RES_STATION_NAME = '' OR $COL_RES_STATION_NAME = $COL_RES_STATION_ID) AND EXISTS (SELECT 1 FROM $TABLE_STATIONS WHERE $TABLE_STATIONS.$COL_STATION_ID = $TABLE_RESERVATIONS.$COL_RES_STATION_ID);")
+        } catch (_: Exception) {
+            // Ignore if tables are newly created
+        }
     }
 }

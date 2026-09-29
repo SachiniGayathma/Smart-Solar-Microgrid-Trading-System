@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="Reserve 30-Min Slot"
+            android:text="Reserve Energy Slot"
             android:textColor="@color/solar_slate_dark"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -203,7 +203,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="14dp"
-        android:text="Available 30-Minute Energy Slots"
+        android:text="Available Energy Slots"
         android:textColor="@color/solar_slate_dark"
         android:textSize="16sp"
         android:textStyle="bold"
@@ -222,19 +222,53 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/rv_slots" />
 
-    <!-- Empty State -->
-    <TextView
-        android:id="@+id/tv_empty_slots"
-        android:layout_width="wrap_content"
+    <!-- Enhanced Empty State -->
+    <LinearLayout
+        android:id="@+id/layout_empty_slots"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="No available slots found for the selected date."
-        android:textColor="@color/solar_slate_muted"
-        android:textSize="14sp"
+        android:layout_marginHorizontal="32dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="20dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/rv_slots"
+        app:layout_constraintTop_toBottomOf="@+id/tv_select_slot_label"
+        app:layout_constraintBottom_toTopOf="@+id/btn_confirm_booking"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/rv_slots" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_empty_slots_icon"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:src="@drawable/ic_clock"
+            app:tint="@color/solar_slate_subtle"
+            android:alpha="0.55"
+            android:contentDescription="No slots" />
+
+        <TextView
+            android:id="@+id/tv_empty_slots_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="No Available Slots"
+            android:textColor="@color/solar_slate_dark"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_empty_slots"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:text="All charging slots for this date are fully booked or unavailable. Please choose another date."
+            android:textColor="@color/solar_slate_muted"
+            android:textSize="13sp"
+            android:lineSpacingExtra="3dp" />
+    </LinearLayout>
 
     <!-- RecyclerView of Slots -->
     <androidx.recyclerview.widget.RecyclerView

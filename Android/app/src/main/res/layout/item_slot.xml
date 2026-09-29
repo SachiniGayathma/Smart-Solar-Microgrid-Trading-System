@@ -51,6 +51,21 @@
                 android:text="Available: 3 slots"
                 android:textColor="@color/solar_green_primary"
                 android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tv_item_slot_current_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_pill_badge_amber"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:text="YOUR CURRENT SLOT"
+                android:textColor="@color/solar_amber_primary"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.04"
+                android:visibility="gone" />
         </LinearLayout>
 
         <RadioButton

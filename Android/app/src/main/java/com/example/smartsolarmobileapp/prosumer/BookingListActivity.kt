@@ -18,6 +18,7 @@ import com.example.smartsolarmobileapp.prosumer.adapter.BookingAdapter
 import com.example.smartsolarmobileapp.api.ApiClient
 import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.ReservationDao
+import com.example.smartsolarmobileapp.database.StationDao
 import com.example.smartsolarmobileapp.models.Reservation
 import com.example.smartsolarmobileapp.utils.SessionManager
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
@@ -37,8 +38,10 @@ class BookingListActivity : AppCompatActivity() {
     private lateinit var rvBookings: RecyclerView
     private lateinit var btnHeaderLogout: ImageButton
     private lateinit var bottomNav: BottomNavigationView
+    private lateinit var swipeRefresh: androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
     private lateinit var reservationDao: ReservationDao
+    private lateinit var stationDao: StationDao
     private lateinit var sessionManager: SessionManager
     private lateinit var bookingAdapter: BookingAdapter
 
@@ -53,7 +56,9 @@ class BookingListActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "My Reservations"
 
-        reservationDao = ReservationDao(DatabaseHelper(this))
+        val dbHelper = DatabaseHelper(this)
+        reservationDao = ReservationDao(dbHelper)
+        stationDao = StationDao(dbHelper)
         sessionManager = SessionManager(this)
 
         initializeViews()
@@ -78,6 +83,11 @@ class BookingListActivity : AppCompatActivity() {
         rvBookings = findViewById(R.id.rv_bookings)
         btnHeaderLogout = findViewById(R.id.btn_header_logout_bookings)
         bottomNav = findViewById(R.id.bottom_nav_bookings)
+        swipeRefresh = findViewById(R.id.swipe_refresh_bookings)
+        swipeRefresh.setColorSchemeColors(getColor(R.color.solar_green_primary))
+        swipeRefresh.setOnRefreshListener {
+            syncRemoteBookings()
+        }
 
         findViewById<ImageButton>(R.id.btn_back_booking_list)?.setOnClickListener {
             finish()
@@ -176,7 +186,8 @@ class BookingListActivity : AppCompatActivity() {
     private fun loadLocalBookings() {
         val userNic = sessionManager.getUserNic() ?: ""
         if (userNic.isNotBlank()) {
-            allBookings = reservationDao.getReservationsByNic(userNic)
+            val localList = reservationDao.getReservationsByNic(userNic)
+            allBookings = decorateWithStationNames(localList)
             applyFiltersAndSearch()
         }
     }
@@ -189,32 +200,57 @@ class BookingListActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
+                // Ensure station cache is up to date if online
+                val stationResponse = ApiClient.stationApi.getStations()
+                if (stationResponse.isSuccessful && stationResponse.body() != null) {
+                    stationDao.insertOrUpdateStations(stationResponse.body()!!)
+                }
+            } catch (_: Exception) {}
+
+            try {
                 val response = ApiClient.reservationApi.searchReservations()
                 if (response.isSuccessful && response.body() != null) {
                     val remoteBookings = response.body()!!
+                    val decoratedBookings = decorateWithStationNames(remoteBookings)
 
                     // Update SQLite local persistence
-                    reservationDao.insertOrUpdateReservations(remoteBookings)
+                    reservationDao.insertOrUpdateReservations(decoratedBookings)
 
                     withContext(Dispatchers.Main) {
                         pbBookings.visibility = View.GONE
+                        swipeRefresh.isRefreshing = false
                         val userNic = sessionManager.getUserNic() ?: ""
                         allBookings = if (userNic.isNotBlank()) {
-                            reservationDao.getReservationsByNic(userNic)
+                            decorateWithStationNames(reservationDao.getReservationsByNic(userNic))
                         } else {
-                            remoteBookings
+                            decoratedBookings
                         }
                         applyFiltersAndSearch()
                     }
                 } else {
                     withContext(Dispatchers.Main) {
                         pbBookings.visibility = View.GONE
+                        swipeRefresh.isRefreshing = false
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     pbBookings.visibility = View.GONE
+                    swipeRefresh.isRefreshing = false
                 }
+            }
+        }
+    }
+
+    private fun decorateWithStationNames(reservations: List<Reservation>): List<Reservation> {
+        val stationMap = stationDao.getAllStations().associate { it.id to it.name }
+        return reservations.map { res ->
+            val isKnownStationName = !res.stationName.isNullOrBlank() && res.stationName != res.stationId
+            if (isKnownStationName) {
+                res
+            } else {
+                val resolved = stationMap[res.stationId] ?: res.stationId
+                res.copy(stationName = resolved)
             }
         }
     }
@@ -246,9 +282,13 @@ class BookingListActivity : AppCompatActivity() {
     }
 
     private fun openBookingSummary(reservation: Reservation) {
+        val resolvedName = reservation.stationName?.takeIf { it.isNotBlank() && it != reservation.stationId }
+            ?: stationDao.getStationById(reservation.stationId)?.name
+            ?: reservation.stationId
+
         val intent = Intent(this, BookingSummaryActivity::class.java).apply {
             putExtra("EXTRA_RESERVATION_ID", reservation.id)
-            putExtra("EXTRA_STATION_NAME", reservation.stationName)
+            putExtra("EXTRA_STATION_NAME", resolvedName)
             putExtra("EXTRA_STATION_ID", reservation.stationId)
             putExtra("EXTRA_SCHEDULED_AT", reservation.scheduledAt)
             putExtra("EXTRA_STATUS", reservation.status)

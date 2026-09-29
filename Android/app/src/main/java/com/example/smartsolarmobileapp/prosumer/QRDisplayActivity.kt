@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.smartsolarmobileapp.R
 import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.ReservationDao
+import com.example.smartsolarmobileapp.database.StationDao
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.zxing.BarcodeFormat
@@ -31,6 +32,7 @@ import com.google.zxing.qrcode.QRCodeWriter
 class QRDisplayActivity : AppCompatActivity() {
 
     private lateinit var tvTitle: TextView
+    private lateinit var tvStatusBadge: TextView
     private lateinit var tvInstructions: TextView
     private lateinit var ivQrCode: ImageView
     private lateinit var tvReservationId: TextView
@@ -42,6 +44,7 @@ class QRDisplayActivity : AppCompatActivity() {
     private var reservationId: String = ""
     private var stationName: String = ""
     private var slotTime: String = ""
+    private var status: String = "Approved"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,14 +75,25 @@ class QRDisplayActivity : AppCompatActivity() {
         reservationId = intent.getStringExtra("EXTRA_RESERVATION_ID") ?: ""
         stationName = intent.getStringExtra("EXTRA_STATION_NAME") ?: ""
         slotTime = intent.getStringExtra("EXTRA_SLOT_TIME") ?: ""
+        status = intent.getStringExtra("EXTRA_STATUS") ?: ""
+
+        val stationDao = StationDao(DatabaseHelper(this))
+        val localRes = if (reservationId.isNotBlank()) reservationDao.getReservationById(reservationId) else null
+
+        if (status.isBlank()) {
+            status = localRes?.status ?: "Approved"
+        }
 
         // If qrToken is empty, look up in local SQLite cache
-        if (qrToken.isBlank() && reservationId.isNotBlank()) {
-            val localRes = reservationDao.getReservationById(reservationId)
-            localRes?.let {
-                qrToken = it.qrToken ?: it.id ?: ""
-                if (stationName.isBlank()) stationName = it.stationName ?: ""
-            }
+        if (qrToken.isBlank() && localRes != null) {
+            qrToken = localRes.qrToken ?: localRes.id ?: ""
+        }
+
+        if (stationName.isBlank() || stationName.length == 24) {
+            val resolvedFromRes = localRes?.stationName?.takeIf { it.isNotBlank() && it != localRes.stationId }
+            val resolvedFromStationDao = if (localRes != null) stationDao.getStationById(localRes.stationId)?.name else null
+            val resolvedDirect = stationDao.getStationById(stationName)?.name
+            stationName = resolvedFromRes ?: resolvedFromStationDao ?: resolvedDirect ?: stationName
         }
 
         // Final fallback: use reservation ID as token payload
@@ -90,16 +104,13 @@ class QRDisplayActivity : AppCompatActivity() {
 
     private fun initializeViews() {
         tvTitle = findViewById(R.id.tv_qr_title)
+        tvStatusBadge = findViewById(R.id.tv_qr_status_badge)
         tvInstructions = findViewById(R.id.tv_qr_instructions)
         ivQrCode = findViewById(R.id.iv_qr_code)
         tvReservationId = findViewById(R.id.tv_qr_reservation_id)
 
         val displayId = if (reservationId.length > 8) reservationId.take(8).uppercase() else reservationId
-        tvReservationId.text = "Reservation #$displayId"
-
-        if (stationName.isNotBlank()) {
-            tvInstructions.text = "Present this QR code to the grid operator at $stationName upon arrival"
-        }
+        applyStatusStyling(displayId)
 
         findViewById<android.widget.ImageButton>(R.id.btn_back_qr)?.setOnClickListener {
             finish()
@@ -142,6 +153,40 @@ class QRDisplayActivity : AppCompatActivity() {
                 }
                 else -> false
             }
+        }
+    }
+
+    private fun applyStatusStyling(displayId: String) {
+        val isPending = status.equals("Pending", ignoreCase = true)
+        val pillBg = android.graphics.drawable.GradientDrawable().apply {
+            shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+            cornerRadius = 32f
+            if (isPending) {
+                setColor(Color.parseColor("#FFF3E0"))
+                setStroke(2, Color.parseColor("#FFE0B2"))
+            } else {
+                setColor(Color.parseColor("#E8F5E9"))
+                setStroke(2, Color.parseColor("#C8E6C9"))
+            }
+        }
+        tvStatusBadge.background = pillBg
+
+        if (isPending) {
+            tvStatusBadge.text = "⏳ PENDING BACKOFFICE APPROVAL"
+            tvStatusBadge.setTextColor(Color.parseColor("#E65100"))
+            tvReservationId.text = "Reservation #$displayId • Pending"
+            tvInstructions.text = "⚠️ Notice: This reservation is awaiting Backoffice approval on the Web Portal. Grid operators cannot scan or accept unapproved passes."
+            tvInstructions.setTextColor(Color.parseColor("#D84315"))
+        } else {
+            tvStatusBadge.text = "✅ APPROVED FOR DISPATCH"
+            tvStatusBadge.setTextColor(Color.parseColor("#2E7D32"))
+            tvReservationId.text = "Reservation #$displayId • Approved"
+            if (stationName.isNotBlank()) {
+                tvInstructions.text = "Present this digital QR pass to the grid operator at $stationName upon arrival."
+            } else {
+                tvInstructions.text = "Present this digital QR pass to the grid operator upon arrival."
+            }
+            tvInstructions.setTextColor(getColor(R.color.solar_slate_body))
         }
     }
 

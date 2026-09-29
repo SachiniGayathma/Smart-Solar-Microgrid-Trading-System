@@ -24,11 +24,20 @@ class ReservationDao(private val dbHelper: DatabaseHelper) {
      */
     fun insertOrUpdateReservation(reservation: Reservation): Long {
         val db: SQLiteDatabase = dbHelper.writableDatabase
+
+        var resolvedStationName = reservation.stationName
+        if (resolvedStationName.isNullOrBlank() || resolvedStationName == reservation.stationId) {
+            resolvedStationName = getStationNameFromDb(reservation.stationId)
+        }
+        if (resolvedStationName.isNullOrBlank() && !reservation.id.isNullOrBlank()) {
+            resolvedStationName = getExistingStationName(reservation.id)
+        }
+
         val values = ContentValues().apply {
             put(DatabaseHelper.COL_RES_ID, reservation.id ?: java.util.UUID.randomUUID().toString())
             put(DatabaseHelper.COL_RES_PROSUMER_NIC, reservation.prosumerNic)
             put(DatabaseHelper.COL_RES_STATION_ID, reservation.stationId)
-            put(DatabaseHelper.COL_RES_STATION_NAME, reservation.stationName)
+            put(DatabaseHelper.COL_RES_STATION_NAME, resolvedStationName)
             put(DatabaseHelper.COL_RES_SLOT_ID, reservation.slotId)
             put(DatabaseHelper.COL_RES_SCHEDULED_AT, reservation.scheduledAt)
             put(DatabaseHelper.COL_RES_STATUS, reservation.status)
@@ -245,11 +254,17 @@ class ReservationDao(private val dbHelper: DatabaseHelper) {
         val createdAtIndex = cursor.getColumnIndex(DatabaseHelper.COL_RES_CREATED_AT)
         val updatedAtIndex = cursor.getColumnIndex(DatabaseHelper.COL_RES_UPDATED_AT)
 
+        val stationId = cursor.getString(stationIdIndex)
+        var stationName = if (stationNameIndex != -1) cursor.getString(stationNameIndex) else null
+        if (stationName.isNullOrBlank() || stationName == stationId) {
+            stationName = getStationNameFromDb(stationId)
+        }
+
         return Reservation(
             id = cursor.getString(idIndex),
             prosumerNic = cursor.getString(nicIndex),
-            stationId = cursor.getString(stationIdIndex),
-            stationName = if (stationNameIndex != -1) cursor.getString(stationNameIndex) else null,
+            stationId = stationId,
+            stationName = stationName,
             slotId = cursor.getString(slotIdIndex),
             scheduledAt = cursor.getString(scheduledAtIndex),
             status = cursor.getString(statusIndex),
@@ -258,5 +273,37 @@ class ReservationDao(private val dbHelper: DatabaseHelper) {
             createdAt = if (createdAtIndex != -1) cursor.getString(createdAtIndex) else null,
             updatedAt = if (updatedAtIndex != -1) cursor.getString(updatedAtIndex) else null
         )
+    }
+
+    private fun getStationNameFromDb(stationId: String): String? {
+        if (stationId.isBlank()) return null
+        return try {
+            val db = dbHelper.readableDatabase
+            val cursor = db.rawQuery(
+                "SELECT ${DatabaseHelper.COL_STATION_NAME} FROM ${DatabaseHelper.TABLE_STATIONS} WHERE ${DatabaseHelper.COL_STATION_ID} = ? LIMIT 1",
+                arrayOf(stationId)
+            )
+            val name = if (cursor.moveToFirst()) cursor.getString(0) else null
+            cursor.close()
+            name
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun getExistingStationName(reservationId: String): String? {
+        if (reservationId.isBlank()) return null
+        return try {
+            val db = dbHelper.readableDatabase
+            val cursor = db.rawQuery(
+                "SELECT ${DatabaseHelper.COL_RES_STATION_NAME} FROM ${DatabaseHelper.TABLE_RESERVATIONS} WHERE ${DatabaseHelper.COL_RES_ID} = ? LIMIT 1",
+                arrayOf(reservationId)
+            )
+            val name = if (cursor.moveToFirst()) cursor.getString(0) else null
+            cursor.close()
+            name
+        } catch (_: Exception) {
+            null
+        }
     }
 }

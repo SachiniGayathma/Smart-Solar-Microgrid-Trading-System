@@ -164,16 +164,16 @@ class RegisterActivity : AppCompatActivity() {
                         userDao.saveUserSession(registeredUser, null)
                         showRegistrationSuccessDialog(nic)
                     } else {
-                        val errorMsg = response.body()?.message
-                            ?: response.errorBody()?.string()
-                            ?: "Registration rejected by server."
-
-                        // Detect ngrok tunnel offline (ERR_NGROK_3200 / HTTP 502)
-                        // or other gateway errors and fall back to local storage
-                        if (isServerOfflineResponse(response.code(), errorMsg)) {
+                        val rawError = response.errorBody()?.string()
+                        if (isServerOfflineResponse(response.code(), rawError)) {
                             saveRegistrationLocally(nic, name, email, phone)
                         } else {
-                            showErrorDialog(errorMsg)
+                            val cleanMsg = rawError?.let { raw ->
+                                try {
+                                    com.google.gson.JsonParser.parseString(raw).asJsonObject.get("message")?.asString
+                                } catch (e: Exception) { null }
+                            } ?: response.body()?.message ?: rawError ?: "Registration rejected by server."
+                            showErrorDialog(cleanMsg)
                         }
                     }
                 }
@@ -204,8 +204,8 @@ class RegisterActivity : AppCompatActivity() {
 
         UiAlertUtils.showModernDialog(
             context = this@RegisterActivity,
-            title = "Registration Saved Locally",
-            message = "Server connection unavailable. Your registration with NIC $nic has been stored locally as PENDING and will be synchronized when online.",
+            title = "Unable to Reach Server",
+            message = "Could not connect to the server. Your registration with NIC $nic has been saved locally and will be synchronized when the server is online.",
             type = UiAlertUtils.AlertType.INFO,
             positiveButtonText = "Proceed to Login",
             onPositiveClick = { navigateToLogin() }

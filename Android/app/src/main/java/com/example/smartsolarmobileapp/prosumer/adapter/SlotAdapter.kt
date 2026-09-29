@@ -1,5 +1,6 @@
 /**
- * RecyclerView adapter binding 30-minute bookable energy slots with selection handling.
+ * RecyclerView adapter binding energy slots with selection handling,
+ * modification state awareness, and current booking highlighting.
  */
 package com.example.smartsolarmobileapp.prosumer.adapter
 
@@ -17,14 +18,34 @@ import com.example.smartsolarmobileapp.utils.DateTimeUtils
 
 class SlotAdapter(
     private var slots: List<Slot>,
-    private val onSlotSelected: (Slot) -> Unit
+    private val onSlotSelected: (Slot, Boolean) -> Unit
 ) : RecyclerView.Adapter<SlotAdapter.SlotViewHolder>() {
 
     private var selectedPosition: Int = -1
+    private var currentBookedSlotIso: String? = null
+
+    fun setCurrentBookedSlot(slotIso: String?) {
+        currentBookedSlotIso = slotIso
+    }
 
     fun updateData(newSlots: List<Slot>) {
         slots = newSlots
         selectedPosition = -1
+
+        // Pre-select current booked slot if present on this date
+        if (!currentBookedSlotIso.isNullOrBlank()) {
+            val currentTargetDate = DateTimeUtils.parseIsoString(currentBookedSlotIso)
+            if (currentTargetDate != null) {
+                val matchedIndex = slots.indexOfFirst { s ->
+                    val sDate = DateTimeUtils.parseIsoString(s.startTime)
+                    sDate != null && sDate.time == currentTargetDate.time
+                }
+                if (matchedIndex != -1) {
+                    selectedPosition = matchedIndex
+                }
+            }
+        }
+
         notifyDataSetChanged()
     }
 
@@ -49,6 +70,7 @@ class SlotAdapter(
         private val cardRoot: CardView = itemView.findViewById(R.id.card_slot_root)
         private val tvTime: TextView = itemView.findViewById(R.id.tv_item_slot_time)
         private val tvAvailability: TextView = itemView.findViewById(R.id.tv_item_slot_availability)
+        private val tvCurrentBadge: TextView = itemView.findViewById(R.id.tv_item_slot_current_badge)
         private val rbSelect: RadioButton = itemView.findViewById(R.id.rb_item_slot_select)
 
         fun bind(slot: Slot, isSelected: Boolean) {
@@ -60,14 +82,26 @@ class SlotAdapter(
             } else if (slot.startTime.isNotBlank()) {
                 "${slot.startTime} - ${slot.endTime}"
             } else {
-                "30-Minute Charging Slot"
+                "Energy Charging Slot"
             }
 
             tvTime.text = timeDisplay
 
+            // Check if this slot corresponds to the user's current booked slot
+            val isCurrentSlot = !currentBookedSlotIso.isNullOrBlank() && run {
+                val currentTargetDate = DateTimeUtils.parseIsoString(currentBookedSlotIso)
+                startParsed != null && currentTargetDate != null && startParsed.time == currentTargetDate.time
+            }
+
+            if (isCurrentSlot) {
+                tvCurrentBadge.visibility = View.VISIBLE
+            } else {
+                tvCurrentBadge.visibility = View.GONE
+            }
+
             val now = java.util.Date()
             val isPastTime = startParsed != null && startParsed.before(now)
-            val isBookable = slot.availableCapacity >= 1 && 
+            val isBookable = (slot.availableCapacity >= 1 || isCurrentSlot) && 
                              slot.status.equals("Available", ignoreCase = true) && 
                              !isPastTime
 
@@ -76,6 +110,11 @@ class SlotAdapter(
                 tvAvailability.setTextColor(Color.parseColor("#9E9E9E"))
                 cardRoot.alpha = 0.45f
                 rbSelect.isEnabled = false
+            } else if (isCurrentSlot) {
+                tvAvailability.text = "Currently Booked by You"
+                tvAvailability.setTextColor(Color.parseColor("#D97706"))
+                cardRoot.alpha = 1.0f
+                rbSelect.isEnabled = true
             } else if (isBookable) {
                 tvAvailability.text = "Available Capacity: ${slot.availableCapacity} slot(s)"
                 tvAvailability.setTextColor(Color.parseColor("#2E7D32"))
@@ -91,7 +130,11 @@ class SlotAdapter(
             rbSelect.isChecked = isSelected
 
             if (isSelected) {
-                cardRoot.setCardBackgroundColor(Color.parseColor("#E8F5E9"))
+                if (isCurrentSlot) {
+                    cardRoot.setCardBackgroundColor(Color.parseColor("#FEF3C7"))
+                } else {
+                    cardRoot.setCardBackgroundColor(Color.parseColor("#E8F5E9"))
+                }
             } else {
                 cardRoot.setCardBackgroundColor(Color.WHITE)
             }
@@ -100,19 +143,19 @@ class SlotAdapter(
                 if (isPastTime) {
                     com.example.smartsolarmobileapp.utils.UiAlertUtils.showSnackbar(
                         itemView,
-                        "This 30-minute interval has already passed. Please select a future time slot.",
+                        "This time slot has already passed. Please select a future time slot.",
                         com.example.smartsolarmobileapp.utils.UiAlertUtils.AlertType.WARNING
                     )
                     return@setOnClickListener
                 }
-                if (isBookable) {
+                if (isBookable || isCurrentSlot) {
                     val prev = selectedPosition
                     val currentPos = bindingAdapterPosition
                     if (currentPos != RecyclerView.NO_POSITION) {
                         selectedPosition = currentPos
                         if (prev != -1) notifyItemChanged(prev)
                         notifyItemChanged(selectedPosition)
-                        onSlotSelected(slot)
+                        onSlotSelected(slot, isCurrentSlot)
                     }
                 } else {
                     com.example.smartsolarmobileapp.utils.UiAlertUtils.showSnackbar(

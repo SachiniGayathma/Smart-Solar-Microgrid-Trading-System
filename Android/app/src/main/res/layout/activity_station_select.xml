@@ -41,6 +41,16 @@
             android:textStyle="bold" />
 
         <ImageButton
+            android:id="@+id/btn_view_map_stations"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_header_button"
+            android:contentDescription="View Stations on Map"
+            android:src="@drawable/ic_map"
+            app:tint="@color/solar_green_primary" />
+
+        <ImageButton
             android:id="@+id/btn_header_logout_stations"
             android:layout_width="40dp"
             android:layout_height="40dp"
@@ -70,23 +80,88 @@
             android:id="@+id/tv_stations_subtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Choose an active microgrid station to reserve 30-minute solar power slots"
+            android:text="Choose an active microgrid station to reserve energy trading slots"
             android:textColor="@color/solar_slate_body"
             android:textSize="13sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_stations"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_view_stations_map"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="1dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/solar_border"
+            app:cardBackgroundColor="@color/solar_surface"
+            app:layout_constraintTop_toBottomOf="@+id/tv_stations_subtitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="10dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_map"
+                    app:tint="@color/solar_green_primary" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="12dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Explore Stations on Map"
+                        android:textColor="@color/solar_slate_dark"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="View geographic locations, distances &amp; battery hubs"
+                        android:textColor="@color/solar_slate_muted"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/solar_slate_muted" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh_stations"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="12dp"
-            android:clipToPadding="false"
+            android:layout_marginTop="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_stations_subtitle" />
+            app:layout_constraintTop_toBottomOf="@+id/card_view_stations_map">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_stations"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <!-- Enhanced Empty State -->
         <LinearLayout
@@ -96,10 +171,10 @@
             android:gravity="center"
             android:orientation="vertical"
             android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/card_view_stations_map"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_stations_subtitle">
+            app:layout_constraintStart_toStartOf="parent">
 
             <ImageView
                 android:layout_width="64dp"

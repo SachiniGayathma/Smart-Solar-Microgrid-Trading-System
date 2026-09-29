@@ -55,14 +55,19 @@
         android:layout_height="1dp"
         android:background="@color/solar_border" />
 
-    <!-- ═══ SCROLLABLE CONTENT ═══ -->
-    <ScrollView
-        android:id="@+id/layout_booking_summary"
+    <!-- ═══ SCROLLABLE CONTENT WITH PULL-TO-REFRESH ═══ -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_summary"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true"
-        android:clipToPadding="false">
+        android:layout_weight="1">
+
+        <ScrollView
+            android:id="@+id/layout_booking_summary"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:clipToPadding="false">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -296,7 +301,8 @@
             app:layout_constraintTop_toBottomOf="@+id/btn_cancel_booking" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+    </ScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <!-- ═══ BOTTOM NAVIGATION BAR (76dp, zero overlap) ═══ -->
     <View
