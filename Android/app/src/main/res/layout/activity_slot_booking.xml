@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="Reserve 30-Min Slot"
+            android:text="Reserve Energy Slot"
             android:textColor="@color/solar_slate_dark"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -203,7 +203,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="14dp"
-        android:text="Available 30-Minute Energy Slots"
+        android:text="Available Energy Slots"
         android:textColor="@color/solar_slate_dark"
         android:textSize="16sp"
         android:textStyle="bold"

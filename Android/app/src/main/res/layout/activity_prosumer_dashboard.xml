@@ -486,7 +486,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:text="Select active microgrid stations and reserve 30-minute charging or discharging slots up to 7 days ahead."
+                        android:text="Select active microgrid stations and reserve charging or discharging slots up to 7 days ahead."
                         android:textColor="@color/solar_slate_body"
                         android:textSize="13sp" />
 

@@ -72,7 +72,7 @@ class SlotBookingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_slot_booking)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Book 30-Min Slot"
+        supportActionBar?.title = "Reserve Energy Slot"
 
         sessionManager = SessionManager(this)
         reservationDao = ReservationDao(DatabaseHelper(this))
@@ -241,7 +241,7 @@ class SlotBookingActivity : AppCompatActivity() {
                     ivEmptySlotsIcon.setImageResource(R.drawable.ic_clock)
                     ivEmptySlotsIcon.imageTintList = ContextCompat.getColorStateList(this@SlotBookingActivity, R.color.solar_slate_subtle)
                     tvEmptySlotsTitle.text = "No Available Slots"
-                    tvEmptySlots.text = "No 30-minute charging slots are available for ${DateTimeUtils.formatDisplayDate(selectedCalendar.time)}.\n\nPlease select another date above."
+                    tvEmptySlots.text = "No energy slots are available for ${DateTimeUtils.formatDisplayDate(selectedCalendar.time)}.\n\nPlease select another date above."
                     layoutEmptySlots.visibility = View.VISIBLE
                 } else {
                     layoutEmptySlots.visibility = View.GONE
@@ -256,7 +256,7 @@ class SlotBookingActivity : AppCompatActivity() {
     private fun proceedToBookingConfirmation() {
         val slot = selectedSlot
         if (slot == null) {
-            UiAlertUtils.showToast(this, "Please select an available 30-minute slot", UiAlertUtils.AlertType.WARNING)
+            UiAlertUtils.showToast(this, "Please select an available energy slot", UiAlertUtils.AlertType.WARNING)
             return
         }
 

@@ -60,7 +60,7 @@ class SlotAdapter(
             } else if (slot.startTime.isNotBlank()) {
                 "${slot.startTime} - ${slot.endTime}"
             } else {
-                "30-Minute Charging Slot"
+                "Energy Charging Slot"
             }
 
             tvTime.text = timeDisplay
@@ -100,7 +100,7 @@ class SlotAdapter(
                 if (isPastTime) {
                     com.example.smartsolarmobileapp.utils.UiAlertUtils.showSnackbar(
                         itemView,
-                        "This 30-minute interval has already passed. Please select a future time slot.",
+                        "This time slot has already passed. Please select a future time slot.",
                         com.example.smartsolarmobileapp.utils.UiAlertUtils.AlertType.WARNING
                     )
                     return@setOnClickListener

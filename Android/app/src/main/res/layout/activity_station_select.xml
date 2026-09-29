@@ -80,7 +80,7 @@
             android:id="@+id/tv_stations_subtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Choose an active microgrid station to reserve 30-minute solar power slots"
+            android:text="Choose an active microgrid station to reserve energy trading slots"
             android:textColor="@color/solar_slate_body"
             android:textSize="13sp"
             app:layout_constraintEnd_toEndOf="parent"
