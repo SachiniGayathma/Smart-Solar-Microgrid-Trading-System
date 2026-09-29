@@ -153,6 +153,7 @@ class BookingSummaryActivity : AppCompatActivity() {
             currentStatus.equals("Approved", ignoreCase = true) -> {
                 tvStatus.setTextColor(Color.parseColor("#2E7D32"))
                 tvStatus.setBackgroundColor(Color.parseColor("#E8F5E9"))
+                btnViewQr.text = "View Transaction QR Pass ⚡"
                 btnViewQr.visibility = View.VISIBLE
                 btnModifyBooking.visibility = View.VISIBLE
                 btnCancelBooking.visibility = View.VISIBLE
@@ -160,7 +161,7 @@ class BookingSummaryActivity : AppCompatActivity() {
             currentStatus.equals("Pending", ignoreCase = true) -> {
                 tvStatus.setTextColor(Color.parseColor("#E65100"))
                 tvStatus.setBackgroundColor(Color.parseColor("#FFF3E0"))
-                // Show QR button if token exists, or keep visible so prosumer can view QR token
+                btnViewQr.text = "QR Pass (Available Upon Approval) ⏳"
                 btnViewQr.visibility = View.VISIBLE
                 btnModifyBooking.visibility = View.VISIBLE
                 btnCancelBooking.visibility = View.VISIBLE
@@ -250,6 +251,23 @@ class BookingSummaryActivity : AppCompatActivity() {
     }
 
     private fun handleViewQr() {
+        if (status.equals("Pending", ignoreCase = true)) {
+            UiAlertUtils.showModernDialog(
+                context = this,
+                title = "QR Pass Pending Approval ⏳",
+                message = "Per microgrid trading rules, transaction QR passes are generated and activated once your reservation is approved by Backoffice on the Web Management Portal.\n\nCurrent Status: PENDING\nPlease wait for Backoffice confirmation before presenting your pass at the station.",
+                type = UiAlertUtils.AlertType.INFO,
+                positiveButtonText = "Preview Pass",
+                onPositiveClick = { launchQrActivity() },
+                negativeButtonText = "Close"
+            )
+            return
+        }
+
+        launchQrActivity()
+    }
+
+    private fun launchQrActivity() {
         val tokenToDisplay = qrToken ?: reservationId
         if (tokenToDisplay.isBlank()) {
             Toast.makeText(this, "QR code will be generated upon approval.", Toast.LENGTH_SHORT).show()
@@ -261,6 +279,7 @@ class BookingSummaryActivity : AppCompatActivity() {
             putExtra("EXTRA_RESERVATION_ID", reservationId)
             putExtra("EXTRA_STATION_NAME", stationName)
             putExtra("EXTRA_SLOT_TIME", tvTime.text.toString())
+            putExtra("EXTRA_STATUS", status)
         }
         startActivity(intent)
     }
