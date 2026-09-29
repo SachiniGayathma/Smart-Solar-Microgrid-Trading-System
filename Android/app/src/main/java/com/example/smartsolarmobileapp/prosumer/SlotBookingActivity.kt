@@ -9,11 +9,13 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -42,6 +44,9 @@ class SlotBookingActivity : AppCompatActivity() {
     private lateinit var tvSelectedDate: TextView
     private lateinit var btnChangeDate: Button
     private lateinit var pbSlots: ProgressBar
+    private lateinit var layoutEmptySlots: View
+    private lateinit var ivEmptySlotsIcon: ImageView
+    private lateinit var tvEmptySlotsTitle: TextView
     private lateinit var tvEmptySlots: TextView
     private lateinit var rvSlots: RecyclerView
     private lateinit var btnConfirmBooking: Button
@@ -99,6 +104,9 @@ class SlotBookingActivity : AppCompatActivity() {
         tvSelectedDate = findViewById(R.id.tv_selected_date)
         btnChangeDate = findViewById(R.id.btn_change_date)
         pbSlots = findViewById(R.id.pb_slots)
+        layoutEmptySlots = findViewById(R.id.layout_empty_slots)
+        ivEmptySlotsIcon = findViewById(R.id.iv_empty_slots_icon)
+        tvEmptySlotsTitle = findViewById(R.id.tv_empty_slots_title)
         tvEmptySlots = findViewById(R.id.tv_empty_slots)
         rvSlots = findViewById(R.id.rv_slots)
         btnConfirmBooking = findViewById(R.id.btn_confirm_booking)
@@ -192,7 +200,7 @@ class SlotBookingActivity : AppCompatActivity() {
      */
     private fun loadSlotsForSelectedDate() {
         pbSlots.visibility = View.VISIBLE
-        tvEmptySlots.visibility = View.GONE
+        layoutEmptySlots.visibility = View.GONE
         btnConfirmBooking.isEnabled = false
 
         lifecycleScope.launch(Dispatchers.IO) {
@@ -224,13 +232,19 @@ class SlotBookingActivity : AppCompatActivity() {
                 pbSlots.visibility = View.GONE
                 slotAdapter.updateData(slotsToDisplay)
                 if (isOffline) {
-                    tvEmptySlots.text = "Server is currently offline.\n\nEnergy slot scheduling requires an active connection to the microgrid trading system. Please check your network connection and try again."
-                    tvEmptySlots.visibility = View.VISIBLE
+                    ivEmptySlotsIcon.setImageResource(R.drawable.ic_alert_triangle)
+                    ivEmptySlotsIcon.imageTintList = ContextCompat.getColorStateList(this@SlotBookingActivity, R.color.solar_amber_primary)
+                    tvEmptySlotsTitle.text = "Connection Offline"
+                    tvEmptySlots.text = "Energy slot scheduling requires an active connection to the central microgrid trading system.\n\nPlease check your network connection and try again."
+                    layoutEmptySlots.visibility = View.VISIBLE
                 } else if (slotsToDisplay.isEmpty()) {
-                    tvEmptySlots.text = "No energy slots available for this station on ${DateTimeUtils.formatDisplayDate(selectedCalendar.time)}.\n\nPlease select another date."
-                    tvEmptySlots.visibility = View.VISIBLE
+                    ivEmptySlotsIcon.setImageResource(R.drawable.ic_clock)
+                    ivEmptySlotsIcon.imageTintList = ContextCompat.getColorStateList(this@SlotBookingActivity, R.color.solar_slate_subtle)
+                    tvEmptySlotsTitle.text = "No Available Slots"
+                    tvEmptySlots.text = "No 30-minute charging slots are available for ${DateTimeUtils.formatDisplayDate(selectedCalendar.time)}.\n\nPlease select another date above."
+                    layoutEmptySlots.visibility = View.VISIBLE
                 } else {
-                    tvEmptySlots.visibility = View.GONE
+                    layoutEmptySlots.visibility = View.GONE
                 }
             }
         }
