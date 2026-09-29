@@ -61,9 +61,21 @@ class StationSelectActivity : AppCompatActivity() {
             finish()
         }
 
+        findViewById<android.widget.ImageButton>(R.id.btn_view_map_stations)?.setOnClickListener {
+            openStationMap()
+        }
+
+        findViewById<View>(R.id.card_view_stations_map)?.setOnClickListener {
+            openStationMap()
+        }
+
         findViewById<android.widget.ImageButton>(R.id.btn_header_logout_stations)?.setOnClickListener {
             confirmLogout()
         }
+    }
+
+    private fun openStationMap() {
+        startActivity(Intent(this, com.example.smartsolarmobileapp.operator.MapActivity::class.java))
     }
 
     private fun confirmLogout() {

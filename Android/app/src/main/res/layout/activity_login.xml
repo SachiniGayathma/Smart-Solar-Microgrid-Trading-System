@@ -99,7 +99,9 @@
                 android:layout_height="match_parent"
                 app:checkedButton="@id/btn_role_prosumer"
                 app:selectionRequired="true"
-                app:singleSelection="true">
+                app:singleSelection="true"
+                app:strokeWidth="0dp"
+                app:strokeColor="@android:color/transparent">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_role_prosumer"

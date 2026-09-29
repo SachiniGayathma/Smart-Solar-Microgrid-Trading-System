@@ -10,14 +10,20 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import androidx.lifecycle.lifecycleScope
 import com.example.smartsolarmobileapp.R
+import com.example.smartsolarmobileapp.api.ApiClient
 import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.ReservationDao
+import com.example.smartsolarmobileapp.database.StationDao
 import com.example.smartsolarmobileapp.database.UserDao
 import com.example.smartsolarmobileapp.utils.RoleRouter
 import com.example.smartsolarmobileapp.utils.SessionManager
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ProsumerDashboardActivity : AppCompatActivity() {
 
@@ -36,6 +42,7 @@ class ProsumerDashboardActivity : AppCompatActivity() {
     private lateinit var sessionManager: SessionManager
     private lateinit var dbHelper: DatabaseHelper
     private lateinit var reservationDao: ReservationDao
+    private lateinit var stationDao: StationDao
     private lateinit var userDao: UserDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +63,7 @@ class ProsumerDashboardActivity : AppCompatActivity() {
 
         dbHelper = DatabaseHelper(this)
         reservationDao = ReservationDao(dbHelper)
+        stationDao = StationDao(dbHelper)
         userDao = UserDao(dbHelper)
 
         initializeViews()
@@ -66,6 +74,7 @@ class ProsumerDashboardActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         refreshDashboard()
+        syncDataFromApi()
         // Ensure bottom nav has Home selected when on dashboard
         bottomNav.selectedItemId = R.id.nav_home
     }
@@ -177,6 +186,32 @@ class ProsumerDashboardActivity : AppCompatActivity() {
 
         tvCountPending.text = pendingCount.toString()
         tvCountApproved.text = approvedCount.toString()
+    }
+
+    /**
+     * Synchronizes stations and reservations from the central Web API into SQLite cache.
+     */
+    private fun syncDataFromApi() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val stResponse = ApiClient.stationApi.getStations()
+                if (stResponse.isSuccessful && stResponse.body() != null) {
+                    stationDao.insertOrUpdateStations(stResponse.body()!!)
+                }
+            } catch (_: Exception) {}
+
+            try {
+                val userNic = sessionManager.getUserNic() ?: ""
+                val resResponse = ApiClient.reservationApi.searchReservations()
+                if (resResponse.isSuccessful && resResponse.body() != null) {
+                    val remote = resResponse.body()!!
+                    reservationDao.insertOrUpdateReservations(remote)
+                    withContext(Dispatchers.Main) {
+                        refreshDashboard()
+                    }
+                }
+            } catch (_: Exception) {}
+        }
     }
 
     private fun navigateToStationSelect() {

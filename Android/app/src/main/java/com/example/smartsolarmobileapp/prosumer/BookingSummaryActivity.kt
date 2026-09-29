@@ -19,6 +19,7 @@ import com.example.smartsolarmobileapp.R
 import com.example.smartsolarmobileapp.api.ApiClient
 import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.ReservationDao
+import com.example.smartsolarmobileapp.database.StationDao
 import com.example.smartsolarmobileapp.utils.DateTimeUtils
 import com.example.smartsolarmobileapp.utils.SessionManager
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
@@ -87,14 +88,27 @@ class BookingSummaryActivity : AppCompatActivity() {
         qrToken = intent.getStringExtra("EXTRA_QR_TOKEN")
 
         // If data is missing, try loading from local SQLite
-        if (reservationId.isNotBlank() && (slotTime.isBlank() || scheduledAt.isBlank())) {
+        if (reservationId.isNotBlank()) {
             val localRes = reservationDao.getReservationById(reservationId)
             localRes?.let {
-                if (stationName.isBlank()) stationName = it.stationName ?: "Microgrid Station"
+                if (stationName.isBlank() || stationName == "Microgrid Station" || stationName == stationId) {
+                    stationName = it.stationName ?: ""
+                }
                 if (stationId.isBlank()) stationId = it.stationId
                 if (scheduledAt.isBlank()) scheduledAt = it.scheduledAt
                 status = it.status
                 if (qrToken.isNullOrBlank()) qrToken = it.qrToken
+            }
+        }
+
+        // Always resolve station name from StationDao if missing or matching raw hex ID
+        val stationDao = StationDao(DatabaseHelper(this))
+        if (stationName.isBlank() || stationName == "Microgrid Station" || stationName == stationId) {
+            if (stationId.isNotBlank()) {
+                val dbStation = stationDao.getStationById(stationId)
+                if (dbStation != null) {
+                    stationName = dbStation.name
+                }
             }
         }
     }

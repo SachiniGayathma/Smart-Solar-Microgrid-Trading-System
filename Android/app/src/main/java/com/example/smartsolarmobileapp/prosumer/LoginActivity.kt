@@ -304,7 +304,7 @@ class LoginActivity : AppCompatActivity() {
                 UiAlertUtils.showModernDialog(
                     this,
                     "Account Pending Activation",
-                    "Your account is pending activation by Backoffice.",
+                    "Your account status is currently recorded as pending Backoffice activation. If your account was just activated on the Web Portal, please ensure server connection is active and tap Sign In again.",
                     UiAlertUtils.AlertType.INFO
                 )
                 return

@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.smartsolarmobileapp.R
 import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.ReservationDao
+import com.example.smartsolarmobileapp.database.StationDao
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.zxing.BarcodeFormat
@@ -73,13 +74,19 @@ class QRDisplayActivity : AppCompatActivity() {
         stationName = intent.getStringExtra("EXTRA_STATION_NAME") ?: ""
         slotTime = intent.getStringExtra("EXTRA_SLOT_TIME") ?: ""
 
+        val stationDao = StationDao(DatabaseHelper(this))
+        val localRes = if (reservationId.isNotBlank()) reservationDao.getReservationById(reservationId) else null
+
         // If qrToken is empty, look up in local SQLite cache
-        if (qrToken.isBlank() && reservationId.isNotBlank()) {
-            val localRes = reservationDao.getReservationById(reservationId)
-            localRes?.let {
-                qrToken = it.qrToken ?: it.id ?: ""
-                if (stationName.isBlank()) stationName = it.stationName ?: ""
-            }
+        if (qrToken.isBlank() && localRes != null) {
+            qrToken = localRes.qrToken ?: localRes.id ?: ""
+        }
+
+        if (stationName.isBlank() || stationName.length == 24) {
+            val resolvedFromRes = localRes?.stationName?.takeIf { it.isNotBlank() && it != localRes.stationId }
+            val resolvedFromStationDao = if (localRes != null) stationDao.getStationById(localRes.stationId)?.name else null
+            val resolvedDirect = stationDao.getStationById(stationName)?.name
+            stationName = resolvedFromRes ?: resolvedFromStationDao ?: resolvedDirect ?: stationName
         }
 
         // Final fallback: use reservation ID as token payload

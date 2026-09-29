@@ -19,7 +19,7 @@ object ApiClient {
     /**
      * Loopback address for Android emulator when backend runs on the host machine.
      */
-    const val LOCAL_EMULATOR_URL = "http://10.0.2.2:5000/api/"
+    const val LOCAL_EMULATOR_URL = "http://10.0.2.2:5192/api/"
 
     private var baseUrl: String = LIVE_SERVER_URL
 
@@ -49,6 +49,7 @@ object ApiClient {
             val builder = OkHttpClient.Builder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
+                .retryOnConnectionFailure(true)
                 .addInterceptor(loggingInterceptor)
 
             // Attach bearer token header and ngrok bypass header

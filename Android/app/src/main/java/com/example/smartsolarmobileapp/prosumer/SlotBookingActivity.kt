@@ -197,68 +197,43 @@ class SlotBookingActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             var slotsToDisplay: List<Slot> = emptyList()
+            var isOffline = false
 
             try {
                 val response = ApiClient.slotApi.getSlots(stationId)
                 if (response.isSuccessful && response.body() != null) {
                     val targetDateStr = DateTimeUtils.formatShortDate(selectedCalendar.time)
+                    val now = java.util.Date()
                     slotsToDisplay = response.body()!!.filter { slot ->
                         val slotDate = DateTimeUtils.parseIsoString(slot.startTime)
-                        slotDate != null && DateTimeUtils.formatShortDate(slotDate) == targetDateStr
+                        val isSameDate = slotDate != null && DateTimeUtils.formatShortDate(slotDate) == targetDateStr
+                        val isStatusAvailable = slot.status.equals("Available", ignoreCase = true)
+                        val hasCapacity = slot.availableCapacity >= 1
+                        val isFuture = slotDate != null && slotDate.after(now)
+
+                        isSameDate && isStatusAvailable && hasCapacity && isFuture
                     }
+                } else {
+                    isOffline = true
                 }
             } catch (e: Exception) {
-                // Network unavailable or server offline; will use fallback generator below
-            }
-
-            // Fallback generation: Generate standard 30-minute trading windows
-            if (slotsToDisplay.isEmpty()) {
-                slotsToDisplay = generateStandardSlotsForDate(stationId, selectedCalendar.time)
+                isOffline = true
             }
 
             withContext(Dispatchers.Main) {
                 pbSlots.visibility = View.GONE
                 slotAdapter.updateData(slotsToDisplay)
-                tvEmptySlots.visibility = if (slotsToDisplay.isEmpty()) View.VISIBLE else View.GONE
+                if (isOffline) {
+                    tvEmptySlots.text = "Server is currently offline.\n\nEnergy slot scheduling requires an active connection to the microgrid trading system. Please check your network connection and try again."
+                    tvEmptySlots.visibility = View.VISIBLE
+                } else if (slotsToDisplay.isEmpty()) {
+                    tvEmptySlots.text = "No energy slots available for this station on ${DateTimeUtils.formatDisplayDate(selectedCalendar.time)}.\n\nPlease select another date."
+                    tvEmptySlots.visibility = View.VISIBLE
+                } else {
+                    tvEmptySlots.visibility = View.GONE
+                }
             }
         }
-    }
-
-    /**
-     * Generates standard 30-minute charging intervals (08:00 to 18:00) for a given date.
-     */
-    private fun generateStandardSlotsForDate(stationId: String, date: Date): List<Slot> {
-        val slots = mutableListOf<Slot>()
-        val startCal = Calendar.getInstance().apply {
-            time = date
-            set(Calendar.HOUR_OF_DAY, 8)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-        }
-
-        val dateStr = DateTimeUtils.formatShortDate(date)
-
-        for (i in 0 until 20) {
-            val slotStart = startCal.time
-            val startIso = DateTimeUtils.toIsoString(slotStart)
-
-            startCal.add(Calendar.MINUTE, 30)
-            val slotEnd = startCal.time
-            val endIso = DateTimeUtils.toIsoString(slotEnd)
-
-            val slotId = "${stationId}_${dateStr}_slot_$i"
-            slots.add(
-                Slot(
-                    id = slotId,
-                    stationId = stationId,
-                    startTime = startIso,
-                    endTime = endIso,
-                    availableCapacity = 4,
-                    status = "Available"
-                )
-            )
-        }
-        return slots
     }
 
     /**
@@ -300,6 +275,8 @@ class SlotBookingActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             var reservationResult: Reservation? = null
+            var serverErrorMessage: String? = null
+            var isOffline = false
 
             try {
                 if (isModifyMode && !modifyReservationId.isNullOrBlank()) {
@@ -309,39 +286,57 @@ class SlotBookingActivity : AppCompatActivity() {
                     )
                     if (response.isSuccessful && response.body() != null) {
                         reservationResult = response.body()
+                    } else {
+                        serverErrorMessage = com.example.smartsolarmobileapp.api.ApiMessages.from(response, "Modification rejected by server.")
                     }
                 } else {
                     // CREATE MODE: POST new reservation
                     val response = ApiClient.reservationApi.createReservation(request)
                     if (response.isSuccessful && response.body() != null) {
                         reservationResult = response.body()
+                    } else {
+                        serverErrorMessage = com.example.smartsolarmobileapp.api.ApiMessages.from(response, "Booking rejected by server.")
                     }
                 }
             } catch (e: Exception) {
-                // Fallback for offline mode
+                isOffline = true
             }
 
-            // If offline or server returned error, persist as a pending local booking in SQLite
+            // If the server rejected the request with an error, display the server error instead of faking offline success
+            if (serverErrorMessage != null) {
+                withContext(Dispatchers.Main) {
+                    pbSlots.visibility = View.GONE
+                    btnConfirmBooking.isEnabled = true
+                    showRuleViolationDialog("Booking Not Saved", serverErrorMessage)
+                }
+                return@launch
+            }
+
             if (reservationResult == null) {
-                reservationResult = Reservation(
-                    id = if (isModifyMode) modifyReservationId ?: UUID.randomUUID().toString() else UUID.randomUUID().toString(),
-                    prosumerNic = prosumerNic,
-                    stationId = stationId,
-                    stationName = stationName,
-                    slotId = slot.id,
-                    scheduledAt = slot.startTime,
-                    status = "Pending",
-                    summary = if (isModifyMode) "Reservation modified to a new slot (Offline cache)." else "Reservation created and is pending approval (Offline cache).",
-                    createdAt = DateTimeUtils.toIsoString(Date())
-                )
+                withContext(Dispatchers.Main) {
+                    pbSlots.visibility = View.GONE
+                    btnConfirmBooking.isEnabled = true
+                    val errorTitle = if (isOffline) "Server Connection Required" else "Booking Failed"
+                    val errorDesc = if (isOffline) {
+                        "Cannot reserve energy slot while offline. An active connection to the central microgrid service is required to verify real-time capacity and register your booking."
+                    } else {
+                        "Unable to complete booking. Please check your connection and try again."
+                    }
+                    showRuleViolationDialog(errorTitle, errorDesc)
+                }
+                return@launch
             }
 
-            // Save to local SQLite database for offline persistence
+            // Save to local SQLite database for offline persistence & cache
             val finalRes = reservationResult.copy(stationName = stationName)
             reservationDao.insertOrUpdateReservation(finalRes)
 
             withContext(Dispatchers.Main) {
                 pbSlots.visibility = View.GONE
+
+                if (isOffline) {
+                    UiAlertUtils.showToast(this@SlotBookingActivity, "Server offline: Reservation saved to local offline cache.", UiAlertUtils.AlertType.INFO)
+                }
 
                 if (isModifyMode) {
                     // Return result to BookingSummaryActivity for summary page refresh
