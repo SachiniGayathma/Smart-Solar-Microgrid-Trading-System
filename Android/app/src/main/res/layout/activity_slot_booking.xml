@@ -232,8 +232,8 @@
         android:orientation="vertical"
         android:padding="20dp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/layout_card_date_selection"
-        app:layout_constraintBottom_toTopOf="@+id/layout_slot_bottom_bar"
+        app:layout_constraintTop_toBottomOf="@+id/tv_select_slot_label"
+        app:layout_constraintBottom_toTopOf="@+id/btn_confirm_booking"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
