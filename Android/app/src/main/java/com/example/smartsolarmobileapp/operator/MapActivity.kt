@@ -1,5 +1,6 @@
 /**
- * Shows active stations on a Mapbox map and lists them by distance from the operator.
+ * Shows active stations on a street map and lists them.
+ * Distances appear only when the user opts in to live device location.
  */
 package com.example.smartsolarmobileapp.operator
 
@@ -7,9 +8,10 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.RectF
+import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -25,9 +27,14 @@ import com.example.smartsolarmobileapp.operator.adapter.OperatorStationAdapter
 import com.example.smartsolarmobileapp.prosumer.BookingSummaryActivity
 import com.example.smartsolarmobileapp.prosumer.SlotBookingActivity
 import com.example.smartsolarmobileapp.utils.GeoUtils
+import com.example.smartsolarmobileapp.utils.ScreenInsets
 import com.example.smartsolarmobileapp.utils.SessionManager
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.material.materialswitch.MaterialSwitch
+import kotlinx.coroutines.launch
 import org.maplibre.android.MapLibre
 import org.maplibre.android.camera.CameraPosition
 import org.maplibre.android.camera.CameraUpdateFactory
@@ -44,28 +51,45 @@ import org.maplibre.android.style.sources.GeoJsonSource
 import org.maplibre.geojson.Feature
 import org.maplibre.geojson.FeatureCollection
 import org.maplibre.geojson.Point
-import kotlinx.coroutines.launch
 
 class MapActivity : AppCompatActivity() {
 
     private lateinit var repository: OperatorRepository
     private lateinit var adapter: OperatorStationAdapter
     private lateinit var mapView: MapView
+    private lateinit var locationSwitch: MaterialSwitch
     private var mapLibreMap: MapLibreMap? = null
     private var stations: List<Station> = emptyList()
     private var userLatLng: LatLng? = null
+    private var locationPromptShown = false
+    private var locationFetchInFlight = false
 
     private val locationPermission = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
-        if (granted) readLocation() else render(stations)
+        if (granted) {
+            locationSwitch.isChecked = true
+            fetchLiveLocation()
+        } else {
+            clearLiveLocation("Location permission is off. Station pins are shown without distances.")
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         MapLibre.getInstance(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
+        ScreenInsets.apply(findViewById(android.R.id.content), extraHorizontalDp = 16, extraVerticalDp = 16)
         repository = OperatorRepository(this)
+
+        locationSwitch = findViewById(R.id.switch_use_location)
+        locationSwitch.setOnCheckedChangeListener { _, checked ->
+            if (checked) {
+                enableLiveLocationFromUser()
+            } else {
+                clearLiveLocation("Location off. Showing station pins only.")
+            }
+        }
 
         val recycler = findViewById<RecyclerView>(R.id.rv_operator_stations)
         adapter = OperatorStationAdapter(emptyList()) { station -> openStation(station.id) }
@@ -87,12 +111,7 @@ class MapActivity : AppCompatActivity() {
             }
         }
 
-        if (hasLocationPermission()) {
-            readLocation()
-        } else {
-            locationPermission.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
-        loadStations()
+        promptForLocation()
     }
 
     override fun onStart() {
@@ -103,6 +122,10 @@ class MapActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         mapView.onResume()
+        loadStations(announceFallback = stations.isEmpty())
+        if (locationSwitch.isChecked && hasLocationPermission() && isDeviceLocationEnabled()) {
+            fetchLiveLocation()
+        }
     }
 
     override fun onPause() {
@@ -130,26 +153,124 @@ class MapActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    private fun readLocation() {
-        if (!hasLocationPermission()) return
-        LocationServices.getFusedLocationProviderClient(this).lastLocation
+    private fun promptForLocation() {
+        if (locationPromptShown || isFinishing) return
+        locationPromptShown = true
+        UiAlertUtils.showModernDialog(
+            context = this,
+            title = "Enable location?",
+            message = "Turn on live location to see how far each solar hub is from you. You can skip and only see station pins on the map.",
+            type = UiAlertUtils.AlertType.INFO,
+            positiveButtonText = "Enable",
+            onPositiveClick = {
+                locationSwitch.isChecked = true
+            },
+            negativeButtonText = "Not now",
+            onNegativeClick = {
+                locationSwitch.isChecked = false
+                clearLiveLocation("Location off. Showing station pins only.")
+            }
+        )
+    }
+
+    private fun enableLiveLocationFromUser() {
+        if (!hasLocationPermission()) {
+            locationPermission.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            return
+        }
+        if (!isDeviceLocationEnabled()) {
+            UiAlertUtils.showModernDialog(
+                context = this,
+                title = "Location is turned off",
+                message = "Open phone settings and turn on location, then come back to this map.",
+                type = UiAlertUtils.AlertType.WARNING,
+                positiveButtonText = "Open settings",
+                onPositiveClick = {
+                    startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                },
+                negativeButtonText = "Cancel",
+                onNegativeClick = {
+                    locationSwitch.isChecked = false
+                }
+            )
+            return
+        }
+        fetchLiveLocation()
+    }
+
+    private fun fetchLiveLocation() {
+        if (!hasLocationPermission() || locationFetchInFlight) return
+        locationFetchInFlight = true
+        val client = LocationServices.getFusedLocationProviderClient(this)
+        val token = CancellationTokenSource()
+        client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, token.token)
             .addOnSuccessListener { location ->
-                if (location == null) return@addOnSuccessListener
+                locationFetchInFlight = false
+                if (location == null) {
+                    clearLiveLocation("Could not read your live location yet. Station pins are shown without distances.")
+                    return@addOnSuccessListener
+                }
                 userLatLng = LatLng(location.latitude, location.longitude)
+                locationSwitch.isChecked = true
                 render(stations)
+            }
+            .addOnFailureListener {
+                locationFetchInFlight = false
+                clearLiveLocation("Could not read your live location. Station pins are shown without distances.")
             }
     }
 
-    private fun loadStations() {
+    private fun clearLiveLocation(note: String? = null) {
+        userLatLng = null
+        if (::locationSwitch.isInitialized && locationSwitch.isChecked) {
+            locationSwitch.setOnCheckedChangeListener(null)
+            locationSwitch.isChecked = false
+            locationSwitch.setOnCheckedChangeListener { _, checked ->
+                if (checked) enableLiveLocationFromUser()
+                else clearLiveLocation("Location off. Showing station pins only.")
+            }
+        }
+        render(stations)
+        if (!note.isNullOrBlank() && !isFinishing) {
+            findViewById<TextView>(R.id.tv_map_note).text = note
+        }
+    }
+
+    private fun loadStations(announceFallback: Boolean) {
         lifecycleScope.launch {
-            when (val result = repository.loadStations()) {
-                is OperatorLoad.Fresh -> render(result.data)
-                is OperatorLoad.Cached -> {
-                    Toast.makeText(this@MapActivity, "Showing saved stations", Toast.LENGTH_SHORT).show()
-                    render(result.data)
+            try {
+                when (val result = repository.loadStations()) {
+                    is OperatorLoad.Fresh -> render(result.data)
+                    is OperatorLoad.Cached -> {
+                        render(result.data)
+                        if (announceFallback && !isFinishing) {
+                            UiAlertUtils.showModernDialog(
+                                this@MapActivity,
+                                "Saved stations",
+                                "The server could not be reached, so these are the stations saved on this phone.",
+                                UiAlertUtils.AlertType.WARNING
+                            )
+                        }
+                    }
+                    is OperatorLoad.Failed -> {
+                        if (!isFinishing) {
+                            UiAlertUtils.showModernDialog(
+                                this@MapActivity,
+                                "Could not load stations",
+                                result.message,
+                                UiAlertUtils.AlertType.ERROR
+                            )
+                        }
+                    }
                 }
-                is OperatorLoad.Failed -> {
-                    Toast.makeText(this@MapActivity, result.message, Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                if (!isFinishing) {
+                    UiAlertUtils.showModernDialog(
+                        this@MapActivity,
+                        "Could not load stations",
+                        e.message ?: "Please try again.",
+                        UiAlertUtils.AlertType.ERROR
+                    )
                 }
             }
         }
@@ -176,10 +297,9 @@ class MapActivity : AppCompatActivity() {
                 else active.sortedBy { distances[it.id] ?: Double.MAX_VALUE }
             }
         adapter.update(stations, distances)
-        findViewById<TextView>(R.id.tv_map_note).text = if (origin == null) {
-            "${stations.size} active stations"
-        } else {
-            "${stations.size} active stations, nearest first"
+        findViewById<TextView>(R.id.tv_map_note).text = when {
+            origin != null -> "${stations.size} active stations · nearest first from your live location"
+            else -> "${stations.size} active stations · turn on location for distances"
         }
         plot(stations)
     }
@@ -202,7 +322,7 @@ class MapActivity : AppCompatActivity() {
             style.addLayer(
                 CircleLayer(LAYER_ID, SOURCE_ID).withProperties(
                     circleRadius(8f),
-                    circleColor("#1B5E20"),
+                    circleColor("#0D7A46"),
                     circleStrokeWidth(2f),
                     circleStrokeColor("#FFFFFF")
                 )
@@ -226,7 +346,6 @@ class MapActivity : AppCompatActivity() {
             ) {
                 add(origin)
             }
-            if (isEmpty() && origin != null) add(origin)
         }
         if (points.isEmpty()) return
         if (mapView.width == 0 || mapView.height == 0) {
@@ -332,6 +451,12 @@ class MapActivity : AppCompatActivity() {
     private fun hasLocationPermission(): Boolean {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun isDeviceLocationEnabled(): Boolean {
+        val manager = getSystemService(LOCATION_SERVICE) as? LocationManager ?: return false
+        return manager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+            manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
     companion object {

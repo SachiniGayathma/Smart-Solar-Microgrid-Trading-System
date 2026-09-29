@@ -44,10 +44,11 @@ class OperatorStationAdapter(
             name.text = station.name
             meta.text = "${station.capacityKwh} kWh · ${station.batteryStorageSlots} battery slots · ${station.schedule}"
             val km = distancesKm[station.id]
-            distance.text = if (km == null) {
-                "Lat ${station.latitude}, Lng ${station.longitude}"
+            if (km == null) {
+                distance.visibility = View.GONE
             } else {
-                String.format("%.1f km away", km)
+                distance.visibility = View.VISIBLE
+                distance.text = String.format("%.1f km away", km)
             }
             itemView.setOnClickListener { onStationClicked(station) }
         }

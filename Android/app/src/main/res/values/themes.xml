@@ -32,6 +32,9 @@
 
     <style name="Theme.SmartSolarMobileApp" parent="Base.Theme.SmartSolarMobileApp" />
 
+    <!-- Kept so older layouts still resolve. It now matches the prosumer theme. -->
+    <style name="Theme.SmartSolarMobileApp.Operator" parent="Theme.SmartSolarMobileApp" />
+
     <!-- Bottom Navigation View Styling: Sleek, crisp white, with premium modern aesthetic -->
     <style name="SolarBottomNav" parent="Widget.Material3.BottomNavigationView">
         <item name="android:background">@color/solar_surface</item>

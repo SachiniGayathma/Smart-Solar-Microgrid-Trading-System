@@ -10,7 +10,7 @@
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
     app:cardBackgroundColor="@color/solar_surface"
-    app:cardCornerRadius="14dp"
+    app:cardCornerRadius="@dimen/card_corner_radius"
     app:cardElevation="2dp">
 
     <LinearLayout
@@ -32,7 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:textColor="@color/solar_slate_body"
+            android:textColor="@color/solar_slate_muted"
             android:textSize="13sp" />
 
         <TextView

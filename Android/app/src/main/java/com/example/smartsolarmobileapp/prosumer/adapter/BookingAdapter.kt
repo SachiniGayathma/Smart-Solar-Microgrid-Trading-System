@@ -15,6 +15,9 @@ import com.example.smartsolarmobileapp.utils.DateTimeUtils
 
 class BookingAdapter(
     private var bookings: List<Reservation>,
+    private val layoutRes: Int = R.layout.item_booking,
+    private val webStatusColors: Boolean = false,
+    private val operatorGreenStatus: Boolean = false,
     private val onBookingClick: (Reservation) -> Unit
 ) : RecyclerView.Adapter<BookingAdapter.BookingViewHolder>() {
 
@@ -25,7 +28,7 @@ class BookingAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookingViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_booking, parent, false)
+            .inflate(layoutRes, parent, false)
         return BookingViewHolder(view)
     }
 
@@ -61,21 +64,22 @@ class BookingAdapter(
             tvStatus.text = booking.status
 
             when {
+                operatorGreenStatus -> applyOperatorGreenStatus(booking.status)
                 booking.status.equals("Approved", ignoreCase = true) -> {
-                    tvStatus.setTextColor(Color.parseColor("#2E7D32"))
-                    tvStatus.setBackgroundColor(Color.parseColor("#E8F5E9"))
+                    tvStatus.setTextColor(Color.parseColor(if (webStatusColors) "#0F7A4A" else "#2E7D32"))
+                    tvStatus.setBackgroundColor(Color.parseColor(if (webStatusColors) "#E5F6EE" else "#E8F5E9"))
                 }
                 booking.status.equals("Pending", ignoreCase = true) -> {
-                    tvStatus.setTextColor(Color.parseColor("#E65100"))
-                    tvStatus.setBackgroundColor(Color.parseColor("#FFF3E0"))
+                    tvStatus.setTextColor(Color.parseColor(if (webStatusColors) "#8A5A00" else "#E65100"))
+                    tvStatus.setBackgroundColor(Color.parseColor(if (webStatusColors) "#FFF4D6" else "#FFF3E0"))
                 }
                 booking.status.equals("Cancelled", ignoreCase = true) -> {
-                    tvStatus.setTextColor(Color.parseColor("#C62828"))
-                    tvStatus.setBackgroundColor(Color.parseColor("#FFEBEE"))
+                    tvStatus.setTextColor(Color.parseColor(if (webStatusColors) "#8D3D36" else "#C62828"))
+                    tvStatus.setBackgroundColor(Color.parseColor(if (webStatusColors) "#F8E9E6" else "#FFEBEE"))
                 }
                 booking.status.equals("Completed", ignoreCase = true) -> {
-                    tvStatus.setTextColor(Color.parseColor("#1565C0"))
-                    tvStatus.setBackgroundColor(Color.parseColor("#E3F2FD"))
+                    tvStatus.setTextColor(Color.parseColor(if (webStatusColors) "#0E5F8A" else "#1565C0"))
+                    tvStatus.setBackgroundColor(Color.parseColor(if (webStatusColors) "#E7F3FA" else "#E3F2FD"))
                 }
                 else -> {
                     tvStatus.setTextColor(Color.parseColor("#555555"))
@@ -88,6 +92,29 @@ class BookingAdapter(
             }
             cardRoot.setOnClickListener(clickListener)
             itemView.setOnClickListener(clickListener)
+        }
+
+        private fun applyOperatorGreenStatus(status: String) {
+            val green = Color.parseColor("#0D7A46")
+            when {
+                status.equals("Completed", ignoreCase = true) -> {
+                    tvStatus.setTextColor(green)
+                    tvStatus.setBackgroundColor(Color.parseColor("#DCFCE7"))
+                }
+                status.equals("Pending", ignoreCase = true) ||
+                    status.equals("Approved", ignoreCase = true) -> {
+                    tvStatus.setTextColor(green)
+                    tvStatus.setBackgroundColor(Color.WHITE)
+                }
+                status.equals("Cancelled", ignoreCase = true) -> {
+                    tvStatus.setTextColor(Color.parseColor("#DC2626"))
+                    tvStatus.setBackgroundColor(Color.parseColor("#FEE2E2"))
+                }
+                else -> {
+                    tvStatus.setTextColor(green)
+                    tvStatus.setBackgroundColor(Color.WHITE)
+                }
+            }
         }
     }
 }

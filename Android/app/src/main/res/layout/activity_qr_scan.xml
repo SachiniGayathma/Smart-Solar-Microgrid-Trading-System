@@ -4,18 +4,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/solar_bg"
-    android:fillViewport="true"
-    android:fitsSystemWindows="true">
+    android:fillViewport="true">
 
     <LinearLayout
+        android:id="@+id/layout_qr_scan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:padding="@dimen/screen_padding_large">
+        android:paddingHorizontal="8dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:text="Verify energy transfer"
             android:textColor="@color/solar_slate_dark"
             android:textSize="22sp"
@@ -25,55 +27,78 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:gravity="center"
             android:text="Scan the prosumer QR code. The server checks the token and marks the booking completed."
-            android:textColor="@color/solar_slate_body"
+            android:textColor="@color/solar_slate_muted"
             android:textSize="14sp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_open_scanner"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="20dp"
-            android:text="Open camera scanner"
-            android:textAllCaps="false" />
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingVertical="24dp">
 
-        <EditText
-            android:id="@+id/et_qr_token"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@color/solar_surface"
-            android:hint="Or paste the QR token"
-            android:inputType="text"
-            android:padding="12dp"
-            android:textColor="@color/solar_slate_dark"
-            android:textColorHint="@color/solar_slate_muted" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_open_scanner"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Open camera scanner"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                app:backgroundTint="@color/solar_green_primary"
+                app:cornerRadius="@dimen/btn_corner_radius"
+                app:icon="@drawable/ic_qr_scan"
+                app:iconGravity="textStart"
+                app:iconTint="@color/white" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_verify_qr"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="12dp"
-            android:text="Verify on server"
-            android:textAllCaps="false" />
+            <EditText
+                android:id="@+id/et_qr_token"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_solar_input"
+                android:gravity="center"
+                android:hint="Or paste the QR token"
+                android:inputType="text"
+                android:paddingHorizontal="16dp"
+                android:textColor="@color/solar_slate_dark"
+                android:textColorHint="@color/solar_slate_subtle" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_verify_qr"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="20dp"
+                android:text="Verify on server"
+                android:textAllCaps="false"
+                android:textColor="@color/solar_green_primary"
+                android:textStyle="bold"
+                app:cornerRadius="@dimen/btn_corner_radius"
+                app:icon="@drawable/ic_check_circle"
+                app:iconGravity="textStart"
+                app:iconTint="@color/solar_green_primary"
+                app:strokeColor="@color/solar_green_primary" />
+        </LinearLayout>
 
         <ProgressBar
             android:id="@+id/pb_verify"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
+            android:indeterminateTint="@color/solar_green_primary"
             android:visibility="gone" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/card_verify_result"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="12dp"
             android:visibility="gone"
             app:cardBackgroundColor="@color/solar_surface"
-            app:cardCornerRadius="14dp"
+            app:cardCornerRadius="@dimen/card_corner_radius"
             app:cardElevation="2dp">
 
             <LinearLayout
@@ -86,6 +111,7 @@
                     android:id="@+id/tv_verify_badge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
                     android:background="@drawable/bg_pill_badge"
                     android:paddingHorizontal="10dp"
                     android:paddingVertical="4dp"
@@ -99,6 +125,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
+                    android:gravity="center"
                     android:textColor="@color/solar_slate_dark"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -108,7 +135,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:textColor="@color/solar_slate_body"
+                    android:gravity="center"
+                    android:textColor="@color/solar_slate_muted"
                     android:textSize="14sp" />
 
                 <TextView
@@ -116,6 +144,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
+                    android:gravity="center"
                     android:textColor="@color/solar_slate_heading"
                     android:textSize="14sp" />
 
@@ -124,6 +153,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
+                    android:gravity="center"
                     android:textColor="@color/solar_slate_heading"
                     android:textSize="14sp" />
 
@@ -132,6 +162,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
+                    android:gravity="center"
                     android:textColor="@color/solar_slate_heading"
                     android:textSize="14sp" />
 
@@ -140,6 +171,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
+                    android:gravity="center"
                     android:textColor="@color/solar_slate_heading"
                     android:textSize="14sp" />
             </LinearLayout>

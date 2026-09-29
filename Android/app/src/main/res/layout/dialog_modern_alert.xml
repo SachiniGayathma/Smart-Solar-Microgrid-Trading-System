@@ -6,19 +6,19 @@
     android:background="@drawable/bg_modern_dialog_card"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:padding="24dp">
+    android:padding="16dp">
 
     <!-- Top Badge Icon -->
     <FrameLayout
         android:id="@+id/layout_alert_icon_bg"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
         android:background="@drawable/bg_dialog_circle">
 
         <ImageView
             android:id="@+id/iv_alert_icon"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:layout_gravity="center"
             android:contentDescription="Alert Icon"
             android:src="@drawable/ic_check_circle"
@@ -30,11 +30,11 @@
         android:id="@+id/tv_alert_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="10dp"
         android:text="Alert Title"
         android:textAlignment="center"
         android:textColor="@color/solar_slate_dark"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <!-- Alert Body Message -->
@@ -42,30 +42,31 @@
         android:id="@+id/tv_alert_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:lineSpacingMultiplier="1.2"
+        android:layout_marginTop="6dp"
+        android:lineSpacingMultiplier="1.15"
+        android:maxLines="5"
         android:text="Alert description goes here."
         android:textAlignment="center"
         android:textColor="@color/solar_slate_body"
-        android:textSize="14sp" />
+        android:textSize="13sp" />
 
     <!-- Action Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="22dp"
+        android:layout_marginTop="14dp"
         android:gravity="center"
         android:orientation="vertical">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_alert_primary"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="40dp"
             android:backgroundTint="@color/solar_green_primary"
             android:text="Got It"
             android:textAllCaps="false"
             android:textColor="@color/white"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             app:cornerRadius="12dp" />
 
@@ -73,7 +74,7 @@
             android:id="@+id/btn_alert_secondary"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
-            android:layout_height="44dp"
+            android:layout_height="36dp"
             android:layout_marginTop="4dp"
             android:text="Cancel"
             android:textAllCaps="false"

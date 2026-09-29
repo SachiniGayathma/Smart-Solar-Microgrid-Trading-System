@@ -33,21 +33,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:textColor="@color/solar_slate_body" />
+            android:textColor="@color/solar_slate_muted" />
 
         <TextView
             android:id="@+id/tv_station_capacity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:textColor="@color/solar_slate_body" />
+            android:textColor="@color/solar_slate_muted" />
 
         <TextView
             android:id="@+id/tv_station_schedule"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:textColor="@color/solar_slate_body" />
+            android:textColor="@color/solar_slate_muted" />
 
         <TextView
             android:layout_width="match_parent"

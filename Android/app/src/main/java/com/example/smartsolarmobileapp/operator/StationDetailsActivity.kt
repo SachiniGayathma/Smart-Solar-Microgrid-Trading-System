@@ -8,11 +8,11 @@ import android.view.View
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.smartsolarmobileapp.R
 import com.example.smartsolarmobileapp.models.Station
+import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import kotlinx.coroutines.launch
 
 class StationDetailsActivity : AppCompatActivity() {
@@ -41,10 +41,10 @@ class StationDetailsActivity : AppCompatActivity() {
                 is OperatorLoad.Fresh -> bind(result.data)
                 is OperatorLoad.Cached -> {
                     bind(result.data)
-                    Toast.makeText(this@StationDetailsActivity, "Showing saved station", Toast.LENGTH_SHORT).show()
+                    notify("Saved station", "Showing the station saved on this phone.", UiAlertUtils.AlertType.WARNING)
                 }
                 is OperatorLoad.Failed -> {
-                    Toast.makeText(this@StationDetailsActivity, result.message, Toast.LENGTH_LONG).show()
+                    notify("Could not load station", result.message, UiAlertUtils.AlertType.ERROR)
                 }
             }
         }
@@ -64,23 +64,37 @@ class StationDetailsActivity : AppCompatActivity() {
     private fun save() {
         val slots = findViewById<EditText>(R.id.et_battery_slots).text.toString().toIntOrNull()
         if (slots == null || slots < 0) {
-            Toast.makeText(this, "Enter a valid slot count.", Toast.LENGTH_SHORT).show()
+            notify("Check the slot count", "Enter a whole number of battery slots, 0 or more.", UiAlertUtils.AlertType.WARNING)
             return
         }
         findViewById<ProgressBar>(R.id.pb_station).visibility = View.VISIBLE
         lifecycleScope.launch {
-            findViewById<ProgressBar>(R.id.pb_station).visibility = View.GONE
-            when (val result = repository.updateBatterySlots(stationId, slots)) {
-                is OperatorLoad.Fresh -> {
-                    bind(result.data)
-                    Toast.makeText(this@StationDetailsActivity, "Availability updated", Toast.LENGTH_SHORT).show()
+            try {
+                findViewById<ProgressBar>(R.id.pb_station).visibility = View.GONE
+                when (val result = repository.updateBatterySlots(stationId, slots)) {
+                    is OperatorLoad.Fresh -> {
+                        bind(result.data)
+                        notify(
+                            "Availability updated",
+                            "${result.data.name} now has ${result.data.batteryStorageSlots} battery slots.",
+                            UiAlertUtils.AlertType.SUCCESS
+                        )
+                    }
+                    is OperatorLoad.Failed -> {
+                        notify("Could not update availability", result.message, UiAlertUtils.AlertType.ERROR)
+                    }
+                    is OperatorLoad.Cached -> Unit
                 }
-                is OperatorLoad.Failed -> {
-                    Toast.makeText(this@StationDetailsActivity, result.message, Toast.LENGTH_LONG).show()
-                }
-                is OperatorLoad.Cached -> Unit
+            } catch (e: Exception) {
+                findViewById<ProgressBar>(R.id.pb_station).visibility = View.GONE
+                notify("Could not update availability", e.message, UiAlertUtils.AlertType.ERROR)
             }
         }
+    }
+
+    private fun notify(title: String, message: String?, type: UiAlertUtils.AlertType) {
+        if (isFinishing) return
+        UiAlertUtils.showModernDialog(this, title, message ?: "Please try again.", type)
     }
 
     companion object {
