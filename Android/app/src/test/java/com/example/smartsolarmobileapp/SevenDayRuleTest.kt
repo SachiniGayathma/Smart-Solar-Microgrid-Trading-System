@@ -131,4 +131,52 @@ class SevenDayRuleTest {
             DateTimeUtils.isAtLeastTwelveHoursNotice(exact12Hours, now)
         )
     }
+
+    @Test
+    fun isDateWithinSevenDays_todayAtAnyHour_returnsTrue() {
+        // Reference time is 5:30 PM (17:30)
+        val calendarRef = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 17)
+            set(Calendar.MINUTE, 30)
+        }
+        val refTime = calendarRef.time
+
+        // Selecting today at noon (12:00) must still be recognized as today
+        val calendarTarget = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 12)
+            set(Calendar.MINUTE, 0)
+        }
+        val targetDate = calendarTarget.time
+
+        assertTrue(
+            "Selecting today in DatePicker must always be valid regardless of current time of day",
+            DateTimeUtils.isDateWithinSevenDays(targetDate, refTime)
+        )
+    }
+
+    @Test
+    fun isDateWithinSevenDays_inSevenDays_returnsTrue() {
+        val now = Date()
+        val calendar = Calendar.getInstance().apply {
+            time = now
+            add(Calendar.DAY_OF_YEAR, 7)
+        }
+        assertTrue(
+            "A date exactly 7 days ahead is within allowed booking window",
+            DateTimeUtils.isDateWithinSevenDays(calendar.time, now)
+        )
+    }
+
+    @Test
+    fun isDateWithinSevenDays_inEightDays_returnsFalse() {
+        val now = Date()
+        val calendar = Calendar.getInstance().apply {
+            time = now
+            add(Calendar.DAY_OF_YEAR, 8)
+        }
+        assertFalse(
+            "A date 8 days ahead must be rejected",
+            DateTimeUtils.isDateWithinSevenDays(calendar.time, now)
+        )
+    }
 }

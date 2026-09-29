@@ -328,20 +328,41 @@ class BookingSummaryActivity : AppCompatActivity() {
 
     private fun handleViewQr() {
         if (status.equals("Pending", ignoreCase = true)) {
-            UiAlertUtils.showModernDialog(
-                context = this,
-                title = "QR Pass Pending Approval ⏳",
-                message = "Per microgrid trading rules, transaction QR passes are generated and activated once your reservation is approved by Backoffice on the Web Management Portal.\n\nCurrent Status: PENDING\nPlease wait for Backoffice confirmation before presenting your pass at the station.",
-                type = UiAlertUtils.AlertType.INFO,
-                positiveButtonText = "Check Status Now",
-                onPositiveClick = { fetchLatestReservationStatus(isManual = true) },
-                negativeButtonText = "Preview Pass",
-                onNegativeClick = { launchQrActivity() }
-            )
+            showQrPendingDialog()
             return
         }
 
         launchQrActivity()
+    }
+
+    private fun showQrPendingDialog() {
+        val view = layoutInflater.inflate(R.layout.dialog_qr_pending, null)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(view)
+            .setCancelable(true)
+            .create()
+
+        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+
+        val btnCheck = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_pending_check_status)
+        val btnPreview = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_pending_preview_pass)
+        val btnDismiss = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_pending_dismiss)
+
+        btnCheck.setOnClickListener {
+            dialog.dismiss()
+            fetchLatestReservationStatus(isManual = true)
+        }
+
+        btnPreview.setOnClickListener {
+            dialog.dismiss()
+            launchQrActivity()
+        }
+
+        btnDismiss.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun launchQrActivity() {
@@ -398,6 +419,9 @@ class BookingSummaryActivity : AppCompatActivity() {
             putExtra("EXTRA_STATION_NAME", stationName)
             putExtra("EXTRA_MODE", "MODIFY")
             putExtra("EXTRA_RESERVATION_ID", reservationId)
+            putExtra("EXTRA_CURRENT_SCHEDULED_AT", scheduledAt)
+            putExtra("EXTRA_CURRENT_SLOT_TIME", tvTime.text.toString())
+            putExtra("EXTRA_CURRENT_STATUS", status)
         }
         startActivityForResult(intent, REQUEST_MODIFY_SLOT)
     }

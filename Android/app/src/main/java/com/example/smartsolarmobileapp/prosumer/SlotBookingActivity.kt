@@ -63,6 +63,9 @@ class SlotBookingActivity : AppCompatActivity() {
     /** Modification mode: when non-null, the activity updates an existing reservation instead of creating a new one */
     private var modifyReservationId: String? = null
     private var isModifyMode: Boolean = false
+    private var currentScheduledAt: String? = null
+    private var currentSlotDisplay: String? = null
+    private var currentStatus: String? = null
 
     private var selectedCalendar: Calendar = Calendar.getInstance()
     private var selectedSlot: Slot? = null
@@ -95,6 +98,16 @@ class SlotBookingActivity : AppCompatActivity() {
         if (mode.equals("MODIFY", ignoreCase = true)) {
             isModifyMode = true
             modifyReservationId = intent.getStringExtra("EXTRA_RESERVATION_ID")
+            currentScheduledAt = intent.getStringExtra("EXTRA_CURRENT_SCHEDULED_AT")
+            currentSlotDisplay = intent.getStringExtra("EXTRA_CURRENT_SLOT_TIME")
+            currentStatus = intent.getStringExtra("EXTRA_CURRENT_STATUS")
+
+            if (!currentScheduledAt.isNullOrBlank()) {
+                val parsedDate = DateTimeUtils.parseIsoString(currentScheduledAt)
+                if (parsedDate != null) {
+                    selectedCalendar.time = parsedDate
+                }
+            }
         }
     }
 
@@ -116,7 +129,8 @@ class SlotBookingActivity : AppCompatActivity() {
 
         // Adjust confirm button text and header depending on mode
         if (isModifyMode) {
-            btnConfirmBooking.text = "Confirm Slot Change"
+            btnConfirmBooking.text = "Select a Different Slot"
+            btnConfirmBooking.isEnabled = false
             findViewById<TextView>(R.id.tv_slot_booking_header_title)?.text = "Modify Booking Slot"
             supportActionBar?.title = "Modify Booking Slot"
         }
@@ -130,7 +144,6 @@ class SlotBookingActivity : AppCompatActivity() {
         }
 
         btnChangeDate.setOnClickListener {
-            UiAlertUtils.showToast(this, "Select a date within the allowed 7-day booking window", UiAlertUtils.AlertType.INFO)
             showDatePicker()
         }
 
@@ -140,9 +153,24 @@ class SlotBookingActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        slotAdapter = SlotAdapter(emptyList()) { slot ->
-            selectedSlot = slot
-            btnConfirmBooking.isEnabled = true
+        slotAdapter = SlotAdapter(emptyList()) { slot, isCurrent ->
+            if (isModifyMode && isCurrent) {
+                selectedSlot = null
+                btnConfirmBooking.isEnabled = false
+                btnConfirmBooking.text = "Current Slot (No Change)"
+                UiAlertUtils.showSnackbar(
+                    rvSlots,
+                    "This is already your booked slot. Select a different time slot to modify.",
+                    UiAlertUtils.AlertType.WARNING
+                )
+            } else {
+                selectedSlot = slot
+                btnConfirmBooking.isEnabled = true
+                btnConfirmBooking.text = if (isModifyMode) "Confirm Slot Change" else "Proceed to Confirmation"
+            }
+        }
+        if (isModifyMode) {
+            slotAdapter.setCurrentBookedSlot(currentScheduledAt)
         }
         rvSlots.layoutManager = LinearLayoutManager(this)
         rvSlots.adapter = slotAdapter
@@ -152,7 +180,13 @@ class SlotBookingActivity : AppCompatActivity() {
      * Displays a date picker restricted strictly between today and today + 7 days.
      */
     private fun showDatePicker() {
-        val now = Calendar.getInstance()
+        val startOfToday = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
         val datePicker = DatePickerDialog(
             this,
             { _, year, month, dayOfMonth ->
@@ -163,9 +197,10 @@ class SlotBookingActivity : AppCompatActivity() {
                     set(Calendar.HOUR_OF_DAY, 12)
                     set(Calendar.MINUTE, 0)
                     set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
                 }
 
-                if (!DateTimeUtils.isWithinSevenDays(newDate.time)) {
+                if (!DateTimeUtils.isDateWithinSevenDays(newDate.time)) {
                     showRuleViolationDialog(
                         "7-Day Booking Rule Violation",
                         "Energy reservations must be scheduled within 7 days from today. Please select a valid upcoming date."
@@ -185,7 +220,7 @@ class SlotBookingActivity : AppCompatActivity() {
         )
 
         // Strict UI enforcement: physically block dates outside the 7-day range
-        datePicker.datePicker.minDate = now.timeInMillis - 1000
+        datePicker.datePicker.minDate = startOfToday.timeInMillis
         datePicker.datePicker.maxDate = DateTimeUtils.getMaxBookingDate().time
 
         datePicker.show()
@@ -203,6 +238,13 @@ class SlotBookingActivity : AppCompatActivity() {
         layoutEmptySlots.visibility = View.GONE
         btnConfirmBooking.isEnabled = false
 
+        if (isModifyMode) {
+            btnConfirmBooking.text = "Select a Different Slot"
+            slotAdapter.setCurrentBookedSlot(currentScheduledAt)
+        } else {
+            btnConfirmBooking.text = "Proceed to Confirmation"
+        }
+
         lifecycleScope.launch(Dispatchers.IO) {
             var slotsToDisplay: List<Slot> = emptyList()
             var isOffline = false
@@ -215,8 +257,12 @@ class SlotBookingActivity : AppCompatActivity() {
                     slotsToDisplay = response.body()!!.filter { slot ->
                         val slotDate = DateTimeUtils.parseIsoString(slot.startTime)
                         val isSameDate = slotDate != null && DateTimeUtils.formatShortDate(slotDate) == targetDateStr
+                        val isCurrentSlot = isModifyMode && !currentScheduledAt.isNullOrBlank() && run {
+                            val cur = DateTimeUtils.parseIsoString(currentScheduledAt)
+                            slotDate != null && cur != null && slotDate.time == cur.time
+                        }
                         val isStatusAvailable = slot.status.equals("Available", ignoreCase = true)
-                        val hasCapacity = slot.availableCapacity >= 1
+                        val hasCapacity = slot.availableCapacity >= 1 || isCurrentSlot
                         val isFuture = slotDate != null && slotDate.after(now)
 
                         isSameDate && isStatusAvailable && hasCapacity && isFuture
@@ -271,6 +317,32 @@ class SlotBookingActivity : AppCompatActivity() {
             return
         }
 
+        if (isModifyMode) {
+            val oldTime = currentSlotDisplay?.takeIf { it.isNotBlank() } ?: "Current Slot"
+            val startParsed = DateTimeUtils.parseIsoString(slot.startTime)
+            val endParsed = DateTimeUtils.parseIsoString(slot.endTime)
+            val newTime = if (startParsed != null && endParsed != null) {
+                "${DateTimeUtils.formatDisplayTime(startParsed)} - ${DateTimeUtils.formatDisplayTime(endParsed)}"
+            } else {
+                "${slot.startTime} - ${slot.endTime}"
+            }
+
+            UiAlertUtils.showModernDialog(
+                context = this,
+                title = "Confirm Slot Modification",
+                message = "You are modifying your energy reservation:\n\n• Current: $oldTime\n• New: $newTime\n\n⚠️ Submitting this change requires Backoffice re-approval and will return your reservation status to PENDING. Do you wish to proceed?",
+                type = UiAlertUtils.AlertType.WARNING,
+                positiveButtonText = "Yes, Change Slot",
+                onPositiveClick = { executeBooking(slot) },
+                negativeButtonText = "Keep Current Slot"
+            )
+            return
+        }
+
+        executeBooking(slot)
+    }
+
+    private fun executeBooking(slot: Slot) {
         val slotDate = DateTimeUtils.parseIsoString(slot.startTime) ?: selectedCalendar.time
         val now = java.util.Date()
 

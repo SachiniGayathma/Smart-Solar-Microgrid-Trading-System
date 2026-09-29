@@ -209,9 +209,6 @@ class ProfileActivity : AppCompatActivity() {
                         displayUserData(remoteUser)
                         sessionManager.saveSession(sessionManager.getAuthToken(), remoteUser)
                         userDao.saveUserSession(remoteUser, sessionManager.getAuthToken())
-                        if (isManual) {
-                            UiAlertUtils.showToast(this@ProfileActivity, "Profile refreshed", UiAlertUtils.AlertType.INFO)
-                        }
                     }
                 } else {
                     withContext(Dispatchers.Main) {

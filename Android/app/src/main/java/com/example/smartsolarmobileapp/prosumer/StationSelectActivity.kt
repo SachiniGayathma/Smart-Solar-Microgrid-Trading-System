@@ -147,9 +147,6 @@ class StationSelectActivity : AppCompatActivity() {
                         // Update list display
                         stationAdapter.updateData(activeStations)
                         layoutEmpty.visibility = if (activeStations.isEmpty()) View.VISIBLE else View.GONE
-                        if (isManual) {
-                            UiAlertUtils.showToast(this@StationSelectActivity, "Stations updated", UiAlertUtils.AlertType.INFO)
-                        }
                     } else {
                         handleFetchFailure()
                     }

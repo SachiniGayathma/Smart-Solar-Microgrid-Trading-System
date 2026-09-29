@@ -385,9 +385,6 @@ class ProsumerDashboardActivity : AppCompatActivity() {
 
             withContext(Dispatchers.Main) {
                 swipeRefresh.isRefreshing = false
-                if (isManual) {
-                    UiAlertUtils.showToast(this@ProsumerDashboardActivity, "Dashboard refreshed", UiAlertUtils.AlertType.INFO)
-                }
             }
         }
     }
