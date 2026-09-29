@@ -9,11 +9,13 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -42,6 +44,9 @@ class SlotBookingActivity : AppCompatActivity() {
     private lateinit var tvSelectedDate: TextView
     private lateinit var btnChangeDate: Button
     private lateinit var pbSlots: ProgressBar
+    private lateinit var layoutEmptySlots: View
+    private lateinit var ivEmptySlotsIcon: ImageView
+    private lateinit var tvEmptySlotsTitle: TextView
     private lateinit var tvEmptySlots: TextView
     private lateinit var rvSlots: RecyclerView
     private lateinit var btnConfirmBooking: Button
@@ -58,6 +63,9 @@ class SlotBookingActivity : AppCompatActivity() {
     /** Modification mode: when non-null, the activity updates an existing reservation instead of creating a new one */
     private var modifyReservationId: String? = null
     private var isModifyMode: Boolean = false
+    private var currentScheduledAt: String? = null
+    private var currentSlotDisplay: String? = null
+    private var currentStatus: String? = null
 
     private var selectedCalendar: Calendar = Calendar.getInstance()
     private var selectedSlot: Slot? = null
@@ -67,7 +75,7 @@ class SlotBookingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_slot_booking)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Book 30-Min Slot"
+        supportActionBar?.title = "Reserve Energy Slot"
 
         sessionManager = SessionManager(this)
         reservationDao = ReservationDao(DatabaseHelper(this))
@@ -90,6 +98,16 @@ class SlotBookingActivity : AppCompatActivity() {
         if (mode.equals("MODIFY", ignoreCase = true)) {
             isModifyMode = true
             modifyReservationId = intent.getStringExtra("EXTRA_RESERVATION_ID")
+            currentScheduledAt = intent.getStringExtra("EXTRA_CURRENT_SCHEDULED_AT")
+            currentSlotDisplay = intent.getStringExtra("EXTRA_CURRENT_SLOT_TIME")
+            currentStatus = intent.getStringExtra("EXTRA_CURRENT_STATUS")
+
+            if (!currentScheduledAt.isNullOrBlank()) {
+                val parsedDate = DateTimeUtils.parseIsoString(currentScheduledAt)
+                if (parsedDate != null) {
+                    selectedCalendar.time = parsedDate
+                }
+            }
         }
     }
 
@@ -99,6 +117,9 @@ class SlotBookingActivity : AppCompatActivity() {
         tvSelectedDate = findViewById(R.id.tv_selected_date)
         btnChangeDate = findViewById(R.id.btn_change_date)
         pbSlots = findViewById(R.id.pb_slots)
+        layoutEmptySlots = findViewById(R.id.layout_empty_slots)
+        ivEmptySlotsIcon = findViewById(R.id.iv_empty_slots_icon)
+        tvEmptySlotsTitle = findViewById(R.id.tv_empty_slots_title)
         tvEmptySlots = findViewById(R.id.tv_empty_slots)
         rvSlots = findViewById(R.id.rv_slots)
         btnConfirmBooking = findViewById(R.id.btn_confirm_booking)
@@ -108,7 +129,8 @@ class SlotBookingActivity : AppCompatActivity() {
 
         // Adjust confirm button text and header depending on mode
         if (isModifyMode) {
-            btnConfirmBooking.text = "Confirm Slot Change"
+            btnConfirmBooking.text = "Select a Different Slot"
+            btnConfirmBooking.isEnabled = false
             findViewById<TextView>(R.id.tv_slot_booking_header_title)?.text = "Modify Booking Slot"
             supportActionBar?.title = "Modify Booking Slot"
         }
@@ -122,7 +144,6 @@ class SlotBookingActivity : AppCompatActivity() {
         }
 
         btnChangeDate.setOnClickListener {
-            UiAlertUtils.showToast(this, "Select a date within the allowed 7-day booking window", UiAlertUtils.AlertType.INFO)
             showDatePicker()
         }
 
@@ -132,9 +153,24 @@ class SlotBookingActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        slotAdapter = SlotAdapter(emptyList()) { slot ->
-            selectedSlot = slot
-            btnConfirmBooking.isEnabled = true
+        slotAdapter = SlotAdapter(emptyList()) { slot, isCurrent ->
+            if (isModifyMode && isCurrent) {
+                selectedSlot = null
+                btnConfirmBooking.isEnabled = false
+                btnConfirmBooking.text = "Current Slot (No Change)"
+                UiAlertUtils.showSnackbar(
+                    rvSlots,
+                    "This is already your booked slot. Select a different time slot to modify.",
+                    UiAlertUtils.AlertType.WARNING
+                )
+            } else {
+                selectedSlot = slot
+                btnConfirmBooking.isEnabled = true
+                btnConfirmBooking.text = if (isModifyMode) "Confirm Slot Change" else "Proceed to Confirmation"
+            }
+        }
+        if (isModifyMode) {
+            slotAdapter.setCurrentBookedSlot(currentScheduledAt)
         }
         rvSlots.layoutManager = LinearLayoutManager(this)
         rvSlots.adapter = slotAdapter
@@ -144,7 +180,13 @@ class SlotBookingActivity : AppCompatActivity() {
      * Displays a date picker restricted strictly between today and today + 7 days.
      */
     private fun showDatePicker() {
-        val now = Calendar.getInstance()
+        val startOfToday = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
         val datePicker = DatePickerDialog(
             this,
             { _, year, month, dayOfMonth ->
@@ -155,9 +197,10 @@ class SlotBookingActivity : AppCompatActivity() {
                     set(Calendar.HOUR_OF_DAY, 12)
                     set(Calendar.MINUTE, 0)
                     set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
                 }
 
-                if (!DateTimeUtils.isWithinSevenDays(newDate.time)) {
+                if (!DateTimeUtils.isDateWithinSevenDays(newDate.time)) {
                     showRuleViolationDialog(
                         "7-Day Booking Rule Violation",
                         "Energy reservations must be scheduled within 7 days from today. Please select a valid upcoming date."
@@ -177,7 +220,7 @@ class SlotBookingActivity : AppCompatActivity() {
         )
 
         // Strict UI enforcement: physically block dates outside the 7-day range
-        datePicker.datePicker.minDate = now.timeInMillis - 1000
+        datePicker.datePicker.minDate = startOfToday.timeInMillis
         datePicker.datePicker.maxDate = DateTimeUtils.getMaxBookingDate().time
 
         datePicker.show()
@@ -192,73 +235,65 @@ class SlotBookingActivity : AppCompatActivity() {
      */
     private fun loadSlotsForSelectedDate() {
         pbSlots.visibility = View.VISIBLE
-        tvEmptySlots.visibility = View.GONE
+        layoutEmptySlots.visibility = View.GONE
         btnConfirmBooking.isEnabled = false
+
+        if (isModifyMode) {
+            btnConfirmBooking.text = "Select a Different Slot"
+            slotAdapter.setCurrentBookedSlot(currentScheduledAt)
+        } else {
+            btnConfirmBooking.text = "Proceed to Confirmation"
+        }
 
         lifecycleScope.launch(Dispatchers.IO) {
             var slotsToDisplay: List<Slot> = emptyList()
+            var isOffline = false
 
             try {
                 val response = ApiClient.slotApi.getSlots(stationId)
                 if (response.isSuccessful && response.body() != null) {
                     val targetDateStr = DateTimeUtils.formatShortDate(selectedCalendar.time)
+                    val now = java.util.Date()
                     slotsToDisplay = response.body()!!.filter { slot ->
                         val slotDate = DateTimeUtils.parseIsoString(slot.startTime)
-                        slotDate != null && DateTimeUtils.formatShortDate(slotDate) == targetDateStr
+                        val isSameDate = slotDate != null && DateTimeUtils.formatShortDate(slotDate) == targetDateStr
+                        val isCurrentSlot = isModifyMode && !currentScheduledAt.isNullOrBlank() && run {
+                            val cur = DateTimeUtils.parseIsoString(currentScheduledAt)
+                            slotDate != null && cur != null && slotDate.time == cur.time
+                        }
+                        val isStatusAvailable = slot.status.equals("Available", ignoreCase = true)
+                        val hasCapacity = slot.availableCapacity >= 1 || isCurrentSlot
+                        val isFuture = slotDate != null && slotDate.after(now)
+
+                        isSameDate && isStatusAvailable && hasCapacity && isFuture
                     }
+                } else {
+                    isOffline = true
                 }
             } catch (e: Exception) {
-                // Network unavailable or server offline; will use fallback generator below
-            }
-
-            // Fallback generation: Generate standard 30-minute trading windows
-            if (slotsToDisplay.isEmpty()) {
-                slotsToDisplay = generateStandardSlotsForDate(stationId, selectedCalendar.time)
+                isOffline = true
             }
 
             withContext(Dispatchers.Main) {
                 pbSlots.visibility = View.GONE
                 slotAdapter.updateData(slotsToDisplay)
-                tvEmptySlots.visibility = if (slotsToDisplay.isEmpty()) View.VISIBLE else View.GONE
+                if (isOffline) {
+                    ivEmptySlotsIcon.setImageResource(R.drawable.ic_alert_triangle)
+                    ivEmptySlotsIcon.imageTintList = ContextCompat.getColorStateList(this@SlotBookingActivity, R.color.solar_amber_primary)
+                    tvEmptySlotsTitle.text = "Connection Offline"
+                    tvEmptySlots.text = "Energy slot scheduling requires an active connection to the central microgrid trading system.\n\nPlease check your network connection and try again."
+                    layoutEmptySlots.visibility = View.VISIBLE
+                } else if (slotsToDisplay.isEmpty()) {
+                    ivEmptySlotsIcon.setImageResource(R.drawable.ic_clock)
+                    ivEmptySlotsIcon.imageTintList = ContextCompat.getColorStateList(this@SlotBookingActivity, R.color.solar_slate_subtle)
+                    tvEmptySlotsTitle.text = "No Available Slots"
+                    tvEmptySlots.text = "No energy slots are available for ${DateTimeUtils.formatDisplayDate(selectedCalendar.time)}.\n\nPlease select another date above."
+                    layoutEmptySlots.visibility = View.VISIBLE
+                } else {
+                    layoutEmptySlots.visibility = View.GONE
+                }
             }
         }
-    }
-
-    /**
-     * Generates standard 30-minute charging intervals (08:00 to 18:00) for a given date.
-     */
-    private fun generateStandardSlotsForDate(stationId: String, date: Date): List<Slot> {
-        val slots = mutableListOf<Slot>()
-        val startCal = Calendar.getInstance().apply {
-            time = date
-            set(Calendar.HOUR_OF_DAY, 8)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-        }
-
-        val dateStr = DateTimeUtils.formatShortDate(date)
-
-        for (i in 0 until 20) {
-            val slotStart = startCal.time
-            val startIso = DateTimeUtils.toIsoString(slotStart)
-
-            startCal.add(Calendar.MINUTE, 30)
-            val slotEnd = startCal.time
-            val endIso = DateTimeUtils.toIsoString(slotEnd)
-
-            val slotId = "${stationId}_${dateStr}_slot_$i"
-            slots.add(
-                Slot(
-                    id = slotId,
-                    stationId = stationId,
-                    startTime = startIso,
-                    endTime = endIso,
-                    availableCapacity = 4,
-                    status = "Available"
-                )
-            )
-        }
-        return slots
     }
 
     /**
@@ -267,10 +302,63 @@ class SlotBookingActivity : AppCompatActivity() {
     private fun proceedToBookingConfirmation() {
         val slot = selectedSlot
         if (slot == null) {
-            UiAlertUtils.showToast(this, "Please select an available 30-minute slot", UiAlertUtils.AlertType.WARNING)
+            UiAlertUtils.showToast(this, "Please select an available energy slot", UiAlertUtils.AlertType.WARNING)
             return
         }
 
+        val currentUser = sessionManager.getUser()
+        if (currentUser?.status.equals("Pending", ignoreCase = true)) {
+            UiAlertUtils.showModernDialog(
+                this,
+                "Account Pending Activation",
+                "Your account is pending activation by Backoffice on the Web Management Portal. Slot booking will be enabled once your account is verified.",
+                UiAlertUtils.AlertType.WARNING
+            )
+            return
+        }
+
+        if (isModifyMode) {
+            showModernSlotModificationDialog(slot)
+            return
+        }
+
+        executeBooking(slot)
+    }
+
+    private fun showModernSlotModificationDialog(slot: Slot) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_confirm_modify_slot, null)
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val oldTime = currentSlotDisplay?.takeIf { it.isNotBlank() } ?: "Current Slot"
+        val startParsed = DateTimeUtils.parseIsoString(slot.startTime)
+        val endParsed = DateTimeUtils.parseIsoString(slot.endTime)
+        val newTime = if (startParsed != null && endParsed != null) {
+            "${DateTimeUtils.formatDisplayTime(startParsed)} - ${DateTimeUtils.formatDisplayTime(endParsed)}"
+        } else {
+            "${slot.startTime} - ${slot.endTime}"
+        }
+
+        dialogView.findViewById<TextView>(R.id.tv_dialog_current_slot).text = oldTime
+        dialogView.findViewById<TextView>(R.id.tv_dialog_new_slot).text = newTime
+
+        dialogView.findViewById<View>(R.id.btn_dialog_confirm_change).setOnClickListener {
+            dialog.dismiss()
+            executeBooking(slot)
+        }
+
+        dialogView.findViewById<View>(R.id.btn_dialog_cancel_change).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun executeBooking(slot: Slot) {
         val slotDate = DateTimeUtils.parseIsoString(slot.startTime) ?: selectedCalendar.time
         val now = java.util.Date()
 
@@ -300,6 +388,8 @@ class SlotBookingActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             var reservationResult: Reservation? = null
+            var serverErrorMessage: String? = null
+            var isOffline = false
 
             try {
                 if (isModifyMode && !modifyReservationId.isNullOrBlank()) {
@@ -309,39 +399,57 @@ class SlotBookingActivity : AppCompatActivity() {
                     )
                     if (response.isSuccessful && response.body() != null) {
                         reservationResult = response.body()
+                    } else {
+                        serverErrorMessage = com.example.smartsolarmobileapp.api.ApiMessages.from(response, "Modification rejected by server.")
                     }
                 } else {
                     // CREATE MODE: POST new reservation
                     val response = ApiClient.reservationApi.createReservation(request)
                     if (response.isSuccessful && response.body() != null) {
                         reservationResult = response.body()
+                    } else {
+                        serverErrorMessage = com.example.smartsolarmobileapp.api.ApiMessages.from(response, "Booking rejected by server.")
                     }
                 }
             } catch (e: Exception) {
-                // Fallback for offline mode
+                isOffline = true
             }
 
-            // If offline or server returned error, persist as a pending local booking in SQLite
+            // If the server rejected the request with an error, display the server error instead of faking offline success
+            if (serverErrorMessage != null) {
+                withContext(Dispatchers.Main) {
+                    pbSlots.visibility = View.GONE
+                    btnConfirmBooking.isEnabled = true
+                    showRuleViolationDialog("Booking Not Saved", serverErrorMessage)
+                }
+                return@launch
+            }
+
             if (reservationResult == null) {
-                reservationResult = Reservation(
-                    id = if (isModifyMode) modifyReservationId ?: UUID.randomUUID().toString() else UUID.randomUUID().toString(),
-                    prosumerNic = prosumerNic,
-                    stationId = stationId,
-                    stationName = stationName,
-                    slotId = slot.id,
-                    scheduledAt = slot.startTime,
-                    status = "Pending",
-                    summary = if (isModifyMode) "Reservation modified to a new slot (Offline cache)." else "Reservation created and is pending approval (Offline cache).",
-                    createdAt = DateTimeUtils.toIsoString(Date())
-                )
+                withContext(Dispatchers.Main) {
+                    pbSlots.visibility = View.GONE
+                    btnConfirmBooking.isEnabled = true
+                    val errorTitle = if (isOffline) "Server Connection Required" else "Booking Failed"
+                    val errorDesc = if (isOffline) {
+                        "Cannot reserve energy slot while offline. An active connection to the central microgrid service is required to verify real-time capacity and register your booking."
+                    } else {
+                        "Unable to complete booking. Please check your connection and try again."
+                    }
+                    showRuleViolationDialog(errorTitle, errorDesc)
+                }
+                return@launch
             }
 
-            // Save to local SQLite database for offline persistence
+            // Save to local SQLite database for offline persistence & cache
             val finalRes = reservationResult.copy(stationName = stationName)
             reservationDao.insertOrUpdateReservation(finalRes)
 
             withContext(Dispatchers.Main) {
                 pbSlots.visibility = View.GONE
+
+                if (isOffline) {
+                    UiAlertUtils.showToast(this@SlotBookingActivity, "Server offline: Reservation saved to local offline cache.", UiAlertUtils.AlertType.INFO)
+                }
 
                 if (isModifyMode) {
                     // Return result to BookingSummaryActivity for summary page refresh

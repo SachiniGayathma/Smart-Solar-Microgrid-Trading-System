@@ -155,10 +155,10 @@
             android:gravity="center"
             android:orientation="vertical"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/rv_bookings"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chip_group_filter"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/rv_bookings">
+            app:layout_constraintEnd_toEndOf="parent">
 
             <ImageView
                 android:layout_width="64dp"
@@ -187,17 +187,23 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
-        <!-- Bookings RecyclerView -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_bookings"
+        <!-- Bookings SwipeRefreshLayout & RecyclerView -->
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh_bookings"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="8dp"
-            android:clipToPadding="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/chip_group_filter" />
+            app:layout_constraintTop_toBottomOf="@+id/chip_group_filter">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_bookings"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -210,16 +210,17 @@ class LoginActivity : AppCompatActivity() {
                             showErrorDialog("Authentication Failed", loginResponse.message ?: "Authentication failed.")
                         }
                     } else {
-                        val errorMsg = response.errorBody()?.string()
-                            ?: "Invalid credentials. Please verify your NIC/email and password."
-
-                        // Detect ngrok tunnel offline (ERR_NGROK_3200 / HTTP 502)
-                        // or other gateway errors and fall back to offline mode
-                        if (isServerOfflineResponse(response.code(), errorMsg)) {
+                        val rawError = response.errorBody()?.string()
+                        if (isServerOfflineResponse(response.code(), rawError)) {
                             handleOfflineLogin(identifier, password)
                         } else {
+                            val cleanMsg = rawError?.let { raw ->
+                                try {
+                                    com.google.gson.JsonParser.parseString(raw).asJsonObject.get("message")?.asString
+                                } catch (e: Exception) { null }
+                            } ?: rawError ?: "Invalid credentials. Please verify your NIC/email and password."
                             tilPassword.error = "Invalid credentials"
-                            showErrorDialog("Login Failed", errorMsg)
+                            showErrorDialog("Login Failed", cleanMsg)
                         }
                     }
                 }
@@ -238,15 +239,8 @@ class LoginActivity : AppCompatActivity() {
     private fun validateAndProcessUser(token: String?, user: User) {
         val status = user.status ?: "Active"
 
-        if (status.equals("Pending", ignoreCase = true)) {
-            UiAlertUtils.showModernDialog(
-                this,
-                "Account Pending Activation",
-                "Your account is pending activation by Backoffice.",
-                UiAlertUtils.AlertType.INFO
-            )
-            return
-        }
+        // Option B: Allow Pending prosumer to access their dashboard with restricted actions.
+        // Account activation status will be reactively synced and displayed via an Amber banner.
 
         if (status.equals("Deactivated", ignoreCase = true)) {
             UiAlertUtils.showModernDialog(
@@ -300,15 +294,6 @@ class LoginActivity : AppCompatActivity() {
             }
 
             val status = cachedUser.status ?: "Active"
-            if (status.equals("Pending", ignoreCase = true)) {
-                UiAlertUtils.showModernDialog(
-                    this,
-                    "Account Pending Activation",
-                    "Your account is pending activation by Backoffice.",
-                    UiAlertUtils.AlertType.INFO
-                )
-                return
-            }
 
             if (status.equals("Deactivated", ignoreCase = true)) {
                 UiAlertUtils.showModernDialog(

@@ -19,11 +19,13 @@ import com.example.smartsolarmobileapp.R
 import com.example.smartsolarmobileapp.api.ApiClient
 import com.example.smartsolarmobileapp.database.DatabaseHelper
 import com.example.smartsolarmobileapp.database.ReservationDao
+import com.example.smartsolarmobileapp.database.StationDao
 import com.example.smartsolarmobileapp.utils.DateTimeUtils
 import com.example.smartsolarmobileapp.utils.SessionManager
 import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -41,9 +43,11 @@ class BookingSummaryActivity : AppCompatActivity() {
     private lateinit var btnCancelBooking: Button
     private lateinit var btnAllBookings: Button
     private lateinit var bottomNav: BottomNavigationView
+    private lateinit var swipeRefresh: androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
     private lateinit var reservationDao: ReservationDao
     private lateinit var sessionManager: SessionManager
+    private var approvalPollingJob: kotlinx.coroutines.Job? = null
 
     private var reservationId: String = ""
     private var stationName: String = ""
@@ -76,6 +80,74 @@ class BookingSummaryActivity : AppCompatActivity() {
         setupBottomNavigation()
     }
 
+    override fun onResume() {
+        super.onResume()
+        fetchLatestReservationStatus(isManual = false)
+        startApprovalPoller()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        approvalPollingJob?.cancel()
+    }
+
+    private fun startApprovalPoller() {
+        approvalPollingJob?.cancel()
+        if (!status.equals("Pending", ignoreCase = true)) return
+
+        approvalPollingJob = lifecycleScope.launch {
+            while (isActive && status.equals("Pending", ignoreCase = true)) {
+                kotlinx.coroutines.delay(6000)
+                fetchLatestReservationStatus(isManual = false)
+            }
+        }
+    }
+
+    private fun fetchLatestReservationStatus(isManual: Boolean = false) {
+        if (reservationId.isBlank()) {
+            if (isManual) swipeRefresh.isRefreshing = false
+            return
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val response = ApiClient.reservationApi.getReservationById(reservationId)
+                if (response.isSuccessful && response.body() != null) {
+                    val updated = response.body()!!
+                    status = updated.status
+                    if (!updated.qrToken.isNullOrBlank()) {
+                        qrToken = updated.qrToken
+                    }
+                    if (!updated.scheduledAt.isNullOrBlank()) {
+                        scheduledAt = updated.scheduledAt
+                    }
+
+                    reservationDao.insertOrUpdateReservation(updated)
+
+                    withContext(Dispatchers.Main) {
+                        applyStatusStyling(status)
+                        populateDetails()
+                        if (isManual) {
+                            swipeRefresh.isRefreshing = false
+                            UiAlertUtils.showToast(this@BookingSummaryActivity, "Status updated: $status", UiAlertUtils.AlertType.INFO)
+                        }
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        if (isManual) swipeRefresh.isRefreshing = false
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    if (isManual) {
+                        swipeRefresh.isRefreshing = false
+                        UiAlertUtils.showToast(this@BookingSummaryActivity, "Unable to reach server", UiAlertUtils.AlertType.WARNING)
+                    }
+                }
+            }
+        }
+    }
+
     private fun extractExtras() {
         reservationId = intent.getStringExtra("EXTRA_RESERVATION_ID") ?: ""
         stationName = intent.getStringExtra("EXTRA_STATION_NAME") ?: "Microgrid Station"
@@ -87,14 +159,27 @@ class BookingSummaryActivity : AppCompatActivity() {
         qrToken = intent.getStringExtra("EXTRA_QR_TOKEN")
 
         // If data is missing, try loading from local SQLite
-        if (reservationId.isNotBlank() && (slotTime.isBlank() || scheduledAt.isBlank())) {
+        if (reservationId.isNotBlank()) {
             val localRes = reservationDao.getReservationById(reservationId)
             localRes?.let {
-                if (stationName.isBlank()) stationName = it.stationName ?: "Microgrid Station"
+                if (stationName.isBlank() || stationName == "Microgrid Station" || stationName == stationId) {
+                    stationName = it.stationName ?: ""
+                }
                 if (stationId.isBlank()) stationId = it.stationId
                 if (scheduledAt.isBlank()) scheduledAt = it.scheduledAt
                 status = it.status
                 if (qrToken.isNullOrBlank()) qrToken = it.qrToken
+            }
+        }
+
+        // Always resolve station name from StationDao if missing or matching raw hex ID
+        val stationDao = StationDao(DatabaseHelper(this))
+        if (stationName.isBlank() || stationName == "Microgrid Station" || stationName == stationId) {
+            if (stationId.isNotBlank()) {
+                val dbStation = stationDao.getStationById(stationId)
+                if (dbStation != null) {
+                    stationName = dbStation.name
+                }
             }
         }
     }
@@ -112,6 +197,11 @@ class BookingSummaryActivity : AppCompatActivity() {
         btnCancelBooking = findViewById(R.id.btn_cancel_booking)
         btnAllBookings = findViewById(R.id.btn_summary_all_bookings)
         bottomNav = findViewById(R.id.bottom_nav_summary)
+        swipeRefresh = findViewById(R.id.swipe_refresh_summary)
+        swipeRefresh.setColorSchemeColors(getColor(R.color.solar_green_primary))
+        swipeRefresh.setOnRefreshListener {
+            fetchLatestReservationStatus(isManual = true)
+        }
     }
 
     private fun populateDetails() {
@@ -139,6 +229,7 @@ class BookingSummaryActivity : AppCompatActivity() {
             currentStatus.equals("Approved", ignoreCase = true) -> {
                 tvStatus.setTextColor(Color.parseColor("#2E7D32"))
                 tvStatus.setBackgroundColor(Color.parseColor("#E8F5E9"))
+                btnViewQr.text = "View Transaction QR Pass ⚡"
                 btnViewQr.visibility = View.VISIBLE
                 btnModifyBooking.visibility = View.VISIBLE
                 btnCancelBooking.visibility = View.VISIBLE
@@ -146,7 +237,7 @@ class BookingSummaryActivity : AppCompatActivity() {
             currentStatus.equals("Pending", ignoreCase = true) -> {
                 tvStatus.setTextColor(Color.parseColor("#E65100"))
                 tvStatus.setBackgroundColor(Color.parseColor("#FFF3E0"))
-                // Show QR button if token exists, or keep visible so prosumer can view QR token
+                btnViewQr.text = "QR Pass (Available Upon Approval) ⏳"
                 btnViewQr.visibility = View.VISIBLE
                 btnModifyBooking.visibility = View.VISIBLE
                 btnCancelBooking.visibility = View.VISIBLE
@@ -236,6 +327,45 @@ class BookingSummaryActivity : AppCompatActivity() {
     }
 
     private fun handleViewQr() {
+        if (status.equals("Pending", ignoreCase = true)) {
+            showQrPendingDialog()
+            return
+        }
+
+        launchQrActivity()
+    }
+
+    private fun showQrPendingDialog() {
+        val view = layoutInflater.inflate(R.layout.dialog_qr_pending, null)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(view)
+            .setCancelable(true)
+            .create()
+
+        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+
+        val btnCheck = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_pending_check_status)
+        val btnPreview = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_pending_preview_pass)
+        val btnDismiss = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_pending_dismiss)
+
+        btnCheck.setOnClickListener {
+            dialog.dismiss()
+            fetchLatestReservationStatus(isManual = true)
+        }
+
+        btnPreview.setOnClickListener {
+            dialog.dismiss()
+            launchQrActivity()
+        }
+
+        btnDismiss.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun launchQrActivity() {
         val tokenToDisplay = qrToken ?: reservationId
         if (tokenToDisplay.isBlank()) {
             Toast.makeText(this, "QR code will be generated upon approval.", Toast.LENGTH_SHORT).show()
@@ -247,6 +377,7 @@ class BookingSummaryActivity : AppCompatActivity() {
             putExtra("EXTRA_RESERVATION_ID", reservationId)
             putExtra("EXTRA_STATION_NAME", stationName)
             putExtra("EXTRA_SLOT_TIME", tvTime.text.toString())
+            putExtra("EXTRA_STATUS", status)
         }
         startActivity(intent)
     }
@@ -288,6 +419,9 @@ class BookingSummaryActivity : AppCompatActivity() {
             putExtra("EXTRA_STATION_NAME", stationName)
             putExtra("EXTRA_MODE", "MODIFY")
             putExtra("EXTRA_RESERVATION_ID", reservationId)
+            putExtra("EXTRA_CURRENT_SCHEDULED_AT", scheduledAt)
+            putExtra("EXTRA_CURRENT_SLOT_TIME", tvTime.text.toString())
+            putExtra("EXTRA_CURRENT_STATUS", status)
         }
         startActivityForResult(intent, REQUEST_MODIFY_SLOT)
     }
@@ -342,10 +476,22 @@ class BookingSummaryActivity : AppCompatActivity() {
 
     private fun executeCancellation() {
         lifecycleScope.launch(Dispatchers.IO) {
+            var serverErrorMessage: String? = null
+
             try {
-                ApiClient.reservationApi.cancelReservation(reservationId)
+                val response = ApiClient.reservationApi.cancelReservation(reservationId)
+                if (!response.isSuccessful) {
+                    serverErrorMessage = com.example.smartsolarmobileapp.api.ApiMessages.from(response, "Cancellation rejected by server.")
+                }
             } catch (e: Exception) {
-                // Network unavailable or server error; handled via local cache update
+                // Network unavailable; handled via local cache update
+            }
+
+            if (serverErrorMessage != null) {
+                withContext(Dispatchers.Main) {
+                    showRuleViolationDialog("Cancellation Failed", serverErrorMessage)
+                }
+                return@launch
             }
 
             // Update local SQLite persistence

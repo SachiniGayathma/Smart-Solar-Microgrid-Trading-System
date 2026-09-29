@@ -17,9 +17,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.smartsolarmobileapp.R
+import com.example.smartsolarmobileapp.database.DatabaseHelper
+import com.example.smartsolarmobileapp.database.ReservationDao
+import com.example.smartsolarmobileapp.database.StationDao
 import com.example.smartsolarmobileapp.models.Station
 import com.example.smartsolarmobileapp.operator.adapter.OperatorStationAdapter
+import com.example.smartsolarmobileapp.prosumer.BookingSummaryActivity
+import com.example.smartsolarmobileapp.prosumer.SlotBookingActivity
 import com.example.smartsolarmobileapp.utils.GeoUtils
+import com.example.smartsolarmobileapp.utils.SessionManager
+import com.example.smartsolarmobileapp.utils.UiAlertUtils
 import com.google.android.gms.location.LocationServices
 import org.maplibre.android.MapLibre
 import org.maplibre.android.camera.CameraPosition
@@ -259,10 +266,63 @@ class MapActivity : AppCompatActivity() {
     }
 
     private fun openStation(id: String) {
+        val sessionManager = SessionManager(this)
+        if (!sessionManager.isOperator()) {
+            val dbHelper = DatabaseHelper(this)
+            val station = stations.firstOrNull { it.id == id }
+                ?: StationDao(dbHelper).getStationById(id)
+            val userNic = sessionManager.getUserNic() ?: ""
+            val activeBooking = if (userNic.isNotBlank()) {
+                val resDao = ReservationDao(dbHelper)
+                resDao.getReservationsByNic(userNic).firstOrNull { res ->
+                    res.stationId == id && (res.status.equals("Approved", ignoreCase = true) || res.status.equals("Pending", ignoreCase = true))
+                }
+            } else null
+
+            if (activeBooking != null) {
+                UiAlertUtils.showModernDialog(
+                    context = this,
+                    title = station?.name ?: "Solar Hub",
+                    message = "You have an active reservation at this station (${activeBooking.status}). Would you like to view your booking or schedule a new energy slot?",
+                    type = UiAlertUtils.AlertType.INFO,
+                    positiveButtonText = "View My Booking",
+                    onPositiveClick = {
+                        val intent = Intent(this, BookingSummaryActivity::class.java).apply {
+                            putExtra("EXTRA_RESERVATION_ID", activeBooking.id)
+                            putExtra("EXTRA_STATION_NAME", if (!activeBooking.stationName.isNullOrBlank()) activeBooking.stationName else station?.name)
+                            putExtra("EXTRA_STATION_ID", activeBooking.stationId)
+                            putExtra("EXTRA_SCHEDULED_AT", activeBooking.scheduledAt)
+                            putExtra("EXTRA_STATUS", activeBooking.status)
+                            putExtra("EXTRA_SUMMARY", activeBooking.summary)
+                            putExtra("EXTRA_QR_TOKEN", activeBooking.qrToken)
+                        }
+                        startActivity(intent)
+                    },
+                    negativeButtonText = "Book New Slot",
+                    onNegativeClick = {
+                        navigateToSlotBooking(id, station)
+                    }
+                )
+            } else {
+                navigateToSlotBooking(id, station)
+            }
+            return
+        }
+
         startActivity(
             Intent(this, StationDetailsActivity::class.java)
                 .putExtra(StationDetailsActivity.EXTRA_STATION_ID, id)
         )
+    }
+
+    private fun navigateToSlotBooking(id: String, station: Station?) {
+        val intent = Intent(this, SlotBookingActivity::class.java).apply {
+            putExtra("EXTRA_STATION_ID", id)
+            putExtra("EXTRA_STATION_NAME", station?.name ?: "Microgrid Hub")
+            putExtra("EXTRA_STATION_CAPACITY", station?.capacityKwh ?: 100.0)
+            putExtra("EXTRA_STATION_SCHEDULE", station?.schedule ?: "06:00 - 18:00")
+        }
+        startActivity(intent)
     }
 
     private fun Station.hasMapPosition(): Boolean {

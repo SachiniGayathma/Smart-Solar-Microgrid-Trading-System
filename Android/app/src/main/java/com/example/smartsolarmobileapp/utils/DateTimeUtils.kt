@@ -106,6 +106,33 @@ object DateTimeUtils {
     }
 
     /**
+     * Enforces the 7-Day Calendar Date Rule for DatePicker selection.
+     * Ensures selected calendar day is today or within the upcoming 7 calendar days.
+     *
+     * @param targetDate The proposed calendar day.
+     * @param referenceDate The current reference time (defaults to Date()).
+     * @return True if target day falls between start of today and end of day 7.
+     */
+    fun isDateWithinSevenDays(targetDate: Date, referenceDate: Date = Date()): Boolean {
+        val startOfToday = Calendar.getInstance().apply {
+            time = referenceDate
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val endOfMaxDay = Calendar.getInstance().apply {
+            time = referenceDate
+            add(Calendar.DAY_OF_YEAR, 7)
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
+            set(Calendar.MILLISECOND, 999)
+        }
+        return !targetDate.before(startOfToday.time) && !targetDate.after(endOfMaxDay.time)
+    }
+
+    /**
      * Enforces the 12-Hour Notice Rule for modifications and cancellations.
      *
      * @param slotStartTime The scheduled slot start timestamp.

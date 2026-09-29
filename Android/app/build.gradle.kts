@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.cardview)
     implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.swiperefreshlayout)
 
     // Networking (REST API communication with C# Web API on IIS)
     implementation(libs.retrofit)
