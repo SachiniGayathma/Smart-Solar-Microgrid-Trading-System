@@ -105,11 +105,6 @@ export default function Login() {
             </label>
             <button className="btn btn-primary btn-lg" type="submit" disabled={busy}>Sign in</button>
           </form>
-          <details className="demo-note">
-            <summary>Demonstration account</summary>
-            <p>Backoffice · <span className="mono">backoffice@smartsolar.local</span> · <span className="mono">Admin@123</span></p>
-            <p>Create Grid Operator accounts after you sign in.</p>
-          </details>
         </div>
       </section>
     </div>
