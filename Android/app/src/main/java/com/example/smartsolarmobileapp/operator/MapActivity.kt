@@ -42,6 +42,7 @@ import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.geometry.LatLngBounds
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapView
+import org.maplibre.android.maps.Style
 import org.maplibre.android.style.layers.CircleLayer
 import org.maplibre.android.style.layers.PropertyFactory.circleColor
 import org.maplibre.android.style.layers.PropertyFactory.circleRadius
@@ -63,6 +64,8 @@ class MapActivity : AppCompatActivity() {
     private var userLatLng: LatLng? = null
     private var locationPromptShown = false
     private var locationFetchInFlight = false
+    private var didFrameCamera = false
+    private var framedWithLocation = false
 
     private val locationPermission = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -95,6 +98,10 @@ class MapActivity : AppCompatActivity() {
         adapter = OperatorStationAdapter(emptyList()) { station -> openStation(station.id) }
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = adapter
+
+        findViewById<android.view.View>(R.id.btn_map_zoom_in).setOnClickListener { zoomBy(1.0) }
+        findViewById<android.view.View>(R.id.btn_map_zoom_out).setOnClickListener { zoomBy(-1.0) }
+        findViewById<android.view.View>(R.id.btn_map_recenter).setOnClickListener { recenterOnMe() }
 
         mapView = findViewById(R.id.map_stations)
         mapView.onCreate(savedInstanceState)
@@ -290,18 +297,51 @@ class MapActivity : AppCompatActivity() {
         } else {
             emptyMap()
         }
-        stations = loaded
-            .filter { it.status.equals("Active", ignoreCase = true) }
-            .let { active ->
-                if (distances.isEmpty()) active
-                else active.sortedBy { distances[it.id] ?: Double.MAX_VALUE }
+        val active = loaded.filter { it.status.equals("Active", ignoreCase = true) }
+        val nearbyOnly = !SessionManager(this).isOperator() && origin != null
+        stations = active
+            .filter { station ->
+                if (!nearbyOnly) true
+                else (distances[station.id] ?: Double.MAX_VALUE) <= NEARBY_RADIUS_KM
+            }
+            .let { visible ->
+                if (distances.isEmpty()) visible
+                else visible.sortedBy { distances[it.id] ?: Double.MAX_VALUE }
             }
         adapter.update(stations, distances)
-        findViewById<TextView>(R.id.tv_map_note).text = when {
-            origin != null -> "${stations.size} active stations · nearest first from your live location"
-            else -> "${stations.size} active stations · turn on location for distances"
-        }
+        findViewById<TextView>(R.id.tv_map_note).text = mapNote(origin != null, nearbyOnly)
         plot(stations)
+    }
+
+    private fun mapNote(hasLocation: Boolean, nearbyOnly: Boolean): String {
+        return when {
+            nearbyOnly && stations.isEmpty() ->
+                "No hubs within ${NEARBY_RADIUS_KM.toInt()} km of you"
+            nearbyOnly ->
+                "${stations.size} hubs within ${NEARBY_RADIUS_KM.toInt()} km · nearest first"
+            hasLocation ->
+                "${stations.size} active stations · nearest first from your live location"
+            !SessionManager(this).isOperator() ->
+                "Turn on location to see hubs within ${NEARBY_RADIUS_KM.toInt()} km"
+            else ->
+                "${stations.size} active stations · turn on location for distances"
+        }
+    }
+
+    private fun zoomBy(delta: Double) {
+        mapLibreMap?.animateCamera(CameraUpdateFactory.zoomBy(delta))
+    }
+
+    private fun recenterOnMe() {
+        val origin = userLatLng
+        if (origin == null) {
+            UiAlertUtils.showToast(this, "Turn on live location to show where you are.", UiAlertUtils.AlertType.INFO)
+            if (::locationSwitch.isInitialized && !locationSwitch.isChecked) {
+                locationSwitch.isChecked = true
+            }
+            return
+        }
+        mapLibreMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(origin, 14.0))
     }
 
     private fun plot(stations: List<Station>) {
@@ -330,12 +370,38 @@ class MapActivity : AppCompatActivity() {
         } else {
             existing.setGeoJson(collection)
         }
-
+        plotUser(style)
         frameStations(stations)
+    }
+
+    private fun plotUser(style: Style) {
+        val origin = userLatLng
+        val features = if (origin == null) {
+            emptyList()
+        } else {
+            listOf(Feature.fromGeometry(Point.fromLngLat(origin.longitude, origin.latitude)))
+        }
+        val collection = FeatureCollection.fromFeatures(features)
+        val existing = style.getSourceAs<GeoJsonSource>(USER_SOURCE_ID)
+        if (existing == null) {
+            style.addSource(GeoJsonSource(USER_SOURCE_ID, collection))
+            style.addLayer(
+                CircleLayer(USER_LAYER_ID, USER_SOURCE_ID).withProperties(
+                    circleRadius(7f),
+                    circleColor("#0F172A"),
+                    circleStrokeWidth(3f),
+                    circleStrokeColor("#FBBF24")
+                )
+            )
+        } else {
+            existing.setGeoJson(collection)
+        }
     }
 
     private fun frameStations(stations: List<Station>) {
         val map = mapLibreMap ?: return
+        val hasOrigin = userLatLng != null
+        if (didFrameCamera && (!hasOrigin || framedWithLocation)) return
         val stationPoints = stations.filter { it.hasMapPosition() }.map { LatLng(it.latitude, it.longitude) }
         val points = buildList {
             addAll(stationPoints)
@@ -352,6 +418,8 @@ class MapActivity : AppCompatActivity() {
             mapView.post { frameStations(stations) }
             return
         }
+        didFrameCamera = true
+        framedWithLocation = hasOrigin
         if (points.size == 1) {
             map.cameraPosition = CameraPosition.Builder()
                 .target(points.first())
@@ -462,6 +530,9 @@ class MapActivity : AppCompatActivity() {
     companion object {
         private const val SOURCE_ID = "stations"
         private const val LAYER_ID = "station-circles"
+        private const val USER_SOURCE_ID = "user-location"
+        private const val USER_LAYER_ID = "user-location-circle"
+        private const val NEARBY_RADIUS_KM = 10.0
         private const val STREET_STYLE = "https://tiles.openfreemap.org/styles/liberty"
     }
 }
