@@ -1,7 +1,7 @@
 /*
  * File: StationResponse.cs
  * Description: Public station payload for web and mobile clients.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 19/09/2026
  */
 

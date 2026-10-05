@@ -1,7 +1,7 @@
 /*
  * File: SlotStatuses.cs
  * Description: Availability states for energy booking slots.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 19/09/2026
  */
 

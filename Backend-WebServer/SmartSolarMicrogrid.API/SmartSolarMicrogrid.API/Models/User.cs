@@ -1,7 +1,7 @@
 /*
  * File: User.cs
  * Description: MongoDB document for Backoffice, Grid Operator, and Prosumer accounts.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

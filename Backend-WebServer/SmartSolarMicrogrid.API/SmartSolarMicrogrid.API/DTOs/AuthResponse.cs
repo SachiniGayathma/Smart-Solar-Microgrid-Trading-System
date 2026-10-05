@@ -1,7 +1,7 @@
 /*
  * File: AuthResponse.cs
  * Description: Login/register payload returned to web and mobile clients.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

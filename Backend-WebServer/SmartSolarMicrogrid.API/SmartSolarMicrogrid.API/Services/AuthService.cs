@@ -1,7 +1,7 @@
 /*
  * File: AuthService.cs
  * Description: Registration and login business rules (FAT service layer).
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

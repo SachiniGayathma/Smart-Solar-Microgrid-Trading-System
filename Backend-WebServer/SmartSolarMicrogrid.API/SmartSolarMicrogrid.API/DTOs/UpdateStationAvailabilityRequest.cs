@@ -1,7 +1,7 @@
 /*
  * File: UpdateStationAvailabilityRequest.cs
  * Description: Body for Grid Operators updating battery slot availability.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 19/09/2026
  */
 

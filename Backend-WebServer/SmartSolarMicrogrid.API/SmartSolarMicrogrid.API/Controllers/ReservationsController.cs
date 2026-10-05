@@ -1,7 +1,7 @@
 /*
  * File: ReservationsController.cs
  * Description: HTTP endpoints for energy reservations, dashboard, QR, and operator scan.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 19/09/2026
  */
 

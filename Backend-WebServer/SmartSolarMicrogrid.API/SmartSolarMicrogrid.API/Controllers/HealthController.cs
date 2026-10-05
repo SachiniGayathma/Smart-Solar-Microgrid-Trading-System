@@ -1,7 +1,7 @@
 /*
  * File: HealthController.cs
  * Description: Checks whether the API can ping MongoDB.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

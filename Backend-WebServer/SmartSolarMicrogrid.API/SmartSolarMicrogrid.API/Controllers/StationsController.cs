@@ -1,7 +1,7 @@
 /*
  * File: StationsController.cs
  * Description: HTTP endpoints for microgrid node management.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 19/09/2026
  */
 

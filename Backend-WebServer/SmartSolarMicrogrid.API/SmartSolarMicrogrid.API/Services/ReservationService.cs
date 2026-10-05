@@ -1,7 +1,7 @@
 /*
  * File: ReservationService.cs
  * Description: Reservation business rules: 7-day window, 12-hour notice, QR, and completion.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 19/09/2026
  */
 

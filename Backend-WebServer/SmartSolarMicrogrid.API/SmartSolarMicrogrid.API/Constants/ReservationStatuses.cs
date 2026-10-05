@@ -1,7 +1,7 @@
 /*
  * File: ReservationStatuses.cs
  * Description: Booking states used to block station deactivation when work is still active.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 19/09/2026
  */
 

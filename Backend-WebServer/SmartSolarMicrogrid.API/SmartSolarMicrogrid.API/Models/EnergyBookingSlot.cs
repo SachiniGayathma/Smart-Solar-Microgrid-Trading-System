@@ -1,7 +1,7 @@
 /*
  * File: EnergyBookingSlot.cs
  * Description: MongoDB document for an energy booking slot at a station.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

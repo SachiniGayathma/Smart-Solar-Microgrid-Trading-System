@@ -1,7 +1,7 @@
 /*
  * File: DatabaseSeeder.cs
  * Description: Creates unique indexes and a default Backoffice account for first login.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

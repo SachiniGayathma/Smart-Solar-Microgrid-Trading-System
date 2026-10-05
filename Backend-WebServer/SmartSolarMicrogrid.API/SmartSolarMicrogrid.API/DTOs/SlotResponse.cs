@@ -1,7 +1,7 @@
 /*
  * File: SlotResponse.cs
  * Description: Public energy-slot payload for web and mobile clients.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 19/09/2026
  */
 

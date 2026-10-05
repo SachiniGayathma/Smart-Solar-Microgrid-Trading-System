@@ -1,7 +1,7 @@
 /*
  * File: AuthController.cs
  * Description: HTTP endpoints for prosumer registration and login.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

@@ -1,7 +1,7 @@
 /*
  * File: VerifyQrRequest.cs
  * Description: Body for a Grid Operator scanning a prosumer QR code.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 19/09/2026
  */
 

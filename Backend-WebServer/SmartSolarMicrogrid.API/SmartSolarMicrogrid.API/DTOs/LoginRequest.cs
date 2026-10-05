@@ -1,7 +1,7 @@
 /*
  * File: LoginRequest.cs
  * Description: Body for login using email or NIC plus password.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

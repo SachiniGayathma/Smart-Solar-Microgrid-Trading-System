@@ -1,7 +1,7 @@
 /*
  * File: SolarStationInfo.cs
  * Description: MongoDB document for a microgrid hub / solar station.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

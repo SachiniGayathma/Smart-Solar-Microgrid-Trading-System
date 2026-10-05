@@ -1,7 +1,7 @@
 /*
  * File: UserRepository.cs
  * Description: MongoDB access for the Users collection only.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

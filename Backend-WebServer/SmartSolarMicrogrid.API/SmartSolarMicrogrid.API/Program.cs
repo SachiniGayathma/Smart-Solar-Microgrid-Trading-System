@@ -1,7 +1,7 @@
 /*
  * File: Program.cs
  * Description: Application startup: MongoDB, JWT authentication, CORS, and HTTP pipeline.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

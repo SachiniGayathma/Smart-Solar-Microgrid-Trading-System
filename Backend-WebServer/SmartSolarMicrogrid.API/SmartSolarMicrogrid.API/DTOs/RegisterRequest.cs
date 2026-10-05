@@ -1,7 +1,7 @@
 /*
  * File: RegisterRequest.cs
  * Description: Body for prosumer self-registration from the mobile app.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

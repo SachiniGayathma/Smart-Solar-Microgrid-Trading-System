@@ -1,7 +1,7 @@
 /*
  * File: UserRoles.cs
  * Description: Allowed account roles for the Smart Solar API.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

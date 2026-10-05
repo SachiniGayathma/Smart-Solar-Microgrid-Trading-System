@@ -1,7 +1,7 @@
 /*
  * File: UserStatuses.cs
  * Description: Account lifecycle states used by registration and Backoffice review.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

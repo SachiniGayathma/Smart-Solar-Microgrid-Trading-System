@@ -1,7 +1,7 @@
 /*
  * File: StationRequest.cs
  * Description: Body for creating or updating a microgrid station.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 19/09/2026
  */
 

@@ -1,7 +1,7 @@
 /*
  * File: ReservationResponse.cs
  * Description: Public reservation payload, including QR after approval.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 19/09/2026
  */
 

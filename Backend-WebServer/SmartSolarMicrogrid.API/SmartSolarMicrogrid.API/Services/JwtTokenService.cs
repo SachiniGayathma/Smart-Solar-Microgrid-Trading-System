@@ -1,7 +1,7 @@
 /*
  * File: JwtTokenService.cs
  * Description: Creates signed JWT tokens that web and mobile send on later requests.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

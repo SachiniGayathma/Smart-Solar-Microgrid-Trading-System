@@ -1,7 +1,7 @@
 /*
  * File: UserService.cs
  * Description: User management rules for Backoffice and self-service profile edits.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

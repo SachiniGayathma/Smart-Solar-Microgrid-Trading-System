@@ -1,7 +1,7 @@
 /*
  * File: EnergyReservation.cs
  * Description: MongoDB document for a prosumer energy reservation.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

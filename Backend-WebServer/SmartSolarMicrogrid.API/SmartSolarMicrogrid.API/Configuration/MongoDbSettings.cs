@@ -1,7 +1,7 @@
 /*
  * File: MongoDbSettings.cs
  * Description: Holds MongoDB connection values loaded from appsettings.json.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

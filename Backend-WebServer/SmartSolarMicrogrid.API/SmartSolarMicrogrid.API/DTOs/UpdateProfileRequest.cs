@@ -1,7 +1,7 @@
 /*
  * File: UpdateProfileRequest.cs
  * Description: Body for a logged-in user editing their own profile.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

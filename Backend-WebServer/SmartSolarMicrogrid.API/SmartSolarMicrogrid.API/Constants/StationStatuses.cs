@@ -1,7 +1,7 @@
 /*
  * File: StationStatuses.cs
  * Description: Lifecycle states for microgrid hubs.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 19/09/2026
  */
 

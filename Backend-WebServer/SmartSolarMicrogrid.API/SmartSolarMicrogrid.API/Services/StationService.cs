@@ -1,7 +1,7 @@
 /*
  * File: StationService.cs
  * Description: Microgrid node rules including the blocked-deactivation check.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 19/09/2026
  */
 

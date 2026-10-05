@@ -1,7 +1,7 @@
 /*
  * File: UserResponse.cs
  * Description: Safe user view returned by APIs (never includes password hash).
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

@@ -1,7 +1,7 @@
 /*
  * File: JwtSettings.cs
  * Description: JWT signing and expiry values loaded from appsettings.json.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 

@@ -1,7 +1,7 @@
 /*
  * File: SlotService.cs
  * Description: Energy booking slot rules, including blocked delete when reservations exist.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 19/09/2026
  */
 

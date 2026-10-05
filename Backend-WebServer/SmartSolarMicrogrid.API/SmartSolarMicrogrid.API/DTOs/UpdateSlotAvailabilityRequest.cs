@@ -1,7 +1,7 @@
 /*
  * File: UpdateSlotAvailabilityRequest.cs
  * Description: Body for operators changing remaining slot capacity.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 19/09/2026
  */
 

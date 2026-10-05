@@ -1,7 +1,7 @@
 /*
  * File: UsersController.cs
  * Description: HTTP endpoints for Backoffice user admin and self-service profile actions.
- * Author: Dhiyanah Liyaudeen
+ * Author: LIYAUDEEN D.H
  * Created: 17/09/2026
  */
 
