@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true"
+    android:background="@color/solar_bg"
+    tools:context=".prosumer.LoginActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="40dp"
+        android:paddingBottom="40dp">
+
+        <!-- Solar Microgrid Branding Badge Container -->
+        <FrameLayout
+            android:id="@+id/frame_login_logo"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="@drawable/bg_logo_badge"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_login_logo"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_solar_bolt"
+                app:tint="@color/solar_green_primary"
+                android:contentDescription="Smart Solar Logo" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tv_login_brand_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_pill_badge"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="4dp"
+            android:text="SMART SOLAR MICROGRID"
+            android:textColor="@color/solar_green_primary"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.08"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/frame_login_logo" />
+
+        <!-- Title & Subtitle -->
+        <TextView
+            android:id="@+id/tv_login_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Prosumer Sign In"
+            android:textColor="@color/solar_slate_dark"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_login_brand_badge" />
+
+        <TextView
+            android:id="@+id/tv_login_subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Access your clean energy trading portal, slot reservations, and microgrid transaction QR codes."
+            android:textAlignment="center"
+            android:textColor="@color/solar_slate_body"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_login_title" />
+
+        <!-- Role Selection Pill Capsule Container -->
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggle_group_role"
+            android:layout_width="0dp"
+            android:layout_height="46dp"
+            android:layout_marginTop="20dp"
+            app:checkedButton="@id/btn_role_prosumer"
+            app:cornerRadius="23dp"
+            app:selectionRequired="true"
+            app:singleSelection="true"
+            app:strokeColor="@color/solar_border"
+            app:strokeWidth="1dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_login_subtitle">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_role_prosumer"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Solar Prosumer"
+                android:textAllCaps="false"
+                android:textSize="12.5sp"
+                android:textStyle="bold"
+                android:textColor="@color/role_toggle_btn_text"
+                app:backgroundTint="@color/role_toggle_btn_bg"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingHorizontal="4dp"
+                android:paddingVertical="0dp"
+                app:icon="@drawable/ic_solar_bolt"
+                app:iconGravity="textStart"
+                app:iconPadding="4dp"
+                app:iconSize="15dp"
+                app:iconTint="@color/role_toggle_btn_text"
+                app:rippleColor="#20FFFFFF"
+                app:strokeWidth="0dp"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="10sp"
+                app:autoSizeMaxTextSize="13sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_role_operator"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Grid Operator"
+                android:textAllCaps="false"
+                android:textSize="12.5sp"
+                android:textStyle="bold"
+                android:textColor="@color/role_toggle_btn_text"
+                app:backgroundTint="@color/role_toggle_btn_bg"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingHorizontal="4dp"
+                android:paddingVertical="0dp"
+                app:icon="@drawable/ic_person"
+                app:iconGravity="textStart"
+                app:iconPadding="4dp"
+                app:iconSize="15dp"
+                app:iconTint="@color/role_toggle_btn_text"
+                app:rippleColor="#20FFFFFF"
+                app:strokeWidth="0dp"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="10sp"
+                app:autoSizeMaxTextSize="13sp" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <!-- Login Form Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_login_form"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="@dimen/card_corner_radius"
+            app:cardElevation="3dp"
+            app:cardBackgroundColor="@color/solar_surface"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toggle_group_role">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="22dp">
+
+                <!-- Identifier Input -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_login_identifier"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="NIC or Email Address"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="@color/solar_green_primary"
+                    app:hintTextColor="@color/solar_green_primary"
+                    app:startIconDrawable="@drawable/ic_badge_nic"
+                    app:startIconTint="@color/solar_green_primary">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_login_identifier"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Password Input -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_login_password"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:hint="Password"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="@color/solar_green_primary"
+                    app:hintTextColor="@color/solar_green_primary"
+                    app:endIconMode="password_toggle"
+                    app:errorIconDrawable="@null"
+                    app:startIconDrawable="@drawable/ic_lock"
+                    app:startIconTint="@color/solar_green_primary">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_login_password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPassword"
+                        android:maxLines="1"
+                        android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Login Button Container with Spinner -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="22dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_login"
+                        android:layout_width="match_parent"
+                        android:layout_height="54dp"
+                        android:text="Sign In"
+                        android:textAllCaps="false"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        app:cornerRadius="@dimen/btn_corner_radius"
+                        app:backgroundTint="@color/solar_green_primary" />
+
+                    <ProgressBar
+                        android:id="@+id/pb_login"
+                        style="?android:attr/progressBarStyleSmall"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center_vertical|end"
+                        android:layout_marginEnd="18dp"
+                        android:elevation="6dp"
+                        android:indeterminateTint="@color/white"
+                        android:visibility="gone" />
+                </FrameLayout>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Register Navigation Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_to_register"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Don't have an account? Register as Prosumer"
+            android:textAllCaps="false"
+            android:textColor="@color/solar_green_primary"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/card_login_form" />
+
+        <!-- Operator Registration Info Notice (Operator mode only) -->
+        <LinearLayout
+            android:id="@+id/layout_operator_notice"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_info_card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/card_login_form">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_info_circle"
+                app:tint="@color/solar_green_primary"
+                android:contentDescription="Info" />
+
+            <TextView
+                android:id="@+id/tv_operator_notice"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:lineSpacingExtra="2dp"
+                android:text="Grid Operator accounts are provisioned exclusively by Backoffice administrators on the Web Portal."
+                android:textColor="@color/solar_slate_heading"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

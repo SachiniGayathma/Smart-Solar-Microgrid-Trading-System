@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_modern_dialog_card"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Top Badge Icon: Amber Clock -->
+    <FrameLayout
+        android:id="@+id/layout_pending_icon_bg"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:background="@drawable/bg_dialog_circle"
+        android:backgroundTint="@color/solar_amber_container">
+
+        <ImageView
+            android:id="@+id/iv_pending_icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:contentDescription="Pending Approval"
+            android:src="@drawable/ic_clock"
+            app:tint="@color/solar_amber_primary" />
+    </FrameLayout>
+
+    <!-- Dialog Title -->
+    <TextView
+        android:id="@+id/tv_pending_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="QR Pass Awaiting Approval"
+        android:textAlignment="center"
+        android:textColor="@color/solar_slate_dark"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <!-- Status Pill Badge -->
+    <TextView
+        android:id="@+id/tv_pending_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_pill_badge_amber"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="5dp"
+        android:text="⏳ STATUS: PENDING APPROVAL"
+        android:textColor="@color/solar_amber_primary"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.04" />
+
+    <!-- Explanatory Message -->
+    <TextView
+        android:id="@+id/tv_pending_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:lineSpacingMultiplier="1.25"
+        android:text="Per microgrid trading rules, transaction QR passes are generated and activated once your energy reservation is approved by Backoffice on the Web Management Portal."
+        android:textAlignment="center"
+        android:textColor="@color/solar_slate_body"
+        android:textSize="13.5sp" />
+
+    <!-- Real-Time Info Tip Card -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/bg_pill_badge_amber"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="10dp">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_info_circle"
+            app:tint="@color/solar_amber_primary"
+            android:contentDescription="Info" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="You can refresh approval status now or preview your pending pass credentials."
+            android:textColor="@color/solar_slate_heading"
+            android:textSize="12sp"
+            android:lineSpacingMultiplier="1.15" />
+    </LinearLayout>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_pending_check_status"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:backgroundTint="@color/solar_green_primary"
+            android:text="Check Status Now"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="14.5sp"
+            android:textStyle="bold"
+            app:cornerRadius="12dp"
+            app:icon="@drawable/ic_solar_bolt"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconSize="18dp"
+            app:iconTint="@color/white" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_pending_preview_pass"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginTop="8dp"
+            android:text="Preview Pass"
+            android:textAllCaps="false"
+            android:textColor="@color/solar_slate_heading"
+            android:textSize="13.5sp"
+            android:textStyle="bold"
+            app:strokeColor="@color/solar_border"
+            app:strokeWidth="1.5dp"
+            app:cornerRadius="12dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_pending_dismiss"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="4dp"
+            android:text="Close"
+            android:textAllCaps="false"
+            android:textColor="@color/solar_slate_muted"
+            android:textSize="13.5sp" />
+    </LinearLayout>
+</LinearLayout>
