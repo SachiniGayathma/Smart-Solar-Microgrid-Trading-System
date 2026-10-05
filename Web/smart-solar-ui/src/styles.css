@@ -501,8 +501,6 @@ label input, label select, label textarea { font-weight: 400; width: 100%; }
 .api-status i { font-size: 0.55rem; }
 .api-status.is-online { color: var(--ok); }
 .api-status.is-offline { color: var(--stop); }
-.demo-note { margin-top: 18px; color: var(--muted); font-size: 0.85rem; }
-.demo-note summary { cursor: pointer; }
 
 @media (max-width: 1100px) {
   .kpi-grid, .kpi-grid.secondary, .split { grid-template-columns: 1fr 1fr; }
